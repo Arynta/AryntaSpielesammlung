@@ -1,0 +1,30 @@
+{
+  "teams": [
+    { "id": "DORF", "name": "Das Dorf" },
+    { "id": "WOELFE", "name": "Die Werwölfe" },
+    { "id": "NEUTRAL", "name": "Einzelspieler" }
+  ],
+  "roles": [
+    { "id": "DORFBEWOHNER", "name": "Dorfbewohner", "team": "DORF", "description": "Du hast keine besonderen Fähigkeiten. Entlarve die Werwölfe durch Logik und Diskussion." },
+    { "id": "SEHERIN", "name": "Seherin", "team": "DORF", "description": "Du darfst jede Nacht die wahre Identität eines Spielers erfahren." },
+    { "id": "HEXE", "name": "Hexe", "team": "DORF", "description": "Du hast einen Heiltrank, mit dem du ein Wolfsopfer retten kannst, und einen Gifttrank, mit dem du einen Spieler tötest." },
+    { "id": "JAEGER", "name": "Jäger", "team": "DORF", "description": "Stirbst du, darfst du sofort einen letzten Schuss abfeuern und einen beliebigen Spieler mitnehmen." },
+    { "id": "AMOR", "name": "Amor", "team": "DORF", "description": "In der ersten Nacht bestimmst du zwei Verliebte. Stirbt einer von beiden, stirbt der andere aus Liebeskummer sofort mit." },
+    { "id": "LEIBWAECHTER", "name": "Leibwächter", "team": "DORF", "description": "Du schützt jede Nacht einen Spieler vor dem Wolfsangriff, aber nicht zweimal hintereinander denselben." },
+    { "id": "KLEINES_MAEDCHEN", "name": "Kleines Mädchen", "team": "DORF", "description": "Du darfst nachts heimlich blinzeln, um die Werwölfe zu beobachten." },
+    { "id": "ALTER_MANN", "name": "Alter Mann", "team": "DORF", "description": "Du hältst einen zusätzlichen Werwolf-Angriff aus. Stirbst du aber durch das Dorf, verliert das Dorf seine Spezialkräfte." },
+    { "id": "BAERENFUEHRER", "name": "Bärenführer", "team": "DORF", "description": "Du hast einen Bären. Knurrt er, sitzt mindestens ein Werwolf direkt neben dir." },
+    { "id": "RABE", "name": "Rabe", "team": "DORF", "description": "Du markierst jede Nacht einen Spieler mit Rabenfedern. Er bekommt am nächsten Tag Zusatzstimmen gegen sich." },
+    { "id": "SUENDENBOCK", "name": "Sündenbock", "team": "DORF", "description": "Endet die Abstimmung am Tag unentschieden, stirbst immer du." },
+    { "id": "DIEB", "name": "Dieb", "team": "DORF", "description": "Zu Spielbeginn darfst du deine Karte gegen eine der zwei übrigen Karten tauschen." },
+    { "id": "WERWOLF", "name": "Werwolf", "team": "WOELFE", "wolfPack": true, "description": "Du wachst nachts auf und tötest gemeinsam mit den anderen Wölfen einen Dorfbewohner." },
+    { "id": "URWOLF", "name": "Urwolf", "team": "WOELFE", "wolfPack": true, "description": "Einmal im Spiel darfst du ein Opfer nicht fressen, sondern in einen Werwolf verwandeln." },
+    { "id": "GROSSER_BOESER_WOLF", "name": "Großer böser Wolf", "team": "WOELFE", "wolfPack": true, "description": "Solange noch kein Werwolf gestorben ist, darfst du jede Nacht ein zweites Opfer fressen." },
+    { "id": "WOLFSHUND", "name": "Wolfshund", "team": "WOELFE", "description": "In der ersten Nacht entscheidest du, ob du ein normaler Dorfbewohner oder ein Werwolf bist." },
+    { "id": "WILDES_KIND", "name": "Wildes Kind", "team": "WOELFE", "description": "Du wählst ein Vorbild. Stirbt es, wirst du zum Werwolf." },
+    { "id": "GUENSTLING", "name": "Günstling", "team": "WOELFE", "seesWolfPack": true, "description": "Du kennst die Werwölfe und hilfst ihnen zu gewinnen. Sie kennen dich nicht, und für die Seherin giltst du als Mensch." },
+    { "id": "WEISSER_WERWOLF", "name": "Weißer Werwolf", "team": "NEUTRAL", "wolfPack": true, "description": "Du wachst mit den Wölfen auf, darfst aber jede zweite Nacht zusätzlich ein Opfer töten, gerne auch einen Wolf. Du gewinnst nur, wenn du als Letzter überlebst." },
+    { "id": "FLOETENSPIELER", "name": "Flötenspieler", "team": "NEUTRAL", "description": "Du verzauberst nachts Spieler. Sind alle noch lebenden Spieler verzaubert, gewinnst du allein." },
+    { "id": "ENGEL", "name": "Engel", "team": "NEUTRAL", "description": "Wirst du gleich in der ersten Runde vom Dorf gelyncht, gewinnst du sofort. Sonst wirst du ein normaler Dorfbewohner." }
+  ]
+}

@@ -45,12 +45,19 @@ class ImpostorTest {
         return (ImpostorGame) room.game();
     }
 
+    /** Der Impostor, wenn es genau einen gibt. */
+    private static String impostorOf(Room room) {
+        Set<String> ids = game(room).impostorIds();
+        assertEquals(1, ids.size());
+        return ids.iterator().next();
+    }
+
     /** Erster Mitspieler, der weder der Impostor noch in {@code except} ist. */
     private static String crewMember(Room room, String... except) {
         Set<String> skip = Set.of(except);
         return room.players().stream()
                 .map(Player::id)
-                .filter(id -> !id.equals(game(room).impostorId()) && !skip.contains(id))
+                .filter(id -> !id.equals(impostorOf(room)) && !skip.contains(id))
                 .findFirst()
                 .orElseThrow();
     }
@@ -65,13 +72,13 @@ class ImpostorTest {
         String a = crewMember(room);
         String b = crewMember(room, a);
         String c = crewMember(room, a, b);
-        return new Four(room, game(room).impostorId(), a, b, c);
+        return new Four(room, impostorOf(room), a, b, c);
     }
 
     private Room finishedRound() {
         Room room = started("A", "B", "C");
         room.startVoting("p1");
-        String impostor = game(room).impostorId();
+        String impostor = impostorOf(room);
         for (Player p : room.players()) {
             room.vote(p.id(), p.id().equals(impostor) ? crewMember(room) : impostor);
         }
@@ -125,14 +132,14 @@ class ImpostorTest {
     @Test
     void impostorSiehtKategorieNurWennEingeschaltet() {
         Room mitKategorie = started("A", "B", "C");
-        String impostor = game(mitKategorie).impostorId();
+        String impostor = impostorOf(mitKategorie);
         assertNotNull(mitKategorie.viewFor(impostor).impostor().category());
 
         Room ohneKategorie = lobby("A", "B", "C");
         ohneKategorie.configureImpostor("p1", false, "");
         allReady(ohneKategorie);
         ohneKategorie.start("p1", new Random(3));
-        String impostor2 = game(ohneKategorie).impostorId();
+        String impostor2 = impostorOf(ohneKategorie);
         assertNull(ohneKategorie.viewFor(impostor2).impostor().category());
     }
 
@@ -159,7 +166,7 @@ class ImpostorTest {
         assertEquals(ImpostorGame.Part.GAME_MASTER, hostView.part());
         assertEquals("Leuchtturm", hostView.word());
         assertFalse(hostView.participantIds().contains("p1"));
-        assertNotEquals("p1", game(room).impostorId());
+        assertNotEquals("p1", impostorOf(room));
     }
 
     @Test
@@ -215,7 +222,7 @@ class ImpostorTest {
         Room room = finishedRound();
         RoomView.ImpostorResult result = room.viewFor("p2").impostor().result();
         assertTrue(result.impostorCaught());
-        assertEquals(game(room).impostorId(), result.impostorId());
+        assertEquals(impostorOf(room), result.impostorIds().getFirst());
         assertEquals(game(room).secret().word(), result.word());
     }
 
@@ -281,7 +288,7 @@ class ImpostorTest {
         Room room = started("A", "B", "C");
         room.startVoting("p1");
         String voter = crewMember(room);
-        String target = game(room).impostorId();
+        String target = impostorOf(room);
         room.vote(voter, target);
 
         RoomView.ImpostorView other = room.viewFor(target).impostor();
@@ -375,10 +382,94 @@ class ImpostorTest {
 
     private static void finishVoting(Room room) {
         room.startVoting("p1");
-        String impostor = game(room).impostorId();
+        String impostor = impostorOf(room);
         for (Player p : room.players()) {
             room.vote(p.id(), p.id().equals(impostor) ? crewMember(room) : impostor);
         }
+    }
+
+    // ---- Mehrere Impostor und Startspieler -----------------------------
+
+    private Room startedWithOptions(int impostors, boolean randomStart, int seed, String... names) {
+        Room room = lobby(names);
+        room.setPlayerLimit("p1", Room.MAX_PLAYERS);
+        room.setImpostorOptions("p1", impostors, randomStart);
+        allReady(room);
+        room.start("p1", new Random(seed));
+        return room;
+    }
+
+    @Test
+    void mehrereImpostorKennenSichGegenseitig() {
+        Room room = startedWithOptions(2, true, 3, "A", "B", "C", "D", "E", "F");
+        Set<String> impostors = game(room).impostorIds();
+        assertEquals(2, impostors.size());
+        for (Player p : room.players()) {
+            List<String> fellows = room.viewFor(p.id()).impostor().fellowImpostors();
+            if (impostors.contains(p.id())) {
+                assertEquals(1, fellows.size());
+                assertNotEquals(p.name(), fellows.getFirst());
+            } else {
+                assertTrue(fellows.isEmpty(), "Die Crew erfährt nichts über die Impostor");
+            }
+        }
+    }
+
+    @Test
+    void zweiImpostorBrauchenSechsMitspieler() {
+        Room room = lobby("A", "B", "C", "D", "E");
+        room.setImpostorOptions("p1", 2, true);
+        allReady(room);
+        assertEquals("Für 2 Impostor braucht es mindestens 6 Mitspieler.", room.viewFor("p1").startHint());
+        assertThrows(GameException.class, () -> room.start("p1", new Random(1)));
+    }
+
+    @Test
+    void impostorAnzahlHatGrenzen() {
+        Room room = lobby("A", "B", "C");
+        assertThrows(GameException.class, () -> room.setImpostorOptions("p1", 0, true));
+        assertThrows(GameException.class, () -> room.setImpostorOptions("p1", ImpostorOptions.MAX_IMPOSTORS + 1, true));
+        assertThrows(GameException.class, () -> room.setImpostorOptions("p2", 1, true));
+    }
+
+    @Test
+    void impostorOptionenSetzenBereitZurueck() {
+        Room room = lobby("A", "B", "C");
+        allReady(room);
+        room.setImpostorOptions("p1", 1, false);
+        room.players().forEach(p -> assertFalse(p.ready()));
+        assertFalse(room.viewFor("p2").impostorSettings().randomStartPlayer());
+    }
+
+    @Test
+    void startspielerIstNieEinImpostor() {
+        for (int seed = 0; seed < 40; seed++) {
+            Room room = startedWithOptions(2, true, seed, "A", "B", "C", "D", "E", "F");
+            String start = game(room).startPlayerId();
+            assertNotNull(start);
+            assertFalse(game(room).impostorIds().contains(start));
+            assertEquals(start, room.viewFor("p2").impostor().startPlayerId());
+        }
+    }
+
+    @Test
+    void ohneStartspielerWirdKeinerGelost() {
+        Room room = startedWithOptions(1, false, 3, "A", "B", "C");
+        assertNull(game(room).startPlayerId());
+    }
+
+    @Test
+    void einErwischterImpostorReichtFuerDieCrew() {
+        Room room = startedWithOptions(2, true, 5, "A", "B", "C", "D", "E", "F");
+        room.startVoting("p1");
+        String target = game(room).impostorIds().iterator().next();
+        String other = room.players().stream().map(Player::id).filter(id -> !id.equals(target)).findFirst().orElseThrow();
+        for (Player p : room.players()) {
+            room.vote(p.id(), p.id().equals(target) ? other : target);
+        }
+        RoomView.ImpostorResult result = room.viewFor("p1").impostor().result();
+        assertTrue(result.impostorCaught());
+        assertEquals(2, result.impostorNames().size());
     }
 
     @Test

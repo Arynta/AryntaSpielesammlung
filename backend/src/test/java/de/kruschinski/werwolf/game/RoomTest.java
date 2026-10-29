@@ -11,6 +11,7 @@ import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -277,15 +278,25 @@ class RoomTest {
 
     @Test
     void rollenverteilungPasstZurSpielerzahl() {
-        assertEquals(1, count(RoleDistribution.rolesFor(4), Role.WERWOLF));
-        assertEquals(1, count(RoleDistribution.rolesFor(7), Role.WERWOLF));
-        assertEquals(2, count(RoleDistribution.rolesFor(8), Role.WERWOLF));
-        assertEquals(3, count(RoleDistribution.rolesFor(12), Role.WERWOLF));
+        List<String> seer = List.of(WerwolfRoles.SEER);
+        assertEquals(1, count(RoleDistribution.cardsFor(4, null, seer), WerwolfRoles.WEREWOLF));
+        assertEquals(1, count(RoleDistribution.cardsFor(7, null, seer), WerwolfRoles.WEREWOLF));
+        assertEquals(2, count(RoleDistribution.cardsFor(8, null, seer), WerwolfRoles.WEREWOLF));
+        assertEquals(3, count(RoleDistribution.cardsFor(12, null, seer), WerwolfRoles.WEREWOLF));
         for (int n = GameType.WERWOLF.minPlayers(); n <= Room.MAX_PLAYERS; n++) {
-            List<Role> roles = RoleDistribution.rolesFor(n);
+            List<Role> roles = RoleDistribution.cardsFor(n, null, seer);
             assertEquals(n, roles.size());
-            assertEquals(1, count(roles, Role.SEHERIN));
+            assertEquals(1, count(roles, WerwolfRoles.SEER));
         }
+    }
+
+    @Test
+    void standardIstAutomatischMitSeherin() {
+        RoomView.WerwolfSettings settings = roomWith("A", "B", "C", "D").viewFor("p2").werwolfSettings();
+        assertNull(settings.werewolfCount());
+        assertEquals(1, settings.effectiveWerewolfCount());
+        assertEquals(List.of(WerwolfRoles.SEER), settings.selectedRoles());
+        assertFalse(settings.hostIsGameMaster());
     }
 
     @Test
@@ -296,8 +307,8 @@ class RoomTest {
         assertEquals(1, room.round());
         WerwolfGame game = (WerwolfGame) room.game();
         List<Role> roles = room.players().stream().map(p -> game.roleOf(p.id())).toList();
-        assertEquals(2, count(roles, Role.WERWOLF));
         assertFalse(roles.contains(null));
+        assertEquals(2, count(roles, WerwolfRoles.WEREWOLF));
     }
 
     @Test
@@ -308,12 +319,123 @@ class RoomTest {
         for (Player p : room.players()) {
             RoomView view = room.viewFor(p.id());
             assertNull(view.impostor());
-            assertEquals(game.roleOf(p.id()), view.werwolf().role());
-            if (game.roleOf(p.id()) == Role.WERWOLF) {
-                assertEquals(1, view.werwolf().fellowWerewolves().size(), "Werwolf soll den anderen Werwolf kennen");
+            assertNull(view.werwolf().overview(), "Nur die Spielleitung sieht alle Rollen");
+            assertEquals(game.roleOf(p.id()).id(), view.werwolf().role().id());
+            if (game.roleOf(p.id()).wolfPack()) {
+                assertEquals(1, view.werwolf().knownWolves().size(), "Werwolf soll den anderen Werwolf kennen");
             } else {
-                assertTrue(view.werwolf().fellowWerewolves().isEmpty(), "Nur Werwölfe kennen Werwölfe");
+                assertTrue(view.werwolf().knownWolves().isEmpty(), "Nur Werwölfe kennen Werwölfe");
             }
+        }
+    }
+
+    @Test
+    void gewaehlteRollenKommenInsSpiel() {
+        Room room = roomWith("A", "B", "C", "D", "E", "F");
+        room.configureWerwolf("p1", 2, List.of("JAEGER", "HEXE"), false);
+        allReady(room);
+        room.start("p1", new Random(1));
+
+        WerwolfGame game = (WerwolfGame) room.game();
+        List<Role> roles = room.players().stream().map(p -> game.roleOf(p.id())).toList();
+        assertEquals(2, count(roles, WerwolfRoles.WEREWOLF));
+        assertEquals(1, count(roles, "HEXE"));
+        assertEquals(1, count(roles, "JAEGER"));
+        assertEquals(0, count(roles, WerwolfRoles.SEER));
+        assertEquals(2, count(roles, WerwolfRoles.VILLAGER));
+        assertTrue(game.leftover().isEmpty());
+        // Reihenfolge wie in der Rollenliste, egal wie sie geschickt wurde
+        assertEquals(List.of("HEXE", "JAEGER"), room.viewFor("p1").werwolfSettings().selectedRoles());
+    }
+
+    @Test
+    void zuVieleRollenBlockierenDenStart() {
+        Room room = roomWith("A", "B", "C", "D");
+        room.configureWerwolf("p1", 2, List.of(WerwolfRoles.SEER, "HEXE", "JAEGER"), false);
+        allReady(room);
+        assertEquals("Zu viele Rollen: 5 Rollen für 4 Spieler. Nimm Rollen raus oder weniger Werwölfe.",
+                room.viewFor("p1").startHint());
+        assertThrows(GameException.class, () -> room.start("p1", new Random(1)));
+    }
+
+    @Test
+    void falscheRollenauswahlWirdAbgelehnt() {
+        Room room = roomWith("A", "B", "C", "D");
+        assertThrows(GameException.class, () -> room.configureWerwolf("p1", null, List.of("QUATSCH"), false));
+        assertThrows(GameException.class, () -> room.configureWerwolf("p1", null, List.of(WerwolfRoles.VILLAGER), false));
+        assertThrows(GameException.class, () -> room.configureWerwolf("p1", 0, List.of(), false));
+        assertThrows(GameException.class, () -> room.configureWerwolf("p2", null, List.of(), false));
+    }
+
+    @Test
+    void diebSiehtDieZweiUebrigenKarten() {
+        assertEquals(6, RoleDistribution.cardsFor(4, null, List.of(WerwolfRoles.THIEF)).size());
+        for (int seed = 0; seed < 30; seed++) {
+            Room room = roomWith("A", "B", "C", "D", "E");
+            room.configureWerwolf("p1", null, List.of(WerwolfRoles.THIEF), false);
+            allReady(room);
+            room.start("p1", new Random(seed));
+            WerwolfGame game = (WerwolfGame) room.game();
+            assertEquals(2, game.leftover().size());
+            for (Player p : room.players()) {
+                RoomView.WerwolfView view = room.viewFor(p.id()).werwolf();
+                boolean thief = game.roleOf(p.id()).id().equals(WerwolfRoles.THIEF);
+                assertEquals(thief ? 2 : 0, view.leftoverRoles().size());
+            }
+        }
+    }
+
+    @Test
+    void guenstlingKenntDasRudelAberDasRudelNichtIhn() {
+        Room room = roomWith("A", "B", "C", "D", "E", "F");
+        room.configureWerwolf("p1", 1, List.of("URWOLF", "GUENSTLING"), false);
+        allReady(room);
+        room.start("p1", new Random(9));
+        WerwolfGame game = (WerwolfGame) room.game();
+
+        for (Player p : room.players()) {
+            Role role = game.roleOf(p.id());
+            List<String> known = room.viewFor(p.id()).werwolf().knownWolves();
+            if (role.id().equals("GUENSTLING")) {
+                assertEquals(2, known.size());
+            } else if (role.wolfPack()) {
+                assertEquals(1, known.size(), "Werwolf und Urwolf kennen sich, den Günstling nicht");
+            } else {
+                assertTrue(known.isEmpty());
+            }
+        }
+    }
+
+    @Test
+    void spielleitungSiehtAlleRollenUndSpieltNichtMit() {
+        Room room = roomWith("A", "B", "C", "D", "E");
+        room.configureWerwolf("p1", null, List.of(WerwolfRoles.SEER), true);
+        allReady(room);
+        room.start("p1", new Random(4));
+
+        RoomView.WerwolfView host = room.viewFor("p1").werwolf();
+        assertTrue(host.gameMaster());
+        assertNull(host.role());
+        assertEquals(4, host.overview().size());
+        assertTrue(host.overview().stream().noneMatch(a -> a.playerId().equals("p1")));
+        assertNull(((WerwolfGame) room.game()).roleOf("p1"));
+    }
+
+    @Test
+    void spielleitungBrauchtEinenSpielerMehr() {
+        Room room = roomWith("A", "B", "C", "D");
+        room.configureWerwolf("p1", null, List.of(WerwolfRoles.SEER), true);
+        allReady(room);
+        assertEquals("Noch 1 Spieler (ohne Spielleitung), dann kann es losgehen.", room.viewFor("p1").startHint());
+    }
+
+    @Test
+    void rollendateiIstVollstaendig() {
+        assertEquals(19, WerwolfRoles.specialRoles().size());
+        for (Role role : WerwolfRoles.specialRoles()) {
+            assertFalse(role.name().isBlank());
+            assertFalse(role.description().isBlank());
+            assertNotEquals(role.team(), WerwolfRoles.teamName(role.team()), "Team " + role.team() + " fehlt");
         }
     }
 
@@ -372,8 +494,8 @@ class RoomTest {
         assertEquals(0, registry.size());
     }
 
-    private static long count(List<Role> roles, Role role) {
-        return roles.stream().filter(r -> r == role).count();
+    private static long count(List<Role> roles, String roleId) {
+        return roles.stream().filter(r -> r.id().equals(roleId)).count();
     }
 
     private static final class MutableClock extends Clock {

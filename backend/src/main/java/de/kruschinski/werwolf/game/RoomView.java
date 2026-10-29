@@ -14,6 +14,7 @@ public record RoomView(
         GameType game,
         List<GameOption> games,
         ImpostorSettings impostorSettings,
+        WerwolfSettings werwolfSettings,
         PlayerLimit playerLimit,
         Phase phase,
         int round,
@@ -50,7 +51,23 @@ public record RoomView(
             boolean customWordSet,
             String customWord,
             List<String> allCategories,
-            List<String> selectedCategories
+            List<String> selectedCategories,
+            int impostorCount,
+            int maxImpostorCount,
+            boolean randomStartPlayer
+    ) {
+    }
+
+    /**
+     * {@code werewolfCount} ist {@code null} bei automatischer Anzahl. {@code effectiveWerewolfCount}
+     * sagt, wie viele es mit den Spielern im Raum gerade wären.
+     */
+    public record WerwolfSettings(
+            Integer werewolfCount,
+            int effectiveWerewolfCount,
+            List<RoleCard> allRoles,
+            List<String> selectedRoles,
+            boolean hostIsGameMaster
     ) {
     }
 
@@ -58,17 +75,40 @@ public record RoomView(
     public record PlayerLimit(int value, int min, int max) {
     }
 
-    public record WerwolfView(Role role, String roleName, String roleDescription, List<String> fellowWerewolves) {
+    /** Eine Rolle so, wie sie auf der Karte steht. */
+    public record RoleCard(String id, String name, String team, String teamName, String description) {
+
+        static RoleCard of(Role role) {
+            return new RoleCard(role.id(), role.name(), role.team(), WerwolfRoles.teamName(role.team()), role.description());
+        }
+    }
+
+    public record RoleAssignment(String playerId, String playerName, RoleCard role) {
     }
 
     /**
-     * {@code word} fehlt beim Impostor. {@code category} bekommt er nur, wenn der Host das eingestellt hat.
-     * {@code result} gibt es erst nach der Abstimmung, vorher erfährt niemand, wer der Impostor ist.
+     * Für Mitspieler: eigene Karte, bekannte Wölfe und beim Dieb die übrigen Karten.
+     * Für die Spielleitung: {@code gameMaster}, alle Rollen in {@code overview} und die übrigen Karten.
+     */
+    public record WerwolfView(
+            boolean gameMaster,
+            RoleCard role,
+            List<String> knownWolves,
+            List<String> leftoverRoles,
+            List<RoleAssignment> overview
+    ) {
+    }
+
+    /**
+     * {@code word} fehlt bei Impostorn. {@code category} bekommen sie nur, wenn der Host das eingestellt hat.
+     * {@code result} gibt es erst nach der Abstimmung, vorher erfährt niemand, wer Impostor ist.
      */
     public record ImpostorView(
             ImpostorGame.Part part,
             String word,
             String category,
+            List<String> fellowImpostors,
+            String startPlayerId,
             String gameMasterId,
             List<String> participantIds,
             List<String> votedIds,
@@ -78,8 +118,8 @@ public record RoomView(
     }
 
     public record ImpostorResult(
-            String impostorId,
-            String impostorName,
+            List<String> impostorIds,
+            List<String> impostorNames,
             String word,
             String category,
             boolean impostorCaught,

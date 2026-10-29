@@ -315,19 +315,32 @@ input:focus-visible,
   color: #fff;
 }
 
-.role-card.is-open.role-werwolf {
+.role-card.is-open.role-team-woelfe {
   background: #7d2424;
   border-color: #a63a3a;
 }
 
-.role-card.is-open.role-seherin {
+.role-card.is-open.role-team-dorf {
+  background: #355a37;
+  border-color: #4f7d51;
+}
+
+.role-card.is-open.role-team-neutral {
   background: #4a3d8c;
   border-color: #6d5fb8;
 }
 
-.role-card.is-open.role-dorfbewohner {
-  background: #355a37;
-  border-color: #4f7d51;
+/* Lokal ist die Karte ein div statt Knopf und muss nicht gedrückt gehalten werden */
+div.role-card {
+  cursor: default;
+}
+
+.role-team {
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.85;
 }
 
 .role-name {
@@ -743,4 +756,94 @@ dialog.confirm::backdrop {
   background: var(--text);
   color: var(--bg);
   font-weight: 700;
+}
+
+/* ---- Werwolf-Rollen ------------------------------------------------- */
+
+.role-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin: 0;
+  padding: 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+
+.role-group legend {
+  padding: 0 0.4rem;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.check.role-option {
+  align-items: flex-start;
+  font-weight: 400;
+}
+
+.check.role-option input {
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+}
+
+.check.role-option span {
+  display: flex;
+  flex-direction: column;
+}
+
+.check.role-option small {
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.35;
+}
+
+.role-overview li.role-team-woelfe .player-note {
+  color: #ff9a8a;
+}
+
+.role-overview li.role-team-neutral .player-note {
+  color: #c9b8ff;
+}
+
+.role-overview li.role-team-dorf .player-note {
+  color: #9fd8a2;
+}
+
+body[data-phase="day"] .role-overview li.role-team-woelfe .player-note {
+  color: #a12a1c;
+}
+
+body[data-phase="day"] .role-overview li.role-team-neutral .player-note {
+  color: #4a3d8c;
+}
+
+body[data-phase="day"] .role-overview li.role-team-dorf .player-note {
+  color: #2f6332;
+}
+
+/* ---- Impostor ------------------------------------------------------- */
+
+.start-player {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  border: 2px solid var(--accent);
+  font-size: 1.15rem;
+  text-align: center;
+}
+
+/* ---- Lokaler Modus -------------------------------------------------- */
+
+.name-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr));
+  gap: 0.5rem;
+}
+
+.name-list input {
+  padding: 0.5rem 0.75rem;
+}
+
+.pass-head .title {
+  overflow-wrap: anywhere;
 }

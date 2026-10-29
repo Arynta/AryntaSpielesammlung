@@ -1,0 +1,45 @@
+// Wörter und Rollen kommen aus denselben Dateien wie im Backend, damit es nur eine Liste gibt.
+import wordFile from "../../backend/src/main/resources/games/impostor-words.json";
+import roleFile from "../../backend/src/main/resources/games/werwolf-roles.json";
+
+export interface RoleData {
+  id: string;
+  name: string;
+  team: string;
+  description: string;
+  /** Wacht mit den Wölfen auf: kennt das Rudel und wird von ihm erkannt. */
+  wolfPack?: boolean;
+  /** Kennt das Rudel, wird aber nicht erkannt (Günstling). */
+  seesWolfPack?: boolean;
+}
+
+export interface WordCategory {
+  name: string;
+  words: string[];
+}
+
+export const ROLES: RoleData[] = roleFile.roles;
+export const TEAM_NAMES: Record<string, string> = Object.fromEntries(roleFile.teams.map((t) => [t.id, t.name]));
+export const TEAM_IDS: string[] = roleFile.teams.map((t) => t.id);
+export const CATEGORIES: WordCategory[] = wordFile.categories;
+
+export const VILLAGER = "DORFBEWOHNER";
+export const WEREWOLF = "WERWOLF";
+export const SEER = "SEHERIN";
+/** Mit Dieb kommen zwei Karten mehr ins Spiel, aus denen er tauschen darf. */
+export const THIEF = "DIEB";
+export const THIEF_EXTRA_CARDS = 2;
+
+// Gleiche Werte wie im Backend (GameType, Room, ImpostorOptions)
+export const MAX_PLAYERS = 20;
+export const MIN_PLAYERS = { WERWOLF: 4, IMPOSTOR: 3 } as const;
+export const MAX_IMPOSTORS = MAX_PLAYERS / 2 - 1;
+
+/** Rollen zum Ankreuzen. Dorfbewohner füllen auf, Werwölfe werden gezählt. */
+export const SPECIAL_ROLES: RoleData[] = ROLES.filter((r) => r.id !== VILLAGER && r.id !== WEREWOLF);
+
+export function roleById(id: string): RoleData {
+  const role = ROLES.find((r) => r.id === id);
+  if (!role) throw new Error(`Unbekannte Rolle: ${id}`);
+  return role;
+}

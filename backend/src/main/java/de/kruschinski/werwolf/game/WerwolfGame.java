@@ -12,16 +12,25 @@ import java.util.random.RandomGenerator;
 public final class WerwolfGame implements Game {
 
     private final List<Player> players;
+    private final String gameMasterId;
     private final Map<String, Role> rolesByPlayerId = new HashMap<>();
+    private final List<Role> leftover;
     private Phase phase = Phase.NIGHT;
     private int round = 1;
 
-    WerwolfGame(List<Player> players, RandomGenerator random) {
+    /**
+     * @param players      alle, die eine Rolle bekommen (ohne Spielleitung)
+     * @param gameMasterId Host, der nur leitet und alle Rollen sieht, oder {@code null}
+     */
+    WerwolfGame(List<Player> players, String gameMasterId, Integer werewolfCount, List<String> specialRoles,
+                RandomGenerator random) {
         this.players = List.copyOf(players);
-        List<Role> roles = RoleDistribution.shuffledRolesFor(players.size(), random);
+        this.gameMasterId = gameMasterId;
+        RoleDistribution.Deal deal = RoleDistribution.deal(players.size(), werewolfCount, specialRoles, random);
         for (int i = 0; i < players.size(); i++) {
-            rolesByPlayerId.put(players.get(i).id(), roles.get(i));
+            rolesByPlayerId.put(players.get(i).id(), deal.perPlayer().get(i));
         }
+        this.leftover = deal.leftover();
     }
 
     @Override
@@ -48,6 +57,10 @@ public final class WerwolfGame implements Game {
         return rolesByPlayerId.get(playerId);
     }
 
+    public List<Role> leftover() {
+        return leftover;
+    }
+
     /**
      * Schaltet zwischen Nacht und Tag um. Das ist die Stelle, an der du die eigentlichen
      * Spielregeln einbaust (Abstimmungen auswerten, Opfer bestimmen, Siegbedingung prüfen).
@@ -62,17 +75,36 @@ public final class WerwolfGame implements Game {
     }
 
     RoomView.WerwolfView viewFor(String playerId) {
+        if (playerId.equals(gameMasterId)) {
+            List<RoomView.RoleAssignment> overview = players.stream()
+                    .map(p -> assignment(p, roleOf(p.id())))
+                    .toList();
+            return new RoomView.WerwolfView(true, null, List.of(), roleNames(leftover), overview);
+        }
         Role role = roleOf(playerId);
         if (role == null) {
             return null;
         }
-        List<String> fellowWerewolves = List.of();
-        if (role == Role.WERWOLF) {
-            fellowWerewolves = players.stream()
-                    .filter(p -> roleOf(p.id()) == Role.WERWOLF && !p.id().equals(playerId))
-                    .map(Player::name)
-                    .toList();
+        List<String> thiefChoices = role.id().equals(WerwolfRoles.THIEF) ? roleNames(leftover) : List.of();
+        return new RoomView.WerwolfView(false, RoomView.RoleCard.of(role), knownWolves(playerId, role), thiefChoices, null);
+    }
+
+    /** Das Rudel kennt sich gegenseitig, der Günstling kennt das Rudel. */
+    private List<String> knownWolves(String playerId, Role role) {
+        if (!role.wolfPack() && !role.seesWolfPack()) {
+            return List.of();
         }
-        return new RoomView.WerwolfView(role, role.displayName(), role.description(), fellowWerewolves);
+        return players.stream()
+                .filter(p -> !p.id().equals(playerId) && roleOf(p.id()).wolfPack())
+                .map(Player::name)
+                .toList();
+    }
+
+    private static RoomView.RoleAssignment assignment(Player player, Role role) {
+        return new RoomView.RoleAssignment(player.id(), player.name(), RoomView.RoleCard.of(role));
+    }
+
+    private static List<String> roleNames(List<Role> roles) {
+        return roles.stream().map(Role::name).toList();
     }
 }

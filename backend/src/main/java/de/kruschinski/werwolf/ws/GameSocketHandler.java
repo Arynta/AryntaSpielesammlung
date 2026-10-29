@@ -140,6 +140,15 @@ public class GameSocketHandler extends TextWebSocketHandler {
                     playerId, Boolean.TRUE.equals(msg.impostorSeesCategory()), msg.customWord()));
             case "setImpostorCategories" -> withRoom(session,
                     (room, playerId) -> room.setImpostorCategories(playerId, msg.categories()));
+            case "setImpostorOptions" -> {
+                if (msg.impostorCount() == null) {
+                    throw new GameException("Bitte gib die Anzahl der Impostor an.");
+                }
+                withRoom(session, (room, playerId) -> room.setImpostorOptions(
+                        playerId, msg.impostorCount(), Boolean.TRUE.equals(msg.randomStartPlayer())));
+            }
+            case "configureWerwolf" -> withRoom(session, (room, playerId) -> room.configureWerwolf(
+                    playerId, msg.werewolfCount(), msg.roles(), Boolean.TRUE.equals(msg.hostIsGameMaster())));
             case "setPlayerLimit" -> {
                 if (msg.playerLimit() == null) {
                     throw new GameException("Bitte gib ein Spielerlimit an.");

@@ -1,5 +1,5 @@
 # Baut das Frontend und stellt es auf GitHub Pages.
-# Läuft bei jedem Push auf main, oder von Hand unter Actions → "Run workflow".
+# Läuft bei jedem Push auf main (auch wenn sich Wörter oder Rollen ändern), oder von Hand unter Actions → "Run workflow".
 # Die Backend-Adresse kommt aus der Repo-Variable VITE_BACKEND_URL
 # (Settings → Secrets and variables → Actions → Variables).
 name: GitHub Pages
@@ -7,7 +7,7 @@ name: GitHub Pages
 on:
   push:
     branches: [main]
-    paths: ["frontend/**", ".github/workflows/pages.yml"]
+    paths: ["frontend/**", "backend/src/main/resources/games/**", ".github/workflows/pages.yml"]
   workflow_dispatch:
 
 permissions:
@@ -31,6 +31,7 @@ jobs:
         with:
           node-version: 22
       - run: npm install
+      - run: npm test
       - run: npm run build
         env:
           VITE_BACKEND_URL: ${{ vars.VITE_BACKEND_URL }}

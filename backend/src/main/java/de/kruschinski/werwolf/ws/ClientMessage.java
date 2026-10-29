@@ -15,6 +15,8 @@ import java.util.List;
  *   <li>{@code vote}, {@code kick}: targetId</li>
  *   <li>{@code setPlayerLimit}: playerLimit</li>
  *   <li>{@code setImpostorCategories}: categories</li>
+ *   <li>{@code setImpostorOptions}: impostorCount, randomStartPlayer</li>
+ *   <li>{@code configureWerwolf}: werewolfCount (fehlt = automatisch), roles, hostIsGameMaster</li>
  *   <li>{@code leave}, {@code start}, {@code nextPhase}, {@code startVoting}, {@code nextRound},
  *       {@code backToLobby}, {@code ping}: keine Felder</li>
  * </ul>
@@ -30,6 +32,11 @@ public record ClientMessage(
         String customWord,
         String targetId,
         Integer playerLimit,
-        List<String> categories
+        List<String> categories,
+        Integer impostorCount,
+        Boolean randomStartPlayer,
+        Integer werewolfCount,
+        List<String> roles,
+        Boolean hostIsGameMaster
 ) {
 }

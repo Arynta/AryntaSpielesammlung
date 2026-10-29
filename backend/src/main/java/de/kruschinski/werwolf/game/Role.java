@@ -1,24 +1,10 @@
 package de.kruschinski.werwolf.game;
 
-public enum Role {
-
-    WERWOLF("Werwolf", "Du wachst nachts mit den anderen Werwölfen auf und sucht euch ein Opfer aus."),
-    SEHERIN("Seherin", "Du darfst jede Nacht die Rolle eines Mitspielers ansehen."),
-    DORFBEWOHNER("Dorfbewohner", "Du hast keine Sonderfähigkeit. Finde tagsüber die Werwölfe!");
-
-    private final String displayName;
-    private final String description;
-
-    Role(String displayName, String description) {
-        this.displayName = displayName;
-        this.description = description;
-    }
-
-    public String displayName() {
-        return displayName;
-    }
-
-    public String description() {
-        return description;
-    }
+/**
+ * Eine Werwolf-Rolle aus {@code games/werwolf-roles.json}.
+ *
+ * @param wolfPack     wacht mit den Wölfen auf: kennt die anderen aus dem Rudel und wird von ihnen erkannt
+ * @param seesWolfPack kennt das Rudel, wird von ihm aber nicht erkannt (Günstling)
+ */
+public record Role(String id, String name, String team, String description, boolean wolfPack, boolean seesWolfPack) {
 }

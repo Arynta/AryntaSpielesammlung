@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.random.RandomGenerator;
@@ -35,11 +36,15 @@ public class Room {
     private String hostId;
     private GameType selectedGame = GameType.IMPOSTOR;
     private int playerLimit = DEFAULT_PLAYER_LIMIT;
-    private boolean impostorSeesCategory = true;
+    private ImpostorOptions impostorOptions = ImpostorOptions.DEFAULT;
     /** Aus diesen Kategorien kommen die Impostor-Wörter. Reihenfolge wie in der Wortliste. */
     private List<String> impostorCategories = ImpostorWords.categoryNames();
     /** Vom Host vorgegebenes Wort für die nächste Impostor-Runde, sonst {@code null}. */
     private String customWord;
+    /** {@code null} heißt: automatisch passend zur Spielerzahl. */
+    private Integer werewolfCount;
+    private List<String> werwolfRoles = List.of(WerwolfRoles.SEER);
+    private boolean werwolfHostIsGameMaster;
     /** {@code null}, solange alle in der Lobby sind. */
     private Game game;
     private int nextPlayerNumber = 1;
@@ -196,9 +201,40 @@ public class Room {
         requireHost(requesterId);
         requireLobby();
         String word = cleanWord(rawCustomWord);
-        boolean changed = seesCategory != impostorSeesCategory || !Optional.ofNullable(word).equals(Optional.ofNullable(customWord));
-        impostorSeesCategory = seesCategory;
+        ImpostorOptions options = impostorOptions.withImpostorSeesCategory(seesCategory);
+        boolean changed = !options.equals(impostorOptions) || !Optional.ofNullable(word).equals(Optional.ofNullable(customWord));
+        impostorOptions = options;
         customWord = word;
+        if (changed) {
+            resetReady();
+        }
+        touch();
+    }
+
+    public synchronized void setImpostorOptions(String requesterId, int impostorCount, boolean randomStartPlayer) {
+        requireHost(requesterId);
+        requireLobby();
+        ImpostorOptions options = new ImpostorOptions(impostorCount, impostorOptions.impostorSeesCategory(), randomStartPlayer);
+        if (!options.equals(impostorOptions)) {
+            impostorOptions = options;
+            resetReady();
+        }
+        touch();
+    }
+
+    /** {@code count} ist {@code null} für eine automatische Anzahl Werwölfe. */
+    public synchronized void configureWerwolf(String requesterId, Integer count, List<String> roles, boolean hostIsGameMaster) {
+        requireHost(requesterId);
+        requireLobby();
+        if (count != null && (count < 1 || count >= MAX_PLAYERS)) {
+            throw new GameException("Es kann 1 bis " + (MAX_PLAYERS - 1) + " Werwölfe geben.");
+        }
+        List<String> selected = WerwolfRoles.normalizeSpecialRoles(roles);
+        boolean changed = !Objects.equals(count, werewolfCount) || !selected.equals(werwolfRoles)
+                || hostIsGameMaster != werwolfHostIsGameMaster;
+        werewolfCount = count;
+        werwolfRoles = selected;
+        werwolfHostIsGameMaster = hostIsGameMaster;
         if (changed) {
             resetReady();
         }
@@ -232,7 +268,10 @@ public class Room {
         }
         requireStartable();
         game = switch (selectedGame) {
-            case WERWOLF -> new WerwolfGame(new ArrayList<>(players.values()), random);
+            case WERWOLF -> {
+                String gameMasterId = hostSitsOut() ? hostId : null;
+                yield new WerwolfGame(playersExcept(gameMasterId), gameMasterId, werewolfCount, werwolfRoles, random);
+            }
             case IMPOSTOR -> newImpostorRound(1, random);
         };
         resetReady();
@@ -299,15 +338,23 @@ public class Room {
         boolean canChooseNext = game == null || game.betweenRounds();
         String startHint = canChooseNext ? startBlocker() : null;
 
-        RoomView.ImpostorSettings settings = new RoomView.ImpostorSettings(
-                impostorSeesCategory, customWord != null, isHost ? customWord : null,
-                ImpostorWords.categoryNames(), impostorCategories);
+        RoomView.ImpostorSettings impostorSettings = new RoomView.ImpostorSettings(
+                impostorOptions.impostorSeesCategory(), customWord != null, isHost ? customWord : null,
+                ImpostorWords.categoryNames(), impostorCategories,
+                impostorOptions.impostorCount(), ImpostorOptions.MAX_IMPOSTORS, impostorOptions.randomStartPlayer());
+
+        int werwolfPlayers = players.size() - (werwolfHostIsGameMaster ? 1 : 0);
+        RoomView.WerwolfSettings werwolfSettings = new RoomView.WerwolfSettings(
+                werewolfCount, RoleDistribution.werewolves(werwolfPlayers, werewolfCount),
+                WerwolfRoles.specialRoles().stream().map(RoomView.RoleCard::of).toList(),
+                werwolfRoles, werwolfHostIsGameMaster);
 
         return new RoomView(
                 code,
                 selectedGame,
                 RoomView.GameOption.all(),
-                settings,
+                impostorSettings,
+                werwolfSettings,
                 new RoomView.PlayerLimit(playerLimit, lowestPlayerLimit(), MAX_PLAYERS),
                 phase(),
                 round(),
@@ -324,13 +371,20 @@ public class Room {
 
     /** Warum noch nicht gestartet werden kann, oder {@code null}, wenn alles passt. */
     private String startBlocker() {
-        boolean hostSitsOut = selectedGame == GameType.IMPOSTOR && customWord != null;
+        boolean hostSitsOut = hostSitsOut();
         int playing = players.size() - (hostSitsOut ? 1 : 0);
         int missing = selectedGame.minPlayers() - playing;
         if (missing > 0) {
             return hostSitsOut
                     ? "Noch " + missing + " Spieler (ohne Spielleitung), dann kann es losgehen."
                     : "Noch " + missing + " Spieler, dann kann es losgehen.";
+        }
+        String settingsProblem = switch (selectedGame) {
+            case WERWOLF -> RoleDistribution.problem(playing, werewolfCount, werwolfRoles);
+            case IMPOSTOR -> impostorOptions.problem(playing);
+        };
+        if (settingsProblem != null) {
+            return settingsProblem;
         }
 
         List<Player> online = players.values().stream().filter(Player::connected).toList();
@@ -339,6 +393,18 @@ public class Room {
             return "Warte, bis alle bereit sind (" + ready + " von " + online.size() + ").";
         }
         return null;
+    }
+
+    /** Spielt der Host diesmal nicht mit, weil er ein eigenes Wort gewählt hat oder Werwolf leitet? */
+    private boolean hostSitsOut() {
+        return switch (selectedGame) {
+            case IMPOSTOR -> customWord != null;
+            case WERWOLF -> werwolfHostIsGameMaster;
+        };
+    }
+
+    private List<Player> playersExcept(String playerId) {
+        return players.values().stream().filter(p -> !p.id().equals(playerId)).toList();
     }
 
     private int lowestPlayerLimit() {
@@ -358,10 +424,7 @@ public class Room {
                 ? new SecretWord(customWord, null)
                 : ImpostorWords.pick(random, usedWords, impostorCategories);
 
-        List<Player> participants = players.values().stream()
-                .filter(p -> !p.id().equals(gameMasterId))
-                .toList();
-        ImpostorGame next = new ImpostorGame(participants, gameMasterId, secret, impostorSeesCategory, round, random);
+        ImpostorGame next = new ImpostorGame(playersExcept(gameMasterId), gameMasterId, secret, impostorOptions, round, random);
 
         // Ein eigenes Wort gilt nur für eine Runde, danach spielt der Host wieder mit
         customWord = null;

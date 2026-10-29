@@ -2,14 +2,16 @@ package de.kruschinski.werwolf.game;
 
 import de.kruschinski.werwolf.game.ImpostorWords.SecretWord;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.random.RandomGenerator;
 
 /**
- * Eine Runde Impostor: Alle kennen dasselbe Wort, nur der Impostor nicht. Hinweise und Diskussion
+ * Eine Runde Impostor: Alle kennen dasselbe Wort, nur die Impostor nicht. Hinweise und Diskussion
  * laufen am Tisch, abgestimmt wird im Handy. Nicht threadsicher, {@link Room} synchronisiert.
  */
 public final class ImpostorGame implements Game {
@@ -24,7 +26,8 @@ public final class ImpostorGame implements Game {
 
     private final List<Player> participants;
     private final String gameMasterId;
-    private final String impostorId;
+    private final Set<String> impostorIds;
+    private final String startPlayerId;
     private final SecretWord secret;
     private final boolean impostorSeesCategory;
     private final int round;
@@ -35,18 +38,26 @@ public final class ImpostorGame implements Game {
      * @param participants alle, die mitspielen (ohne Spielleitung)
      * @param gameMasterId Host, der das Wort vorgegeben hat, oder {@code null}, wenn alle mitspielen
      */
-    ImpostorGame(List<Player> participants, String gameMasterId, SecretWord secret,
-                 boolean impostorSeesCategory, int round, RandomGenerator random) {
-        int minPlayers = GameType.IMPOSTOR.minPlayers();
-        if (participants.size() < minPlayers) {
-            throw new GameException("Für Impostor braucht es mindestens " + minPlayers + " Mitspieler.");
+    ImpostorGame(List<Player> participants, String gameMasterId, SecretWord secret, ImpostorOptions options,
+                 int round, RandomGenerator random) {
+        String problem = options.problem(participants.size());
+        if (problem != null) {
+            throw new GameException(problem);
         }
         this.participants = List.copyOf(participants);
         this.gameMasterId = gameMasterId;
-        this.impostorId = participants.get(random.nextInt(participants.size())).id();
         this.secret = secret;
-        this.impostorSeesCategory = impostorSeesCategory;
+        this.impostorSeesCategory = options.impostorSeesCategory();
         this.round = round;
+
+        int count = options.impostorCount();
+        List<Player> shuffled = new ArrayList<>(participants);
+        Shuffle.inPlace(shuffled, random);
+        this.impostorIds = Set.copyOf(shuffled.subList(0, count).stream().map(Player::id).toList());
+        // Ein Impostor als Erster hätte gar keinen Hinweis, deshalb fängt immer jemand aus der Crew an
+        this.startPlayerId = options.randomStartPlayer()
+                ? shuffled.get(count + random.nextInt(shuffled.size() - count)).id()
+                : null;
     }
 
     @Override
@@ -69,8 +80,12 @@ public final class ImpostorGame implements Game {
         return phase == Phase.RESULT;
     }
 
-    public String impostorId() {
-        return impostorId;
+    public Set<String> impostorIds() {
+        return impostorIds;
+    }
+
+    public String startPlayerId() {
+        return startPlayerId;
     }
 
     public SecretWord secret() {
@@ -116,19 +131,22 @@ public final class ImpostorGame implements Game {
         }
     }
 
-    /** Die Mitspieler gewinnen nur, wenn der Impostor allein die meisten Stimmen hat. */
+    /** Die Crew gewinnt nur, wenn ein Impostor allein die meisten Stimmen hat. Ein Gleichstand hilft den Impostorn. */
     public boolean impostorCaught() {
         Map<String, Integer> votes = votesPerTarget();
-        int impostorVotes = votes.getOrDefault(impostorId, 0);
-        return impostorVotes > 0 && votes.entrySet().stream()
-                .filter(e -> !e.getKey().equals(impostorId))
-                .allMatch(e -> e.getValue() < impostorVotes);
+        int most = votes.values().stream().mapToInt(Integer::intValue).max().orElse(0);
+        List<String> leaders = votes.entrySet().stream()
+                .filter(e -> e.getValue() == most)
+                .map(Map.Entry::getKey)
+                .toList();
+        return leaders.size() == 1 && impostorIds.contains(leaders.getFirst());
     }
 
     RoomView.ImpostorView viewFor(String playerId) {
         Part part = partOf(playerId);
         String word = part == Part.IMPOSTOR ? null : secret.word();
         String category = part != Part.IMPOSTOR || impostorSeesCategory ? secret.category() : null;
+        List<String> fellowImpostors = part == Part.IMPOSTOR ? impostorNamesExcept(playerId) : List.of();
 
         List<String> votedIds = List.copyOf(targetByVoterId.keySet());
         RoomView.ImpostorResult result = phase == Phase.RESULT ? result() : null;
@@ -137,6 +155,8 @@ public final class ImpostorGame implements Game {
                 part,
                 word,
                 category,
+                fellowImpostors,
+                startPlayerId,
                 gameMasterId,
                 participants.stream().map(Player::id).toList(),
                 votedIds,
@@ -150,13 +170,21 @@ public final class ImpostorGame implements Game {
                 .map(p -> new RoomView.VoteCount(p.id(), p.name(), votes.getOrDefault(p.id(), 0)))
                 .sorted((a, b) -> Integer.compare(b.votes(), a.votes()))
                 .toList();
-        String impostorName = participants.stream()
-                .filter(p -> p.id().equals(impostorId))
-                .map(Player::name)
-                .findFirst()
-                .orElse("?");
+        List<Player> impostors = participants.stream().filter(p -> impostorIds.contains(p.id())).toList();
         return new RoomView.ImpostorResult(
-                impostorId, impostorName, secret.word(), secret.category(), impostorCaught(), tally);
+                impostors.stream().map(Player::id).toList(),
+                impostors.stream().map(Player::name).toList(),
+                secret.word(),
+                secret.category(),
+                impostorCaught(),
+                tally);
+    }
+
+    private List<String> impostorNamesExcept(String playerId) {
+        return participants.stream()
+                .filter(p -> impostorIds.contains(p.id()) && !p.id().equals(playerId))
+                .map(Player::name)
+                .toList();
     }
 
     private Map<String, Integer> votesPerTarget() {
@@ -169,7 +197,7 @@ public final class ImpostorGame implements Game {
         if (playerId.equals(gameMasterId)) {
             return Part.GAME_MASTER;
         }
-        return playerId.equals(impostorId) ? Part.IMPOSTOR : Part.CREW;
+        return impostorIds.contains(playerId) ? Part.IMPOSTOR : Part.CREW;
     }
 
     private boolean isParticipant(String playerId) {

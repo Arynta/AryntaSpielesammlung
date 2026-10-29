@@ -5,7 +5,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.random.RandomGenerator;
 
-/** Die eingebaute Wortliste für Impostor. Neue Wörter oder Kategorien einfach unten ergänzen. */
+/**
+ * Die eingebaute Wortliste für Impostor. Die Wörter stehen in {@code games/impostor-words.json},
+ * damit der lokale Modus im Frontend dieselbe Liste nutzt.
+ */
 public final class ImpostorWords {
 
     /** Ein geheimes Wort. {@code category} ist {@code null}, wenn der Host es selbst eingegeben hat. */
@@ -15,42 +18,11 @@ public final class ImpostorWords {
     private record Category(String name, List<String> words) {
     }
 
-    private static final List<Category> CATEGORIES = List.of(
-            new Category("Tiere", List.of(
-                    "Elefant", "Pinguin", "Giraffe", "Krokodil", "Eichhörnchen", "Delfin", "Kuh", "Fledermaus",
-                    "Schnecke", "Papagei", "Känguru", "Igel", "Hai", "Biene", "Eule")),
-            new Category("Essen und Trinken", List.of(
-                    "Pizza", "Spaghetti", "Döner", "Pfannkuchen", "Sushi", "Brezel", "Popcorn", "Erdbeere",
-                    "Schokolade", "Kaffee", "Bratwurst", "Käse", "Banane", "Eis", "Suppe")),
-            new Category("Orte", List.of(
-                    "Strand", "Krankenhaus", "Flughafen", "Schule", "Kino", "Bahnhof", "Zoo", "Bibliothek",
-                    "Supermarkt", "Tankstelle", "Schwimmbad", "Kirche", "Bäckerei", "Freizeitpark", "Campingplatz")),
-            new Category("Berufe", List.of(
-                    "Feuerwehrmann", "Arzt", "Lehrer", "Pilot", "Koch", "Polizist", "Bauer", "Zahnarzt",
-                    "Friseur", "Astronaut", "Bäcker", "Tierarzt", "Postbote", "Clown", "Detektiv")),
-            new Category("Im Haushalt", List.of(
-                    "Kühlschrank", "Staubsauger", "Toaster", "Bügeleisen", "Waschmaschine", "Zahnbürste",
-                    "Kopfkissen", "Spiegel", "Regenschirm", "Wecker", "Kerze", "Fernbedienung", "Besen",
-                    "Gabel", "Badewanne")),
-            new Category("Sport", List.of(
-                    "Fußball", "Tennis", "Schwimmen", "Skifahren", "Boxen", "Basketball", "Golf", "Reiten",
-                    "Klettern", "Bowling", "Volleyball", "Tischtennis", "Surfen", "Marathon", "Schach")),
-            new Category("Fahrzeuge", List.of(
-                    "Fahrrad", "Hubschrauber", "U-Boot", "Traktor", "Feuerwehrauto", "Kreuzfahrtschiff",
-                    "Straßenbahn", "Rakete", "Skateboard", "Motorrad", "Heißluftballon", "Krankenwagen",
-                    "Taxi", "Kanu", "Bagger")),
-            new Category("Natur", List.of(
-                    "Vulkan", "Regenbogen", "Wasserfall", "Wüste", "Gewitter", "Gletscher", "Insel", "Höhle",
-                    "Sonnenuntergang", "Wald", "Mond", "Schneemann", "Kaktus", "Pilz", "Tornado")),
-            new Category("Freizeit", List.of(
-                    "Geburtstag", "Hochzeit", "Zelten", "Karaoke", "Achterbahn", "Picknick", "Silvester",
-                    "Konzert", "Flohmarkt", "Grillen", "Brettspiel", "Weihnachten", "Zirkus", "Angeln",
-                    "Halloween")),
-            new Category("Kleidung", List.of(
-                    "Gummistiefel", "Krawatte", "Badehose", "Schlafanzug", "Sonnenbrille", "Handschuhe",
-                    "Hut", "Bademantel", "Rucksack", "Turnschuhe", "Schal", "Brautkleid", "Mütze",
-                    "Hosenträger", "Pullover"))
-    );
+    private record WordFile(List<Category> categories) {
+    }
+
+    private static final List<Category> CATEGORIES =
+            GameData.read("games/impostor-words.json", WordFile.class).categories();
 
     private ImpostorWords() {
     }

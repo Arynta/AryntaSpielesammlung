@@ -1,8 +1,7 @@
-// Spiegelt die Java-Klassen im Backend (RoomView, GameType, Phase, Role).
+// Spiegelt die Java-Klassen im Backend (RoomView, GameType, Phase).
 
 export type GameType = "WERWOLF" | "IMPOSTOR";
 export type Phase = "LOBBY" | "NIGHT" | "DAY" | "WORD" | "VOTING" | "RESULT";
-export type Role = "WERWOLF" | "SEHERIN" | "DORFBEWOHNER";
 export type ImpostorPart = "CREW" | "IMPOSTOR" | "GAME_MASTER";
 
 export interface PlayerView {
@@ -34,6 +33,18 @@ export interface ImpostorSettings {
   customWord: string | null;
   allCategories: string[];
   selectedCategories: string[];
+  impostorCount: number;
+  maxImpostorCount: number;
+  randomStartPlayer: boolean;
+}
+
+export interface WerwolfSettings {
+  /** null = automatisch passend zur Spielerzahl. */
+  werewolfCount: number | null;
+  effectiveWerewolfCount: number;
+  allRoles: RoleCard[];
+  selectedRoles: string[];
+  hostIsGameMaster: boolean;
 }
 
 export interface PlayerLimit {
@@ -43,11 +54,27 @@ export interface PlayerLimit {
   max: number;
 }
 
+export interface RoleCard {
+  id: string;
+  name: string;
+  team: string;
+  teamName: string;
+  description: string;
+}
+
+export interface RoleAssignment {
+  playerId: string;
+  playerName: string;
+  role: RoleCard;
+}
+
+/** Mitspieler: role, knownWolves, beim Dieb leftoverRoles. Spielleitung: gameMaster, overview, leftoverRoles. */
 export interface WerwolfView {
-  role: Role;
-  roleName: string;
-  roleDescription: string;
-  fellowWerewolves: string[];
+  gameMaster: boolean;
+  role: RoleCard | null;
+  knownWolves: string[];
+  leftoverRoles: string[];
+  overview: RoleAssignment[] | null;
 }
 
 export interface VoteCount {
@@ -57,8 +84,8 @@ export interface VoteCount {
 }
 
 export interface ImpostorResult {
-  impostorId: string;
-  impostorName: string;
+  impostorIds: string[];
+  impostorNames: string[];
   word: string;
   category: string | null;
   impostorCaught: boolean;
@@ -69,6 +96,8 @@ export interface ImpostorView {
   part: ImpostorPart;
   word: string | null;
   category: string | null;
+  fellowImpostors: string[];
+  startPlayerId: string | null;
   gameMasterId: string | null;
   participantIds: string[];
   votedIds: string[];
@@ -81,6 +110,7 @@ export interface RoomView {
   game: GameType;
   games: GameOption[];
   impostorSettings: ImpostorSettings;
+  werwolfSettings: WerwolfSettings;
   playerLimit: PlayerLimit;
   phase: Phase;
   round: number;
@@ -118,6 +148,8 @@ export type ClientMessage =
   | { type: "kick"; targetId: string }
   | { type: "setPlayerLimit"; playerLimit: number }
   | { type: "setImpostorCategories"; categories: string[] }
+  | { type: "setImpostorOptions"; impostorCount: number; randomStartPlayer: boolean }
+  | { type: "configureWerwolf"; werewolfCount: number | null; roles: string[]; hostIsGameMaster: boolean }
   | { type: "nextRound" }
   | { type: "backToLobby" }
   | { type: "ping" };

@@ -2,6 +2,30 @@ import "./fonts";
 import "./style.css";
 import { askConfirm } from "./confirmDialog";
 import { GameConnection, type ConnectionStatus } from "./connection";
+import { esc } from "./html";
+import {
+  actLocal,
+  changeLocal,
+  createLocalState,
+  forgetLocalSetup,
+  inputLocal,
+  viewLocal,
+  type LocalState,
+  type LocalUi,
+} from "./localMode";
+import {
+  impostorCardContent,
+  impostorSummary,
+  roleCardContent,
+  roleCardVariant,
+  viewImpostorOptions,
+  viewRoleOverview,
+  viewSummary,
+  viewWerwolfOptions,
+  werwolfSummary,
+  type ImpostorForm,
+  type WerwolfForm,
+} from "./sharedViews";
 import type { GameType, ImpostorView, PlayerView, RoomView, ServerMessage, WerwolfView } from "./types";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "ws://localhost:8080/ws";
@@ -27,6 +51,17 @@ const state = {
   toast: null as string | null,
   revealing: false,
   waitingForRejoin: false,
+  /** Gesetzt, solange man ohne Server mit einem Handy spielt. */
+  local: null as LocalState | null,
+};
+
+const localUi: LocalUi = {
+  render: () => render(),
+  toast: (text) => showToast(text),
+  exit: () => {
+    state.local = null;
+    render();
+  },
 };
 
 let toastTimer: number | undefined;
@@ -95,7 +130,12 @@ function forgetRoom(): void {
 // Aktionen (über data-action im HTML, ein eventuelles data-value steht in value)
 
 function act(action: string, value?: string): void {
+  if (state.local && actLocal(state.local, action, value, localUi)) return;
   switch (action) {
+    case "openLocal":
+      state.local = createLocalState();
+      render();
+      break;
     case "create":
       if (!requireName()) return;
       sendOrComplain({ type: "create", name: state.name });
@@ -126,6 +166,17 @@ function act(action: string, value?: string): void {
       if (state.room) {
         sendOrComplain({ type: "setPlayerLimit", playerLimit: state.room.playerLimit.value + Number(value) });
       }
+      break;
+    case "changeImpostorCount":
+      if (state.room) setImpostorOptions({ impostorCount: state.room.impostorSettings.impostorCount + Number(value) });
+      break;
+    case "changeWerewolfCount":
+      if (state.room) {
+        configureWerwolf({ werewolfCount: state.room.werwolfSettings.effectiveWerewolfCount + Number(value) });
+      }
+      break;
+    case "autoWerewolves":
+      configureWerwolf({ werewolfCount: null });
       break;
     case "kick":
       void kick(value);
@@ -203,6 +254,28 @@ function configureImpostor(change: { seesCategory?: boolean; customWord?: string
   });
 }
 
+function setImpostorOptions(change: { impostorCount?: number; randomStartPlayer?: boolean }): void {
+  const current = state.room?.impostorSettings;
+  if (!current) return;
+  sendOrComplain({
+    type: "setImpostorOptions",
+    impostorCount: change.impostorCount ?? current.impostorCount,
+    randomStartPlayer: change.randomStartPlayer ?? current.randomStartPlayer,
+  });
+}
+
+/** {@code werewolfCount: null} heißt automatisch, fehlt das Feld, bleibt die Anzahl wie sie ist. */
+function configureWerwolf(change: { werewolfCount?: number | null; roles?: string[]; hostIsGameMaster?: boolean }): void {
+  const current = state.room?.werwolfSettings;
+  if (!current) return;
+  sendOrComplain({
+    type: "configureWerwolf",
+    werewolfCount: change.werewolfCount !== undefined ? change.werewolfCount : current.werewolfCount,
+    roles: change.roles ?? current.selectedRoles,
+    hostIsGameMaster: change.hostIsGameMaster ?? current.hostIsGameMaster,
+  });
+}
+
 async function forgetDevice(): Promise<void> {
   const inRoom = state.session !== null;
   const question = inRoom
@@ -212,6 +285,7 @@ async function forgetDevice(): Promise<void> {
 
   if (inRoom) connection.send({ type: "leave" });
   forgetRoom();
+  forgetLocalSetup();
   state.name = "";
   save("werwolf.name", null);
   showToast("Deine Daten auf diesem Gerät sind gelöscht.");
@@ -272,7 +346,10 @@ function render(): void {
   const selection = active?.selectionStart ?? null;
 
   let body: string;
-  if (!room) {
+  if (state.local) {
+    document.body.dataset.phase = "home";
+    body = viewLocal(state.local);
+  } else if (!room) {
     body = state.session ? viewReconnecting() : viewHome();
   } else if (room.phase === "LOBBY") {
     body = viewLobby(room);
@@ -345,6 +422,9 @@ function viewHome(): string {
       </label>
       <button class="btn" data-action="join" ${online ? "" : "disabled"}>Beitreten</button>
     </div>
+
+    <p class="or">oder ohne Internet mit nur einem Handy</p>
+    <button class="btn" data-action="openLocal">Lokal spielen</button>
   `;
 }
 
@@ -448,9 +528,13 @@ function viewSettings(room: RoomView): string {
     </button>`;
   if (!open) return `<section class="settings-panel">${toggle}</section>`;
 
-  const gameSettings = room.game === "IMPOSTOR"
-    ? room.you.host ? viewImpostorSettings(room) : viewImpostorSettingsSummary(room)
-    : "";
+  let gameSettings: string;
+  if (room.game === "IMPOSTOR") {
+    gameSettings = room.you.host ? viewImpostorSettings(room) : viewImpostorSettingsSummary(room);
+  } else {
+    const form = werwolfForm(room);
+    gameSettings = room.you.host ? viewWerwolfOptions(form) : viewSummary(werwolfSummary(form));
+  }
 
   return `
     <section class="settings-panel">
@@ -480,6 +564,31 @@ function viewPlayerLimit(room: RoomView): string {
     </div>`;
 }
 
+function impostorForm(room: RoomView): ImpostorForm {
+  const settings = room.impostorSettings;
+  return {
+    impostorCount: settings.impostorCount,
+    maxImpostorCount: settings.maxImpostorCount,
+    seesCategory: settings.impostorSeesCategory,
+    randomStartPlayer: settings.randomStartPlayer,
+    allCategories: settings.allCategories,
+    selectedCategories: settings.selectedCategories,
+    categoryHint: settings.customWordSet
+      ? "Gilt erst wieder, wenn kein eigenes Wort gesetzt ist."
+      : "Das Wort kommt zufällig aus den angekreuzten Kategorien.",
+  };
+}
+
+function werwolfForm(room: RoomView): WerwolfForm {
+  const settings = room.werwolfSettings;
+  return {
+    werewolfCount: settings.werewolfCount,
+    effectiveWerewolfCount: settings.effectiveWerewolfCount,
+    selectedRoles: settings.selectedRoles,
+    hostIsGameMaster: settings.hostIsGameMaster,
+  };
+}
+
 function viewImpostorSettings(room: RoomView): string {
   const settings = room.impostorSettings;
   const current = settings.customWord
@@ -488,13 +597,7 @@ function viewImpostorSettings(room: RoomView): string {
     : "";
 
   return `
-    <div class="settings-group">
-      <label class="check">
-        <input type="checkbox" id="sees-category" data-setting="seesCategory"
-               ${settings.impostorSeesCategory ? "checked" : ""} />
-        <span>Impostor sieht die Kategorie</span>
-      </label>
-    </div>
+    ${viewImpostorOptions(impostorForm(room))}
 
     <div class="settings-group">
       <label class="field">
@@ -504,52 +607,13 @@ function viewImpostorSettings(room: RoomView): string {
       </label>
       <button class="btn small" data-action="saveWord">Wort übernehmen</button>
       ${current}
-    </div>
-
-    ${viewCategoryChoice(room)}`;
-}
-
-function viewCategoryChoice(room: RoomView): string {
-  const settings = room.impostorSettings;
-  const selected = new Set(settings.selectedCategories);
-  const onlyOneLeft = selected.size === 1;
-
-  const boxes = settings.allCategories
-    .map((name, index) => {
-      const checked = selected.has(name);
-      // Die letzte angekreuzte Kategorie lässt sich nicht abwählen, ohne Kategorie gäbe es kein Wort
-      const locked = checked && onlyOneLeft;
-      return `
-        <label class="check category">
-          <input type="checkbox" id="category-${index}" data-category="${esc(name)}"
-                 ${checked ? "checked" : ""} ${locked ? "disabled" : ""} />
-          <span>${esc(name)}</span>
-        </label>`;
-    })
-    .join("");
-
-  const hint = settings.customWordSet
-    ? "Gilt erst wieder, wenn kein eigenes Wort gesetzt ist."
-    : "Das Wort kommt zufällig aus den angekreuzten Kategorien.";
-
-  return `
-    <div class="settings-group" role="group" aria-labelledby="categories-label">
-      <span id="categories-label" class="settings-label">Kategorien</span>
-      <div class="category-grid">${boxes}</div>
-      <p class="hint">${hint}</p>
     </div>`;
 }
 
 function viewImpostorSettingsSummary(room: RoomView): string {
-  const settings = room.impostorSettings;
-  const allSelected = settings.selectedCategories.length === settings.allCategories.length;
-  const categories = allSelected ? "alle" : settings.selectedCategories.map(esc).join(", ");
-  return `
-    <ul class="settings-summary settings-group">
-      <li>Impostor sieht die Kategorie: <strong>${settings.impostorSeesCategory ? "an" : "aus"}</strong></li>
-      <li>Kategorien: <strong>${categories}</strong></li>
-      ${settings.customWordSet ? "<li>Die Spielleitung hat ein eigenes Wort gewählt und spielt nicht mit.</li>" : ""}
-    </ul>`;
+  const lines = impostorSummary(impostorForm(room));
+  if (room.impostorSettings.customWordSet) lines.push("Die Spielleitung hat ein eigenes Wort gewählt und spielt nicht mit.");
+  return viewSummary(lines);
 }
 
 // ---- Werwolf --------------------------------------------------------------
@@ -566,20 +630,16 @@ function viewWerwolf(room: RoomView, werwolf: WerwolfView): string {
        <button class="btn quiet" data-action="backToLobby">Spiel beenden</button>`
     : `<button class="btn quiet" data-action="leave">Raum verlassen</button>`;
 
-  let wolves = "";
-  if (werwolf.role === "WERWOLF") {
-    wolves =
-      werwolf.fellowWerewolves.length > 0
-        ? `<p class="wolves">Mit dir jagen: ${werwolf.fellowWerewolves.map(esc).join(", ")}</p>`
-        : `<p class="wolves">Du bist der einzige Werwolf.</p>`;
-  }
-  const card = viewSecretCard(
-    `role-${werwolf.role.toLowerCase()}`,
-    "um deine Rolle zu sehen",
-    `<span class="role-name">${esc(werwolf.roleName)}</span>
-     <p class="role-desc">${esc(werwolf.roleDescription)}</p>
-     ${wolves}`,
-  );
+  const card = werwolf.gameMaster
+    ? viewRoleOverview(
+        (werwolf.overview ?? []).map((a) => ({ name: a.playerName, role: a.role })),
+        werwolf.leftoverRoles,
+      )
+    : viewSecretCard(
+        roleCardVariant(werwolf.role!),
+        "um deine Rolle zu sehen",
+        roleCardContent(werwolf.role!, werwolf.knownWolves, werwolf.leftoverRoles),
+      );
 
   return `
     <header class="phase-head">
@@ -623,6 +683,7 @@ function viewImpostor(room: RoomView, impostor: ImpostorView): string {
 
     ${voting ? viewVoting(room, impostor) : ""}
     ${viewWordCard(impostor)}
+    ${voting ? "" : viewStartPlayer(room, impostor)}
     ${voting ? "" : viewPlayers(room, { only: impostor.participantIds })}
 
     <div class="actions">${hostControls}</div>
@@ -638,23 +699,19 @@ function viewWordCard(impostor: ImpostorView): string {
       </section>`;
   }
 
-  if (impostor.part === "IMPOSTOR") {
-    const category = impostor.category
-      ? `<p class="role-desc">Kategorie: <strong>${esc(impostor.category)}</strong></p>`
-      : `<p class="role-desc">Du kennst das Wort nicht. Hör gut zu und bluffe.</p>`;
-    return viewSecretCard(
-      "role-impostor",
-      "um dein Wort zu sehen",
-      `<span class="role-name">Impostor</span>${category}`,
-    );
-  }
-
-  const category = impostor.category ? `<p class="role-desc">Kategorie: ${esc(impostor.category)}</p>` : "";
+  const isImpostor = impostor.part === "IMPOSTOR";
   return viewSecretCard(
-    "role-crew",
+    isImpostor ? "role-impostor" : "role-crew",
     "um dein Wort zu sehen",
-    `<span class="role-name">${esc(impostor.word ?? "")}</span>${category}`,
+    impostorCardContent(isImpostor, impostor.word, impostor.category, impostor.fellowImpostors),
   );
+}
+
+function viewStartPlayer(room: RoomView, impostor: ImpostorView): string {
+  const start = room.players.find((p) => p.id === impostor.startPlayerId);
+  if (!start) return "";
+  const name = start.id === room.you.id ? "Du fängst" : `<strong>${esc(start.name)}</strong> fängt`;
+  return `<p class="start-player">${name} an.</p>`;
 }
 
 function viewVoting(room: RoomView, impostor: ImpostorView): string {
@@ -690,13 +747,14 @@ function viewVoting(room: RoomView, impostor: ImpostorView): string {
 
 function viewImpostorResult(room: RoomView, impostor: ImpostorView): string {
   const result = impostor.result!;
-  const youWereImpostor = result.impostorId === room.you.id;
-  const title = result.impostorCaught ? "Erwischt!" : "Der Impostor gewinnt!";
-  const lead = youWereImpostor
-    ? result.impostorCaught
-      ? "Sie haben dich durchschaut."
-      : "Du hast alle getäuscht."
-    : `${esc(result.impostorName)} war der Impostor.`;
+  const several = result.impostorIds.length > 1;
+  const youWereImpostor = result.impostorIds.includes(room.you.id);
+  const title = result.impostorCaught ? "Erwischt!" : several ? "Die Impostor gewinnen!" : "Der Impostor gewinnt!";
+  const names = result.impostorNames.map(esc).join(" und ");
+  let lead = several ? `${names} waren die Impostor.` : `${names} war der Impostor.`;
+  if (youWereImpostor && !several) {
+    lead = result.impostorCaught ? "Sie haben dich durchschaut." : "Du hast alle getäuscht.";
+  }
   const category = result.category ? ` <span class="hint">(${esc(result.category)})</span>` : "";
   const votes = new Map(result.votes.map((v) => [v.playerId, v.votes]));
 
@@ -718,7 +776,7 @@ function viewImpostorResult(room: RoomView, impostor: ImpostorView): string {
       <strong>${esc(result.word)}</strong>${category}
     </section>
 
-    ${viewPlayers(room, { showReady: true, votes, impostorId: result.impostorId })}
+    ${viewPlayers(room, { showReady: true, votes, impostorIds: new Set(result.impostorIds) })}
 
     <div class="actions">
       ${viewReadyButton(room)}
@@ -752,7 +810,7 @@ interface PlayerListOptions {
   votedIds?: Set<string>;
   /** Stimmen nach der Abstimmung. Ist das gesetzt, wird nach Stimmen sortiert. */
   votes?: Map<string, number>;
-  impostorId?: string;
+  impostorIds?: Set<string>;
 }
 
 function viewPlayers(room: RoomView, options: PlayerListOptions = {}): string {
@@ -786,7 +844,7 @@ function viewPlayerItem(room: RoomView, p: PlayerView, options: PlayerListOption
     p.alive ? "" : "is-dead",
     p.connected ? "" : "is-offline",
     options.showReady && p.ready ? "is-ready" : "",
-    p.id === options.impostorId ? "is-impostor" : "",
+    options.impostorIds?.has(p.id) ? "is-impostor" : "",
   ];
   const kickButton =
     options.kickable && p.id !== room.you.id
@@ -823,6 +881,7 @@ app.addEventListener("click", (event) => {
 
 app.addEventListener("input", (event) => {
   const input = event.target as HTMLInputElement;
+  if (state.local && inputLocal(state.local, input)) return;
   if (input.dataset.bind === "name") state.name = input.value;
   if (input.dataset.bind === "customWordDraft") state.customWordDraft = input.value;
   if (input.dataset.bind === "codeInput") {
@@ -833,7 +892,19 @@ app.addEventListener("input", (event) => {
 
 app.addEventListener("change", (event) => {
   const input = event.target as HTMLInputElement;
+  if (state.local) {
+    changeLocal(state.local, input, localUi);
+    return;
+  }
   if (input.dataset.setting === "seesCategory") configureImpostor({ seesCategory: input.checked });
+  if (input.dataset.setting === "randomStart") setImpostorOptions({ randomStartPlayer: input.checked });
+  if (input.dataset.setting === "gameMaster") configureWerwolf({ hostIsGameMaster: input.checked });
+  if (input.dataset.role !== undefined) {
+    const roles = [...app.querySelectorAll<HTMLInputElement>("[data-role]")]
+      .filter((box) => box.checked)
+      .map((box) => box.dataset.role!);
+    configureWerwolf({ roles });
+  }
   if (input.dataset.category !== undefined) {
     const categories = [...app.querySelectorAll<HTMLInputElement>("[data-category]")]
       .filter((box) => box.checked)
@@ -882,10 +953,6 @@ function setRevealing(value: boolean): void {
 
 // ---------------------------------------------------------------------------
 // Hilfsfunktionen
-
-function esc(text: string): string {
-  return text.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
-}
 
 function load<T>(key: string): T | null {
   try {
