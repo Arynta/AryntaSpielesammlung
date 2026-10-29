@@ -1,7 +1,7 @@
 // Bausteine, die online (Lobby) und lokal (ein Handy) gleich aussehen.
 // Die Eingaben tragen data-setting, data-category, data-role bzw. data-action. Was beim Ändern
 // passiert, entscheidet main.ts (an den Server schicken) oder localMode.ts (lokal merken).
-import { MAX_PLAYERS, ROLE_IMAGES, SPECIAL_ROLES, TEAM_IDS, TEAM_NAMES, roleById } from "./gameData";
+import { MAX_PLAYERS, ROLE_IMAGES, SPECIAL_ROLES, TEAM_IDS, TEAM_NAMES, TABU, roleById } from "./gameData";
 import { esc } from "./html";
 
 export function viewStepper(id: string, label: string, value: number, min: number, max: number, action: string): string {
@@ -238,4 +238,100 @@ export function viewRoleOverview(rows: { name: string; role: RoleCardContent }[]
       <ul>${items}</ul>
       ${leftover}
     </section>`;
+}
+
+// ---- Tabu ------------------------------------------------------------
+
+export interface TabuForm {
+  turnSeconds: number;
+  autoTeams: boolean;
+  teamCount: number;
+  targetScore: number;
+}
+
+export function viewTabuOptions(form: TabuForm): string {
+  return `
+    <div class="settings-group">
+      ${viewStepper("turn-seconds", "Sekunden pro Zug", form.turnSeconds, TABU.minTurnSeconds, TABU.maxTurnSeconds, "changeTurnSeconds")}
+      ${viewStepper("target-score", "Punkte bis zum Sieg", form.targetScore, TABU.minTargetScore, TABU.maxTargetScore, "changeTargetScore")}
+    </div>
+    <div class="settings-group">
+      ${viewStepper("team-count", "Teams", form.teamCount, TABU.minTeams, TABU.maxTeams, "changeTeamCount")}
+      ${viewCheck("auto-teams", `data-setting="autoTeams"`, form.autoTeams, "Teams automatisch mischen")}
+      <p class="hint">${form.autoTeams ? "Beim Start werden die Teams zufällig und gleich groß gemischt." : "Jeder wählt sein Team selbst."}</p>
+    </div>`;
+}
+
+export function tabuSummary(form: TabuForm): string[] {
+  return [
+    `Sekunden pro Zug: <strong>${form.turnSeconds}</strong>`,
+    `Punkte bis zum Sieg: <strong>${form.targetScore}</strong>`,
+    `Teams: <strong>${form.teamCount}</strong>, ${form.autoTeams ? "automatisch gemischt" : "selbst gewählt"}`,
+  ];
+}
+
+/** Die Karte mit Begriff und verbotenen Wörtern. */
+export function viewForbiddenCard(card: { word: string; forbidden: string[] }): string {
+  return `
+    <section class="forbidden-card">
+      <strong class="forbidden-word">${esc(card.word)}</strong>
+      <p class="forbidden-label">Nicht sagen:</p>
+      <ul>${card.forbidden.map((f) => `<li>${esc(f)}</li>`).join("")}</ul>
+    </section>`;
+}
+
+/** Uhr, die main.ts jede Viertelsekunde weiterzählt (data-deadline = Zeitpunkt in ms). */
+export function viewCountdown(deadline: number): string {
+  const seconds = Math.max(0, Math.ceil((deadline - Date.now()) / 1000));
+  return `<output class="countdown" data-deadline="${deadline}" aria-label="Restzeit in Sekunden">${seconds}</output>`;
+}
+
+export function viewScoreboard(teams: { name: string; score: number }[], currentTeam: number, targetScore: number): string {
+  const rows = teams
+    .map(
+      (team, i) => `
+        <li class="team-${i} ${i === currentTeam ? "is-current" : ""}">
+          <span>${esc(team.name)}</span>
+          <strong>${team.score}</strong>
+        </li>`,
+    )
+    .join("");
+  return `
+    <section class="scoreboard" aria-label="Punktestand">
+      <ul>${rows}</ul>
+      <p class="hint">Gewonnen hat, wer zuerst ${targetScore} Punkte hat.</p>
+    </section>`;
+}
+
+const OUTCOME_TEXT = { CORRECT: "✓ richtig", SKIPPED: "übersprungen", BUZZED: "🔔 verboten" } as const;
+
+export function viewTurnResults(
+  title: string,
+  results: { word: string; outcome: keyof typeof OUTCOME_TEXT; scoringTeam: number | null }[],
+  teamNames: string[],
+): string {
+  if (results.length === 0) return "";
+  const items = results
+    .map(
+      (r) => `
+        <li>
+          <span class="player-name">${esc(r.word)}</span>
+          <span class="player-note">${OUTCOME_TEXT[r.outcome]}${r.scoringTeam === null ? "" : ` · +1 ${esc(teamNames[r.scoringTeam])}`}</span>
+        </li>`,
+    )
+    .join("");
+  return `
+    <section class="players turn-results">
+      <h2>${esc(title)}</h2>
+      <ul>${items}</ul>
+    </section>`;
+}
+
+/** Aktualisiert alle Uhren auf der Seite, ohne neu zu zeichnen (sonst springt beim Tippen der Fokus). */
+export function updateCountdowns(root: ParentNode): void {
+  for (const el of root.querySelectorAll<HTMLElement>("[data-deadline]")) {
+    const seconds = Math.max(0, Math.ceil((Number(el.dataset.deadline) - Date.now()) / 1000));
+    el.textContent = String(seconds);
+    el.classList.toggle("is-low", seconds <= 10);
+  }
 }

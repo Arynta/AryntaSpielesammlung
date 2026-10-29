@@ -5,6 +5,7 @@ import de.kruschinski.werwolf.game.ImpostorWords.SecretWord;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,6 +46,9 @@ public class Room {
     private Integer werewolfCount;
     private List<String> werwolfRoles = List.of(WerwolfRoles.SEER);
     private boolean werwolfHostIsGameMaster;
+    private TabuOptions tabuOptions = TabuOptions.DEFAULT;
+    /** Selbst gewählte Teams (Spieler-ID → Team-Nummer), nur wenn die Teams nicht automatisch sind. */
+    private final Map<String, Integer> chosenTeams = new HashMap<>();
     /** {@code null}, solange alle in der Lobby sind. */
     private Game game;
     private int nextPlayerNumber = 1;
@@ -131,6 +135,7 @@ public class Room {
             return;
         }
         players.remove(player.id());
+        chosenTeams.remove(player.id());
         if (playerId.equals(hostId)) {
             hostId = firstPlayerId();
         }
@@ -145,6 +150,7 @@ public class Room {
             throw new GameException("Du kannst dich nicht selbst entfernen.");
         }
         players.remove(require(targetId).id());
+        chosenTeams.remove(targetId);
         touch();
     }
 
@@ -259,6 +265,35 @@ public class Room {
         touch();
     }
 
+    public synchronized void configureTabu(String requesterId, int turnSeconds, boolean autoTeams,
+                                                 int teamCount, int targetScore) {
+        requireHost(requesterId);
+        requireLobby();
+        TabuOptions options = new TabuOptions(turnSeconds, autoTeams, teamCount, targetScore);
+        if (!options.equals(tabuOptions)) {
+            tabuOptions = options;
+            chosenTeams.values().removeIf(team -> team >= teamCount);
+            resetReady();
+        }
+        touch();
+    }
+
+    /** Jeder wählt sein Team selbst. Der Host darf auch andere verschieben ({@code targetId}). */
+    public synchronized void chooseTeam(String requesterId, String targetId, int team) {
+        require(requesterId);
+        requireLobby();
+        String playerId = targetId == null ? requesterId : targetId;
+        if (!playerId.equals(requesterId)) {
+            requireHost(requesterId);
+        }
+        require(playerId);
+        if (team < 0 || team >= tabuOptions.teamCount()) {
+            throw new GameException("Dieses Team gibt es nicht.");
+        }
+        chosenTeams.put(playerId, team);
+        touch();
+    }
+
     // ---- Spielablauf ---------------------------------------------------
 
     public synchronized void start(String requesterId, RandomGenerator random) {
@@ -273,6 +308,7 @@ public class Room {
                 yield new WerwolfGame(playersExcept(gameMasterId), gameMasterId, werewolfCount, werwolfRoles, random);
             }
             case IMPOSTOR -> newImpostorRound(1, random);
+            case TABU -> new TabuGame(tabuTeams(random), tabuOptions, random);
         };
         resetReady();
         touch();
@@ -298,17 +334,90 @@ public class Room {
         touch();
     }
 
-    /** Impostor: neue Runde mit neuem Wort, wenn alle bereit sind. */
+    /** Impostor: neue Runde mit neuem Wort. Tabu: neues Spiel. Beides erst, wenn alle bereit sind. */
     public synchronized void nextRound(String requesterId, RandomGenerator random) {
         requireHost(requesterId);
-        ImpostorGame current = requireGame(ImpostorGame.class);
-        if (!current.betweenRounds()) {
+        if (game == null || !game.betweenRounds()) {
             throw new GameException("Die Runde ist noch nicht vorbei.");
         }
         requireStartable();
-        game = newImpostorRound(current.round() + 1, random);
+        game = switch (game) {
+            case ImpostorGame impostor -> newImpostorRound(impostor.round() + 1, random);
+            case TabuGame ignored -> new TabuGame(tabuTeams(random), tabuOptions, random);
+            case WerwolfGame ignored -> throw new GameException("Das geht in diesem Spiel gerade nicht.");
+        };
         resetReady();
         touch();
+    }
+
+    // ---- Tabu ----------------------------------------------------
+
+    public synchronized void startTurn(String requesterId) {
+        require(requesterId);
+        TabuGame tabu = requireGame(TabuGame.class);
+        tabu.startTurn(requesterId, requesterId.equals(hostId), clock.instant());
+        touch();
+    }
+
+    public synchronized void wordCorrect(String requesterId) {
+        runningTabu(requesterId).ifPresent(g -> g.correct(requesterId));
+    }
+
+    public synchronized void wordSkip(String requesterId) {
+        runningTabu(requesterId).ifPresent(g -> g.skip(requesterId));
+    }
+
+    public synchronized void buzz(String requesterId) {
+        runningTabu(requesterId).ifPresent(g -> g.buzz(requesterId));
+    }
+
+    /** Für die Uhr im Server: beendet den Zug, wenn die Zeit um ist. {@code true}, wenn sich etwas geändert hat. */
+    public synchronized boolean expireTabuTurn() {
+        return game instanceof TabuGame tabu && tabu.expireTurn(clock.instant());
+    }
+
+    /** Wann der laufende Zug endet, falls gerade einer läuft. */
+    public synchronized Optional<Instant> tabuTurnEndsAt() {
+        return game instanceof TabuGame tabu ? Optional.ofNullable(tabu.turnEndsAt()) : Optional.empty();
+    }
+
+    /**
+     * Ist die Zeit schon um, endet zuerst der Zug und der Knopfdruck kommt zu spät ({@code empty}).
+     * Sonst gibt es das Spiel zurück, damit die Aktion ausgeführt wird.
+     */
+    private Optional<TabuGame> runningTabu(String requesterId) {
+        require(requesterId);
+        TabuGame tabu = requireGame(TabuGame.class);
+        touch();
+        return tabu.expireTurn(clock.instant()) ? Optional.empty() : Optional.of(tabu);
+    }
+
+    private List<List<Player>> tabuTeams(RandomGenerator random) {
+        int teamCount = tabuOptions.teamCount();
+        List<List<Player>> teams = new ArrayList<>();
+        for (int i = 0; i < teamCount; i++) {
+            teams.add(new ArrayList<>());
+        }
+        List<Player> all = new ArrayList<>(players.values());
+        if (tabuOptions.autoTeams()) {
+            Shuffle.inPlace(all, random);
+            for (int i = 0; i < all.size(); i++) {
+                teams.get(i % teamCount).add(all.get(i));
+            }
+        } else {
+            all.forEach(p -> teams.get(chosenTeams.get(p.id())).add(p));
+        }
+        return teams;
+    }
+
+    /** Spieler-IDs pro Team, so wie sie gerade gewählt sind. */
+    private List<List<String>> chosenTeamIds() {
+        List<List<String>> teams = new ArrayList<>();
+        for (int i = 0; i < tabuOptions.teamCount(); i++) {
+            int team = i;
+            teams.add(players.keySet().stream().filter(id -> Integer.valueOf(team).equals(chosenTeams.get(id))).toList());
+        }
+        return teams;
     }
 
     /** Zurück in die Lobby, z. B. um ein anderes Spiel zu wählen. */
@@ -349,12 +458,17 @@ public class Room {
                 WerwolfRoles.specialRoles().stream().map(RoomView.RoleCard::of).toList(),
                 werwolfRoles, werwolfHostIsGameMaster);
 
+        RoomView.TabuSettings tabuSettings = new RoomView.TabuSettings(
+                tabuOptions.turnSeconds(), tabuOptions.autoTeams(), tabuOptions.teamCount(),
+                tabuOptions.targetScore(), chosenTeamIds());
+
         return new RoomView(
                 code,
                 selectedGame,
                 RoomView.GameOption.all(),
                 impostorSettings,
                 werwolfSettings,
+                tabuSettings,
                 new RoomView.PlayerLimit(playerLimit, lowestPlayerLimit(), MAX_PLAYERS),
                 phase(),
                 round(),
@@ -364,7 +478,8 @@ public class Room {
                 startHint,
                 new RoomView.You(me.id(), me.name(), isHost, me.ready()),
                 game instanceof WerwolfGame werwolf ? werwolf.viewFor(me.id()) : null,
-                game instanceof ImpostorGame impostor ? impostor.viewFor(me.id()) : null);
+                game instanceof ImpostorGame impostor ? impostor.viewFor(me.id()) : null,
+                game instanceof TabuGame tabu ? tabu.viewFor(me.id(), clock.instant()) : null);
     }
 
     // ---- Hilfsmethoden -------------------------------------------------
@@ -382,6 +497,7 @@ public class Room {
         String settingsProblem = switch (selectedGame) {
             case WERWOLF -> RoleDistribution.problem(playing, werewolfCount, werwolfRoles);
             case IMPOSTOR -> impostorOptions.problem(playing);
+            case TABU -> tabuProblem();
         };
         if (settingsProblem != null) {
             return settingsProblem;
@@ -395,11 +511,18 @@ public class Room {
         return null;
     }
 
+    private String tabuProblem() {
+        List<Integer> sizes = chosenTeamIds().stream().map(List::size).toList();
+        int unassigned = players.size() - sizes.stream().mapToInt(Integer::intValue).sum();
+        return tabuOptions.problem(players.size(), sizes, unassigned);
+    }
+
     /** Spielt der Host diesmal nicht mit, weil er ein eigenes Wort gewählt hat oder Werwolf leitet? */
     private boolean hostSitsOut() {
         return switch (selectedGame) {
             case IMPOSTOR -> customWord != null;
             case WERWOLF -> werwolfHostIsGameMaster;
+            case TABU -> false;
         };
     }
 

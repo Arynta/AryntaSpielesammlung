@@ -497,31 +497,4 @@ class RoomTest {
     private static long count(List<Role> roles, String roleId) {
         return roles.stream().filter(r -> r.id().equals(roleId)).count();
     }
-
-    private static final class MutableClock extends Clock {
-        private Instant now;
-
-        MutableClock(Instant start) {
-            this.now = start;
-        }
-
-        void advance(Duration d) {
-            now = now.plus(d);
-        }
-
-        @Override
-        public java.time.ZoneId getZone() {
-            return ZoneOffset.UTC;
-        }
-
-        @Override
-        public Clock withZone(java.time.ZoneId zone) {
-            return this;
-        }
-
-        @Override
-        public Instant instant() {
-            return now;
-        }
-    }
 }

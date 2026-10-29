@@ -15,6 +15,7 @@ public record RoomView(
         List<GameOption> games,
         ImpostorSettings impostorSettings,
         WerwolfSettings werwolfSettings,
+        TabuSettings tabuSettings,
         PlayerLimit playerLimit,
         Phase phase,
         int round,
@@ -24,7 +25,8 @@ public record RoomView(
         String startHint,
         You you,
         WerwolfView werwolf,
-        ImpostorView impostor
+        ImpostorView impostor,
+        TabuView tabu
 ) {
 
     /** Öffentliche Infos über einen Mitspieler (ohne Rolle!). */
@@ -68,6 +70,37 @@ public record RoomView(
             List<RoleCard> allRoles,
             List<String> selectedRoles,
             boolean hostIsGameMaster
+    ) {
+    }
+
+    /** {@code teams}: Spieler-IDs pro Team, wenn jeder sein Team selbst wählt. */
+    public record TabuSettings(int turnSeconds, boolean autoTeams, int teamCount, int targetScore, List<List<String>> teams) {
+    }
+
+    public record TabuTeam(String name, List<String> playerIds, int score) {
+    }
+
+    public record TabuCard(String word, List<String> forbidden) {
+    }
+
+    /**
+     * {@code card} sehen nur Erklärer und Aufpasser. {@code remainingMs} ist die Restzeit des laufenden Zugs,
+     * damit jedes Handy unabhängig von seiner eigenen Uhr richtig herunterzählt.
+     */
+    public record TabuView(
+            List<TabuTeam> teams,
+            int currentTeam,
+            int watcherTeam,
+            String explainerId,
+            String watcherId,
+            Integer yourTeam,
+            long remainingMs,
+            int turnSeconds,
+            int targetScore,
+            TabuCard card,
+            List<TabuGame.CardResult> turnResults,
+            List<TabuGame.CardResult> lastTurn,
+            Integer winnerTeam
     ) {
     }
 

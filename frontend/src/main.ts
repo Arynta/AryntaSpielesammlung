@@ -2,7 +2,7 @@ import "./fonts";
 import "./style.css";
 import { askConfirm } from "./confirmDialog";
 import { GameConnection, type ConnectionStatus } from "./connection";
-import { preloadRoleImages } from "./gameData";
+import { TABU, preloadRoleImages } from "./gameData";
 import { esc } from "./html";
 import {
   actLocal,
@@ -10,6 +10,7 @@ import {
   createLocalState,
   forgetLocalSetup,
   inputLocal,
+  tickLocal,
   viewLocal,
   type LocalState,
   type LocalUi,
@@ -19,14 +20,19 @@ import {
   impostorSummary,
   roleCardContent,
   roleCardVariant,
+  updateCountdowns,
   viewImpostorOptions,
   viewRoleOverview,
   viewSummary,
   viewWerwolfOptions,
+  viewTabuOptions,
   werwolfSummary,
+  tabuSummary,
   type ImpostorForm,
   type WerwolfForm,
+  type TabuForm,
 } from "./sharedViews";
+import { viewTeamChoice, viewTabu } from "./onlineTabu";
 import type { GameType, ImpostorView, PlayerView, RoomView, ServerMessage, WerwolfView } from "./types";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "ws://localhost:8080/ws";
@@ -52,6 +58,8 @@ const state = {
   toast: null as string | null,
   revealing: false,
   waitingForRejoin: false,
+  /** Tabu: wann der laufende Zug endet (ms, Uhr dieses Handys). */
+  turnDeadline: null as number | null,
   /** Gesetzt, solange man ohne Server mit einem Handy spielt. */
   local: null as LocalState | null,
 };
@@ -96,6 +104,9 @@ function handleMessage(msg: ServerMessage): void {
       // Ein eigenes Wort gilt nur für eine Runde, also beim Spielstart auch das Eingabefeld leeren
       if (state.room?.phase === "LOBBY" && msg.state.phase !== "LOBBY") state.customWordDraft = "";
       state.room = msg.state;
+      // Restzeit statt Endzeitpunkt vom Server, damit falsch gestellte Handy-Uhren nicht stören
+      state.turnDeadline =
+        msg.state.tabu && msg.state.phase === "TURN" ? Date.now() + msg.state.tabu.remainingMs : null;
       break;
     case "left":
       forgetRoom();
@@ -204,6 +215,33 @@ function act(action: string, value?: string): void {
     case "vote":
       if (value) sendOrComplain({ type: "vote", targetId: value });
       break;
+    case "changeTurnSeconds":
+      if (state.room) configureTabu({ turnSeconds: state.room.tabuSettings.turnSeconds + Number(value) * TABU.turnSecondsStep });
+      break;
+    case "changeTargetScore":
+      if (state.room) configureTabu({ targetScore: state.room.tabuSettings.targetScore + Number(value) * TABU.targetScoreStep });
+      break;
+    case "changeTeamCount":
+      if (state.room) configureTabu({ teamCount: state.room.tabuSettings.teamCount + Number(value) });
+      break;
+    case "chooseTeam":
+      sendOrComplain({ type: "chooseTeam", team: Number(value) });
+      break;
+    case "moveTeam":
+      moveToNextTeam(value);
+      break;
+    case "startTurn":
+      sendOrComplain({ type: "startTurn" });
+      break;
+    case "wordCorrect":
+      sendOrComplain({ type: "wordCorrect" });
+      break;
+    case "wordSkip":
+      sendOrComplain({ type: "wordSkip" });
+      break;
+    case "buzz":
+      sendOrComplain({ type: "buzz" });
+      break;
     case "nextRound":
       sendOrComplain({ type: "nextRound" });
       break;
@@ -275,6 +313,26 @@ function configureWerwolf(change: { werewolfCount?: number | null; roles?: strin
     roles: change.roles ?? current.selectedRoles,
     hostIsGameMaster: change.hostIsGameMaster ?? current.hostIsGameMaster,
   });
+}
+
+function configureTabu(change: Partial<TabuForm>): void {
+  const current = state.room?.tabuSettings;
+  if (!current) return;
+  sendOrComplain({
+    type: "configureTabu",
+    turnSeconds: change.turnSeconds ?? current.turnSeconds,
+    autoTeams: change.autoTeams ?? current.autoTeams,
+    teamCount: change.teamCount ?? current.teamCount,
+    targetScore: change.targetScore ?? current.targetScore,
+  });
+}
+
+/** Host verschiebt jemanden ins nächste Team (nach dem letzten wieder ins erste). */
+function moveToNextTeam(playerId: string | undefined): void {
+  const settings = state.room?.tabuSettings;
+  if (!settings || !playerId) return;
+  const current = settings.teams.findIndex((ids) => ids.includes(playerId));
+  sendOrComplain({ type: "chooseTeam", team: (current + 1) % settings.teamCount, targetId: playerId });
 }
 
 async function forgetDevice(): Promise<void> {
@@ -356,6 +414,8 @@ function render(): void {
     body = viewLobby(room);
   } else if (room.werwolf) {
     body = viewWerwolf(room, room.werwolf);
+  } else if (room.tabu) {
+    body = viewTabu(room, room.tabu, state.turnDeadline, viewReadyButton(room));
   } else if (room.impostor) {
     body = viewImpostor(room, room.impostor);
   } else {
@@ -455,6 +515,7 @@ function viewLobby(room: RoomView): string {
 
     ${viewGamePicker(room)}
     ${viewSettings(room)}
+    ${room.game === "TABU" && !room.tabuSettings.autoTeams ? viewTeamChoice(room) : ""}
     ${viewPlayers(room, { showReady: true, showLimit: true, kickable: room.you.host })}
 
     <div class="actions">
@@ -532,6 +593,9 @@ function viewSettings(room: RoomView): string {
   let gameSettings: string;
   if (room.game === "IMPOSTOR") {
     gameSettings = room.you.host ? viewImpostorSettings(room) : viewImpostorSettingsSummary(room);
+  } else if (room.game === "TABU") {
+    const form = room.tabuSettings;
+    gameSettings = room.you.host ? viewTabuOptions(form) : viewSummary(tabuSummary(form));
   } else {
     const form = werwolfForm(room);
     gameSettings = room.you.host ? viewWerwolfOptions(form) : viewSummary(werwolfSummary(form));
@@ -901,6 +965,7 @@ app.addEventListener("change", (event) => {
   if (input.dataset.setting === "seesCategory") configureImpostor({ seesCategory: input.checked });
   if (input.dataset.setting === "randomStart") setImpostorOptions({ randomStartPlayer: input.checked });
   if (input.dataset.setting === "gameMaster") configureWerwolf({ hostIsGameMaster: input.checked });
+  if (input.dataset.setting === "autoTeams") configureTabu({ autoTeams: input.checked });
   if (input.dataset.role !== undefined) {
     const roles = [...app.querySelectorAll<HTMLInputElement>("[data-role]")]
       .filter((box) => box.checked)
@@ -973,6 +1038,12 @@ function save(key: string, value: unknown): void {
     // privater Modus o. ä. Dann klappt nur das Wiedereinsteigen nach Neuladen nicht.
   }
 }
+
+// Uhren weiterzählen. Lokal endet hier auch der Zug, online macht das der Server.
+window.setInterval(() => {
+  updateCountdowns(app);
+  if (state.local) tickLocal(state.local, localUi);
+}, 250);
 
 render();
 void connection.start();

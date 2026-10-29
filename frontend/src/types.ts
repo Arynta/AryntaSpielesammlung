@@ -1,7 +1,7 @@
 // Spiegelt die Java-Klassen im Backend (RoomView, GameType, Phase).
 
-export type GameType = "WERWOLF" | "IMPOSTOR";
-export type Phase = "LOBBY" | "NIGHT" | "DAY" | "WORD" | "VOTING" | "RESULT";
+export type GameType = "WERWOLF" | "IMPOSTOR" | "TABU";
+export type Phase = "LOBBY" | "NIGHT" | "DAY" | "WORD" | "VOTING" | "RESULT" | "TURN_READY" | "TURN";
 export type ImpostorPart = "CREW" | "IMPOSTOR" | "GAME_MASTER";
 
 export interface PlayerView {
@@ -45,6 +45,53 @@ export interface WerwolfSettings {
   allRoles: RoleCard[];
   selectedRoles: string[];
   hostIsGameMaster: boolean;
+}
+
+export interface TabuSettings {
+  turnSeconds: number;
+  autoTeams: boolean;
+  teamCount: number;
+  targetScore: number;
+  /** Spieler-IDs pro Team, wenn jeder selbst wählt. */
+  teams: string[][];
+}
+
+export interface TabuTeam {
+  name: string;
+  playerIds: string[];
+  score: number;
+}
+
+export interface TabuCard {
+  word: string;
+  forbidden: string[];
+}
+
+export type CardOutcome = "CORRECT" | "SKIPPED" | "BUZZED";
+
+export interface CardResult {
+  word: string;
+  outcome: CardOutcome;
+  /** null: niemand bekam einen Punkt (Buzzer). */
+  scoringTeam: number | null;
+}
+
+export interface TabuView {
+  teams: TabuTeam[];
+  currentTeam: number;
+  watcherTeam: number;
+  explainerId: string;
+  watcherId: string;
+  yourTeam: number | null;
+  /** Restzeit des laufenden Zugs beim Absenden der Ansicht. */
+  remainingMs: number;
+  turnSeconds: number;
+  targetScore: number;
+  /** Nur für Erklärer und Aufpasser. */
+  card: TabuCard | null;
+  turnResults: CardResult[];
+  lastTurn: CardResult[];
+  winnerTeam: number | null;
 }
 
 export interface PlayerLimit {
@@ -111,6 +158,7 @@ export interface RoomView {
   games: GameOption[];
   impostorSettings: ImpostorSettings;
   werwolfSettings: WerwolfSettings;
+  tabuSettings: TabuSettings;
   playerLimit: PlayerLimit;
   phase: Phase;
   round: number;
@@ -121,6 +169,7 @@ export interface RoomView {
   you: You;
   werwolf: WerwolfView | null;
   impostor: ImpostorView | null;
+  tabu: TabuView | null;
 }
 
 /** Was der Server schickt. */
@@ -150,6 +199,12 @@ export type ClientMessage =
   | { type: "setImpostorCategories"; categories: string[] }
   | { type: "setImpostorOptions"; impostorCount: number; randomStartPlayer: boolean }
   | { type: "configureWerwolf"; werewolfCount: number | null; roles: string[]; hostIsGameMaster: boolean }
+  | { type: "configureTabu"; turnSeconds: number; autoTeams: boolean; teamCount: number; targetScore: number }
+  | { type: "chooseTeam"; team: number; targetId?: string }
+  | { type: "startTurn" }
+  | { type: "wordCorrect" }
+  | { type: "wordSkip" }
+  | { type: "buzz" }
   | { type: "nextRound" }
   | { type: "backToLobby" }
   | { type: "ping" };

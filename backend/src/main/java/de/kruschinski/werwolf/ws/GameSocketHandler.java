@@ -7,6 +7,7 @@ import de.kruschinski.werwolf.game.Room;
 import de.kruschinski.werwolf.game.RoomRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
@@ -38,6 +39,8 @@ public class GameSocketHandler extends TextWebSocketHandler {
 
     private final RoomRegistry rooms;
     private final JsonMapper json;
+    /** Beendet Tabu-Züge pünktlich, auch wenn gerade niemand etwas drückt. */
+    private final TaskScheduler scheduler;
 
     /** Session-ID → threadsichere Session. */
     private final Map<String, WebSocketSession> sessions = new ConcurrentHashMap<>();
@@ -46,9 +49,10 @@ public class GameSocketHandler extends TextWebSocketHandler {
     /** "RAUM:spielerId" → aktuelle Session dieses Spielers. */
     private final Map<String, WebSocketSession> sessionsBySeat = new ConcurrentHashMap<>();
 
-    public GameSocketHandler(RoomRegistry rooms, JsonMapper json) {
+    public GameSocketHandler(RoomRegistry rooms, JsonMapper json, TaskScheduler scheduler) {
         this.rooms = rooms;
         this.json = json;
+        this.scheduler = scheduler;
     }
 
     @Override
@@ -149,6 +153,26 @@ public class GameSocketHandler extends TextWebSocketHandler {
             }
             case "configureWerwolf" -> withRoom(session, (room, playerId) -> room.configureWerwolf(
                     playerId, msg.werewolfCount(), msg.roles(), Boolean.TRUE.equals(msg.hostIsGameMaster())));
+            case "configureTabu" -> {
+                if (msg.turnSeconds() == null || msg.teamCount() == null || msg.targetScore() == null) {
+                    throw new GameException("Bitte gib alle Einstellungen für Tabu an.");
+                }
+                withRoom(session, (room, playerId) -> room.configureTabu(playerId, msg.turnSeconds(),
+                        Boolean.TRUE.equals(msg.autoTeams()), msg.teamCount(), msg.targetScore()));
+            }
+            case "chooseTeam" -> {
+                if (msg.team() == null) {
+                    throw new GameException("Bitte wähle ein Team.");
+                }
+                withRoom(session, (room, playerId) -> room.chooseTeam(playerId, msg.targetId(), msg.team()));
+            }
+            case "startTurn" -> withRoom(session, (room, playerId) -> {
+                room.startTurn(playerId);
+                scheduleTurnEnd(room);
+            });
+            case "wordCorrect" -> withRoom(session, Room::wordCorrect);
+            case "wordSkip" -> withRoom(session, Room::wordSkip);
+            case "buzz" -> withRoom(session, Room::buzz);
             case "setPlayerLimit" -> {
                 if (msg.playerLimit() == null) {
                     throw new GameException("Bitte gib ein Spielerlimit an.");
@@ -190,6 +214,14 @@ public class GameSocketHandler extends TextWebSocketHandler {
     }
 
     // ---------------------------------------------------------------------
+
+    private void scheduleTurnEnd(Room room) {
+        room.tabuTurnEndsAt().ifPresent(endsAt -> scheduler.schedule(() -> {
+            if (room.expireTabuTurn()) {
+                broadcast(room);
+            }
+        }, endsAt));
+    }
 
     private static GameType parseGameType(String raw) {
         try {

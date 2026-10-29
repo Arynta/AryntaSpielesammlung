@@ -858,3 +858,215 @@ body[data-phase="day"] .role-overview li.role-team-dorf .player-note {
 .pass-head .title {
   overflow-wrap: anywhere;
 }
+
+/* ---- Tabu ----------------------------------------------------- */
+
+:root {
+  --team-0: #e0614f;
+  --team-1: #4f8fe0;
+  --team-2: #4fb86d;
+  --team-3: #e3c24a;
+}
+
+.forbidden-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1.25rem;
+  border-radius: 18px;
+  background: #fbf6ea;
+  color: #2a1d07;
+  border: 3px solid var(--accent);
+  text-align: center;
+}
+
+.forbidden-word {
+  font-family: "Grenze", Georgia, serif;
+  font-weight: 800;
+  font-size: 2.5rem;
+  line-height: 1.05;
+  overflow-wrap: anywhere;
+}
+
+.forbidden-label {
+  margin: 0.25rem 0 0;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #a12a1c;
+}
+
+.forbidden-card ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
+.forbidden-card li {
+  padding: 0.35rem 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+  border-top: 1px solid #e3d6b8;
+}
+
+.turn-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.turn-head .game-label {
+  margin: 0;
+}
+
+.countdown {
+  min-width: 3.5rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 2px solid var(--line);
+  font-size: 1.6rem;
+  font-weight: 700;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.countdown.is-low {
+  border-color: #e0614f;
+  color: #ff8a7a;
+}
+
+.turn-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.btn.buzzer {
+  min-height: 4.5rem;
+  font-size: 1.35rem;
+  background: #b3261e;
+  border-color: #d3463d;
+  color: #fff;
+}
+
+.turn-role {
+  margin: 0;
+  padding: 1.25rem;
+  border-radius: 12px;
+  background: var(--surface);
+  font-size: 1.2rem;
+  text-align: center;
+}
+
+.scoreboard ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr));
+  gap: 0.5rem;
+}
+
+.scoreboard li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  border-radius: 10px;
+  background: var(--surface);
+  border-left: 6px solid var(--team-color, var(--line));
+}
+
+.scoreboard li strong {
+  font-size: 1.4rem;
+}
+
+.scoreboard li.is-current {
+  outline: 2px solid var(--accent);
+}
+
+.scoreboard .hint {
+  margin: 0.4rem 0 0;
+}
+
+/* Jede Teamfarbe landet als --team-color am Element, die Bausteine nutzen sie für ihren Rand */
+.team-0 { --team-color: var(--team-0); }
+.team-1 { --team-color: var(--team-1); }
+.team-2 { --team-color: var(--team-2); }
+.team-3 { --team-color: var(--team-3); }
+
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  gap: 0.75rem;
+}
+
+.team-box {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border-radius: 12px;
+  background: var(--surface);
+  border-left: 6px solid var(--team-color, var(--line));
+}
+
+.team-box h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.team-box ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.team-box li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 2.25rem;
+}
+
+.team-pick-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.team-pick {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.team-chip {
+  font: inherit;
+  font-size: 0.9rem;
+  min-height: 2.5rem;
+  padding: 0.25rem 0.7rem;
+  color: var(--text);
+  background: transparent;
+  border: 2px solid var(--line);
+  border-left: 6px solid var(--team-color, var(--line));
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.team-chip.is-selected {
+  background: var(--accent);
+  color: var(--on-accent);
+  font-weight: 700;
+}
+
+.team-chip:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}

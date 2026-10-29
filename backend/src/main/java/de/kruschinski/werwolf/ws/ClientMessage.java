@@ -17,6 +17,9 @@ import java.util.List;
  *   <li>{@code setImpostorCategories}: categories</li>
  *   <li>{@code setImpostorOptions}: impostorCount, randomStartPlayer</li>
  *   <li>{@code configureWerwolf}: werewolfCount (fehlt = automatisch), roles, hostIsGameMaster</li>
+ *   <li>{@code configureTabu}: turnSeconds, autoTeams, teamCount, targetScore</li>
+ *   <li>{@code chooseTeam}: team, targetId (nur Host, um andere zu verschieben)</li>
+ *   <li>{@code startTurn}, {@code wordCorrect}, {@code wordSkip}, {@code buzz}: keine Felder</li>
  *   <li>{@code leave}, {@code start}, {@code nextPhase}, {@code startVoting}, {@code nextRound},
  *       {@code backToLobby}, {@code ping}: keine Felder</li>
  * </ul>
@@ -37,6 +40,11 @@ public record ClientMessage(
         Boolean randomStartPlayer,
         Integer werewolfCount,
         List<String> roles,
-        Boolean hostIsGameMaster
+        Boolean hostIsGameMaster,
+        Integer turnSeconds,
+        Boolean autoTeams,
+        Integer teamCount,
+        Integer targetScore,
+        Integer team
 ) {
 }

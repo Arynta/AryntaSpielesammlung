@@ -1,5 +1,5 @@
 // Spielregeln für den lokalen Modus (ein Handy, kein Server). Sie entsprechen den Regeln im
-// Backend (RoleDistribution, ImpostorOptions, ImpostorWords) und haben eigene Tests.
+// Backend (RoleDistribution, ImpostorOptions, ImpostorWords, TabuGame) und haben eigene Tests.
 import {
   CATEGORIES,
   MAX_IMPOSTORS,
@@ -7,11 +7,14 @@ import {
   SPECIAL_ROLES,
   THIEF,
   THIEF_EXTRA_CARDS,
+  TABU,
+  TABU_CARDS,
   VILLAGER,
   WEREWOLF,
   roleById,
   type RoleData,
 } from "./gameData";
+import type { CardOutcome, CardResult, TabuCard } from "./types";
 
 /** Zufallszahl von 0 (inklusive) bis 1 (exklusive), wie Math.random. Austauschbar für Tests. */
 export type Random = () => number;
@@ -168,4 +171,135 @@ export function dealImpostor(
   const crew = seats.slice(options.impostorCount);
   const startPlayer = options.randomStartPlayer ? crew[Math.floor(random() * crew.length)] : null;
   return { word, category, impostors, startPlayer };
+}
+
+// ---- Tabu ------------------------------------------------------------
+
+/** Ein laufendes Tabu-Spiel. Spieler sind Plätze (Index in der Namensliste). */
+export interface TabuMatch {
+  teams: number[][];
+  scores: number[];
+  targetScore: number;
+  currentTeam: number;
+  /** Pro Team: wie oft schon erklärt bzw. aufgepasst wurde, daraus folgt, wer dran ist. */
+  explainerTurns: number[];
+  watcherTurns: number[];
+  deck: TabuCard[];
+  card: TabuCard | null;
+  turnResults: CardResult[];
+  lastTurn: CardResult[];
+  winner: number | null;
+}
+
+/**
+ * Warum nicht gestartet werden kann, oder null.
+ * @param chosen pro Platz das selbst gewählte Team, null = noch keins
+ */
+export function tabuProblem(
+  playerCount: number,
+  teamCount: number,
+  autoTeams: boolean,
+  chosen: readonly (number | null)[],
+): string | null {
+  const needed = teamCount * TABU.minTeamSize;
+  if (playerCount < needed) return `Für ${teamCount} Teams braucht es mindestens ${needed} Spieler.`;
+  if (autoTeams) return null;
+  const picks = Array.from({ length: playerCount }, (_, i) => chosen[i] ?? null);
+  const unassigned = picks.filter((t) => t === null || t >= teamCount).length;
+  if (unassigned > 0) {
+    return unassigned === 1 ? "1 Spieler hat noch kein Team." : `${unassigned} Spieler haben noch kein Team.`;
+  }
+  for (let team = 0; team < teamCount; team++) {
+    if (picks.filter((t) => t === team).length < TABU.minTeamSize) {
+      return `Jedes Team braucht mindestens ${TABU.minTeamSize} Spieler.`;
+    }
+  }
+  return null;
+}
+
+/** Automatisch: gemischt und reihum verteilt, also gleich groß. Sonst wie gewählt. */
+export function makeTeams(
+  playerCount: number,
+  teamCount: number,
+  autoTeams: boolean,
+  chosen: readonly (number | null)[],
+  random: Random,
+): number[][] {
+  const teams: number[][] = Array.from({ length: teamCount }, () => []);
+  const seats = Array.from({ length: playerCount }, (_, i) => i);
+  if (autoTeams) {
+    shuffled(seats, random).forEach((seat, i) => teams[i % teamCount].push(seat));
+  } else {
+    seats.forEach((seat) => teams[chosen[seat]!].push(seat));
+  }
+  return teams;
+}
+
+export function createMatch(teams: number[][], targetScore: number): TabuMatch {
+  return {
+    teams,
+    scores: teams.map(() => 0),
+    targetScore,
+    currentTeam: 0,
+    explainerTurns: teams.map(() => 0),
+    watcherTurns: teams.map(() => 0),
+    deck: [],
+    card: null,
+    turnResults: [],
+    lastTurn: [],
+    winner: null,
+  };
+}
+
+/** Der Aufpasser kommt aus dem Team, das als Nächstes dran ist. */
+export function watcherTeam(match: TabuMatch): number {
+  return (match.currentTeam + 1) % match.teams.length;
+}
+
+export function explainerSeat(match: TabuMatch): number {
+  const team = match.teams[match.currentTeam];
+  return team[match.explainerTurns[match.currentTeam] % team.length];
+}
+
+export function watcherSeat(match: TabuMatch): number {
+  const index = watcherTeam(match);
+  const team = match.teams[index];
+  return team[match.watcherTurns[index] % team.length];
+}
+
+/** Neu gemischt wird erst, wenn alle Karten einmal dran waren. */
+export function drawCard(match: TabuMatch, random: Random): void {
+  if (match.deck.length === 0) match.deck = shuffled(TABU_CARDS, random);
+  match.card = match.deck.pop()!;
+}
+
+/** Richtig: Punkt fürs eigene Team. Überspringen oder Buzzer: neue Karte, kein Punkt. */
+export function scoreCard(match: TabuMatch, outcome: CardOutcome, random: Random): void {
+  if (!match.card || match.winner !== null) return;
+  if (outcome !== "CORRECT") {
+    match.turnResults.push({ word: match.card.word, outcome, scoringTeam: null });
+    drawCard(match, random);
+    return;
+  }
+  const team = match.currentTeam;
+  match.scores[team]++;
+  match.turnResults.push({ word: match.card.word, outcome, scoringTeam: team });
+  if (match.scores[team] >= match.targetScore) {
+    match.winner = team;
+    match.lastTurn = match.turnResults;
+    match.turnResults = [];
+    match.card = null;
+    return;
+  }
+  drawCard(match, random);
+}
+
+/** Zeit um: das nächste Team ist dran, Erklärer und Aufpasser wechseln. */
+export function endTurn(match: TabuMatch): void {
+  match.lastTurn = match.turnResults;
+  match.turnResults = [];
+  match.explainerTurns[match.currentTeam]++;
+  match.watcherTurns[watcherTeam(match)]++;
+  match.currentTeam = (match.currentTeam + 1) % match.teams.length;
+  match.card = null;
 }

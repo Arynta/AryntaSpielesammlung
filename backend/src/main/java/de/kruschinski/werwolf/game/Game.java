@@ -1,7 +1,7 @@
 package de.kruschinski.werwolf.game;
 
 /** Ein laufendes Spiel in einem Raum. Die Lobby (Spieler, Host, Bereit) verwaltet {@link Room}. */
-public sealed interface Game permits WerwolfGame, ImpostorGame {
+public sealed interface Game permits WerwolfGame, ImpostorGame, TabuGame {
 
     GameType type();
 

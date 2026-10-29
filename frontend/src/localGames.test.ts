@@ -1,8 +1,17 @@
 import { describe, expect, it } from "vitest";
-import { CATEGORIES, MAX_IMPOSTORS, SEER, SPECIAL_ROLES, TEAM_NAMES, THIEF, VILLAGER, WEREWOLF } from "./gameData";
+import { CATEGORIES, MAX_IMPOSTORS, SEER, SPECIAL_ROLES, TEAM_NAMES, THIEF, VILLAGER, WEREWOLF, TABU_CARDS } from "./gameData";
 import {
   autoWerewolves,
   cleanName,
+  createMatch,
+  drawCard,
+  endTurn,
+  explainerSeat,
+  makeTeams,
+  scoreCard,
+  watcherSeat,
+  watcherTeam,
+  tabuProblem,
   dealImpostor,
   dealWerwolf,
   duplicateName,
@@ -135,5 +144,73 @@ describe("Impostor", () => {
     }
     // Alle verbraucht: dann geht es von vorne los
     expect(tiere.words).toContain(pickWord(["Tiere"], used, random).word);
+  });
+});
+
+describe("Tabu", () => {
+  it("braucht genug Spieler und vollständige Teams", () => {
+    expect(tabuProblem(3, 2, true, [])).toBe("Für 2 Teams braucht es mindestens 4 Spieler.");
+    expect(tabuProblem(4, 2, true, [])).toBeNull();
+    expect(tabuProblem(4, 2, false, [0, 0, 1, null])).toBe("1 Spieler hat noch kein Team.");
+    expect(tabuProblem(4, 2, false, [0, 0, 0, 1])).toBe("Jedes Team braucht mindestens 2 Spieler.");
+    expect(tabuProblem(4, 2, false, [0, 1, 0, 1])).toBeNull();
+    // Team 3 gibt es bei 2 Teams nicht mehr, das zählt wie keine Wahl
+    expect(tabuProblem(4, 2, false, [0, 1, 0, 3])).toBe("1 Spieler hat noch kein Team.");
+  });
+
+  it("verteilt automatisch gleich groß und sonst wie gewählt", () => {
+    const auto = makeTeams(5, 2, true, [], seeded(1));
+    expect(auto.map((t) => t.length)).toEqual([3, 2]);
+    expect(auto.flat().sort()).toEqual([0, 1, 2, 3, 4]);
+    expect(makeTeams(4, 2, false, [1, 0, 1, 0], seeded(1))).toEqual([[1, 3], [0, 2]]);
+  });
+
+  it("Erklärer und Aufpasser kommen aus verschiedenen Teams und wechseln reihum", () => {
+    const match = createMatch([[0, 1, 2], [3, 4, 5]], 30);
+    const explainers: number[] = [];
+    const watchers: number[] = [];
+    for (let turn = 0; turn < 6; turn++) {
+      expect(match.teams[match.currentTeam]).toContain(explainerSeat(match));
+      expect(match.teams[watcherTeam(match)]).toContain(watcherSeat(match));
+      if (match.currentTeam === 0) {
+        explainers.push(explainerSeat(match));
+        watchers.push(watcherSeat(match));
+      }
+      endTurn(match);
+    }
+    expect(explainers).toEqual([0, 1, 2]);
+    expect(watchers).toEqual([3, 4, 5]);
+  });
+
+  it("vergibt Punkte richtig und endet bei den Siegpunkten", () => {
+    const random = seeded(4);
+    const match = createMatch([[0, 1], [2, 3]], 3);
+    drawCard(match, random);
+    scoreCard(match, "CORRECT", random);
+    scoreCard(match, "SKIPPED", random);
+    scoreCard(match, "BUZZED", random);
+    expect(match.scores).toEqual([1, 0]);
+    expect(match.turnResults.map((r) => r.scoringTeam)).toEqual([0, null, null]);
+
+    scoreCard(match, "CORRECT", random);
+    scoreCard(match, "CORRECT", random);
+    expect(match.winner).toBe(0);
+    expect(match.card).toBeNull();
+    expect(match.lastTurn).toHaveLength(5);
+    scoreCard(match, "CORRECT", random);
+    expect(match.scores).toEqual([3, 0]);
+  });
+
+  it("wiederholt keine Karte, bis alle dran waren", () => {
+    const random = seeded(9);
+    const match = createMatch([[0, 1], [2, 3]], 1000);
+    const seen = new Set<string>();
+    drawCard(match, random);
+    for (let i = 0; i < TABU_CARDS.length; i++) {
+      expect(seen.has(match.card!.word)).toBe(false);
+      seen.add(match.card!.word);
+      scoreCard(match, i % 2 ? "SKIPPED" : "CORRECT", random);
+    }
+    expect(seen.size).toBe(TABU_CARDS.length);
   });
 });

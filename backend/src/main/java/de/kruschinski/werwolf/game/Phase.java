@@ -12,5 +12,12 @@ public enum Phase {
     /** Jeder sieht sein Wort, Hinweise und Diskussion laufen am Tisch. */
     WORD,
     VOTING,
-    RESULT
+    /** Ergebnis einer Runde bzw. Spielende. */
+    RESULT,
+
+    // Tabu
+    /** Das nächste Team ist dran, der Erklärer startet die Uhr. */
+    TURN_READY,
+    /** Die Uhr läuft. */
+    TURN
 }

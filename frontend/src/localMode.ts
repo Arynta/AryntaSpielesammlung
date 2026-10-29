@@ -1,12 +1,21 @@
 // Lokaler Modus: Ein Handy wird reihum weitergegeben, jeder sieht kurz seine Karte.
 // Läuft komplett im Browser, ohne Server. Nur die Einrichtung (Namen, Einstellungen) wird gespeichert.
 import { askConfirm } from "./confirmDialog";
-import { CATEGORIES, MAX_IMPOSTORS, MAX_PLAYERS, MIN_PLAYERS, SEER, TEAM_NAMES, preloadRoleImages } from "./gameData";
+import { CATEGORIES, MAX_IMPOSTORS, MAX_PLAYERS, MIN_PLAYERS, SEER, TEAM_NAMES, TABU, preloadRoleImages } from "./gameData";
 import { esc } from "./html";
 import {
+  createMatch,
   dealImpostor,
   dealWerwolf,
+  drawCard,
   duplicateName,
+  endTurn,
+  explainerSeat,
+  makeTeams,
+  scoreCard,
+  watcherSeat,
+  watcherTeam,
+  tabuProblem,
   impostorProblem,
   knownWolves,
   normalizeRoles,
@@ -15,6 +24,7 @@ import {
   werwolfProblem,
   type ImpostorDeal,
   type WerwolfDeal,
+  type TabuMatch,
 } from "./localGames";
 import {
   impostorCardContent,
@@ -23,9 +33,14 @@ import {
   viewImpostorOptions,
   viewRoleOverview,
   viewStepper,
+  viewCountdown,
+  viewForbiddenCard,
+  viewScoreboard,
+  viewTurnResults,
   viewWerwolfOptions,
+  viewTabuOptions,
 } from "./sharedViews";
-import type { GameType } from "./types";
+import type { CardOutcome, GameType } from "./types";
 
 const STORAGE_KEY = "arynta.local";
 const DEFAULT_PLAYERS = 5;
@@ -43,9 +58,15 @@ export interface LocalSetup {
   /** null = automatisch. */
   werewolfCount: number | null;
   roles: string[];
+  turnSeconds: number;
+  autoTeams: boolean;
+  teamCount: number;
+  targetScore: number;
+  /** Pro Platz das selbst gewählte Team, null = noch keins. */
+  teams: (number | null)[];
 }
 
-type Stage = "setup" | "pass" | "card" | "table" | "reveal";
+type Stage = "setup" | "pass" | "card" | "table" | "reveal" | "wvReady" | "wvTurn" | "wvOver";
 
 export interface LocalState {
   setup: LocalSetup;
@@ -58,6 +79,9 @@ export interface LocalState {
   werwolf: WerwolfDeal | null;
   usedWords: string[];
   overviewOpen: boolean;
+  match: TabuMatch | null;
+  /** Wann der laufende Tabu-Zug endet (ms). */
+  deadline: number | null;
 }
 
 /** Was der lokale Modus von main.ts braucht. */
@@ -77,6 +101,8 @@ export function createLocalState(): LocalState {
     werwolf: null,
     usedWords: [],
     overviewOpen: false,
+    match: null,
+    deadline: null,
   };
 }
 
@@ -98,7 +124,30 @@ export function actLocal(local: LocalState, action: string, value: string | unde
   const step = Number(value);
   switch (action) {
     case "localGame":
-      setup.game = value === "WERWOLF" ? "WERWOLF" : "IMPOSTOR";
+      setup.game = value === "WERWOLF" || value === "TABU" ? value : "IMPOSTOR";
+      break;
+    case "changeTurnSeconds":
+      setup.turnSeconds = clamp(setup.turnSeconds + step * TABU.turnSecondsStep, TABU.minTurnSeconds, TABU.maxTurnSeconds);
+      break;
+    case "changeTargetScore":
+      setup.targetScore = clamp(setup.targetScore + step * TABU.targetScoreStep, TABU.minTargetScore, TABU.maxTargetScore);
+      break;
+    case "changeTeamCount":
+      setup.teamCount = clamp(setup.teamCount + step, TABU.minTeams, TABU.maxTeams);
+      setup.teams = setup.teams.map((t) => (t !== null && t < setup.teamCount ? t : null));
+      break;
+    case "localTeam": {
+      const [seat, team] = (value ?? "").split(":").map(Number);
+      setup.teams[seat] = team;
+      break;
+    }
+    case "localStartTurn":
+      startTurn(local);
+      break;
+    case "localCorrect":
+    case "localSkip":
+    case "localBuzz":
+      scoreLocal(local, action);
       break;
     case "localPlayers":
       setup.playerCount = clamp(setup.playerCount + step, MIN_PLAYERS.IMPOSTOR, MAX_PLAYERS);
@@ -144,7 +193,7 @@ export function actLocal(local: LocalState, action: string, value: string | unde
       startRound(local, ui);
       return true;
     case "localSetup":
-      if (local.stage === "setup" || local.stage === "reveal") {
+      if (local.stage === "setup" || local.stage === "reveal" || local.stage === "wvOver") {
         local.stage = "setup";
         break;
       }
@@ -172,6 +221,7 @@ export function changeLocal(local: LocalState, input: HTMLInputElement, ui: Loca
   const setup = local.setup;
   if (input.dataset.setting === "seesCategory") setup.seesCategory = input.checked;
   else if (input.dataset.setting === "randomStart") setup.randomStartPlayer = input.checked;
+  else if (input.dataset.setting === "autoTeams") setup.autoTeams = input.checked;
   else if (input.dataset.category !== undefined) setup.categories = checkedValues("category").filter((c) => ALL_CATEGORIES.includes(c));
   else if (input.dataset.role !== undefined) setup.roles = normalizeRoles(checkedValues("role"));
   else return false;
@@ -196,6 +246,14 @@ function startRound(local: LocalState, ui: LocalUi): void {
     return;
   }
   local.players = playerNames(setup.playerCount, setup.names);
+  if (setup.game === "TABU") {
+    const teams = makeTeams(setup.playerCount, setup.teamCount, setup.autoTeams, setup.teams, Math.random);
+    local.match = createMatch(teams, setup.targetScore);
+    local.deadline = null;
+    local.stage = "wvReady";
+    ui.render();
+    return;
+  }
   if (setup.game === "IMPOSTOR") {
     local.impostor = dealImpostor(
       setup.playerCount,
@@ -216,6 +274,32 @@ function startRound(local: LocalState, ui: LocalUi): void {
   ui.render();
 }
 
+/** Lokal zählt die Uhr dieses Handys. Ist die Zeit um, ist das nächste Team dran. */
+export function tickLocal(local: LocalState, ui: LocalUi): void {
+  if (local.stage !== "wvTurn" || local.deadline === null || Date.now() < local.deadline) return;
+  endTurn(local.match!);
+  local.deadline = null;
+  local.stage = "wvReady";
+  ui.render();
+}
+
+function startTurn(local: LocalState): void {
+  drawCard(local.match!, Math.random);
+  local.deadline = Date.now() + local.setup.turnSeconds * 1000;
+  local.stage = "wvTurn";
+}
+
+const OUTCOME_BY_ACTION: Record<string, CardOutcome> = { localCorrect: "CORRECT", localSkip: "SKIPPED", localBuzz: "BUZZED" };
+
+function scoreLocal(local: LocalState, action: string): void {
+  const match = local.match!;
+  scoreCard(match, OUTCOME_BY_ACTION[action], Math.random);
+  if (match.winner !== null) {
+    local.deadline = null;
+    local.stage = "wvOver";
+  }
+}
+
 async function confirmThen(ui: LocalUi, question: string, yes: string, then: () => void): Promise<void> {
   if (await askConfirm(question, yes)) {
     then();
@@ -226,6 +310,7 @@ async function confirmThen(ui: LocalUi, question: string, yes: string, then: () 
 function setupProblem(setup: LocalSetup): string | null {
   const duplicate = duplicateName(playerNames(setup.playerCount, setup.names));
   if (duplicate) return `Der Name „${duplicate}“ kommt doppelt vor.`;
+  if (setup.game === "TABU") return tabuProblem(setup.playerCount, setup.teamCount, setup.autoTeams, setup.teams);
   return setup.game === "IMPOSTOR"
     ? impostorProblem(setup.playerCount, setup.impostorCount)
     : werwolfProblem(setup.playerCount, setup.werewolfCount, setup.roles);
@@ -246,6 +331,12 @@ export function viewLocal(local: LocalState): string {
       return local.impostor ? viewImpostorTable(local, local.impostor) : viewWerwolfTable(local, local.werwolf!);
     case "reveal":
       return viewImpostorReveal(local, local.impostor!);
+    case "wvReady":
+      return viewTabuReady(local, local.match!);
+    case "wvTurn":
+      return viewTabuTurn(local, local.match!);
+    case "wvOver":
+      return viewTabuOver(local, local.match!);
   }
 }
 
@@ -261,22 +352,26 @@ function viewSetup(setup: LocalSetup): string {
       </button>`;
   };
 
-  const settings =
-    setup.game === "IMPOSTOR"
-      ? viewImpostorOptions({
-          impostorCount: setup.impostorCount,
-          maxImpostorCount: maxImpostors(setup.playerCount),
-          seesCategory: setup.seesCategory,
-          randomStartPlayer: setup.randomStartPlayer,
-          allCategories: ALL_CATEGORIES,
-          selectedCategories: setup.categories,
-          categoryHint: "Das Wort kommt zufällig aus den angekreuzten Kategorien.",
-        })
-      : viewWerwolfOptions({
-          werewolfCount: setup.werewolfCount,
-          effectiveWerewolfCount: werewolves(setup.playerCount, setup.werewolfCount),
-          selectedRoles: setup.roles,
-        });
+  let settings: string;
+  if (setup.game === "TABU") {
+    settings = viewTabuOptions(setup) + (setup.autoTeams ? "" : viewTeamPicker(setup));
+  } else if (setup.game === "IMPOSTOR") {
+    settings = viewImpostorOptions({
+      impostorCount: setup.impostorCount,
+      maxImpostorCount: maxImpostors(setup.playerCount),
+      seesCategory: setup.seesCategory,
+      randomStartPlayer: setup.randomStartPlayer,
+      allCategories: ALL_CATEGORIES,
+      selectedCategories: setup.categories,
+      categoryHint: "Das Wort kommt zufällig aus den angekreuzten Kategorien.",
+    });
+  } else {
+    settings = viewWerwolfOptions({
+      werewolfCount: setup.werewolfCount,
+      effectiveWerewolfCount: werewolves(setup.playerCount, setup.werewolfCount),
+      selectedRoles: setup.roles,
+    });
+  }
 
   const nameFields = Array.from({ length: setup.playerCount }, (_, i) => {
     return `
@@ -296,6 +391,7 @@ function viewSetup(setup: LocalSetup): string {
       <div class="game-options">
         ${gameButton("IMPOSTOR", "Impostor", "Alle kennen ein geheimes Wort, nur die Impostor nicht.")}
         ${gameButton("WERWOLF", "Werwolf", "Das Handy verteilt nur die Rollen. Den Rest leitet ihr am Tisch.")}
+        ${gameButton("TABU", "Tabu", "Erklärt eurem Team Begriffe, ohne die verbotenen Wörter zu sagen.")}
       </div>
     </section>
 
@@ -416,6 +512,88 @@ function viewWerwolfTable(local: LocalState, deal: WerwolfDeal): string {
     </div>`;
 }
 
+function viewTeamPicker(setup: LocalSetup): string {
+  const names = playerNames(setup.playerCount, setup.names);
+  const rows = names
+    .map((name, seat) => {
+      const chips = TABU.teamNames
+        .slice(0, setup.teamCount)
+        .map((teamName, team) => {
+          const selected = setup.teams[seat] === team;
+          return `<button class="team-chip team-${team} ${selected ? "is-selected" : ""}" data-action="localTeam"
+                          data-value="${seat}:${team}" aria-pressed="${selected}">${esc(teamName.replace("Team ", ""))}</button>`;
+        })
+        .join("");
+      return `
+        <div class="team-pick-row">
+          <span class="player-name">${esc(name)}</span>
+          <div class="team-pick" role="group" aria-label="Team von ${esc(name)}">${chips}</div>
+        </div>`;
+    })
+    .join("");
+  return `
+    <div class="settings-group">
+      <span class="settings-label">Teams</span>
+      ${rows}
+    </div>`;
+}
+
+function teamScores(match: TabuMatch) {
+  return match.scores.map((score, i) => ({ name: TABU.teamNames[i], score }));
+}
+
+function viewTabuReady(local: LocalState, match: TabuMatch): string {
+  const explainer = esc(local.players[explainerSeat(match)]);
+  const watcher = esc(local.players[watcherSeat(match)]);
+  return `
+    <header class="phase-head">
+      <p class="game-label">Tabu</p>
+      <h1 class="title">${esc(TABU.teamNames[match.currentTeam])} ist dran</h1>
+      <p class="lead"><strong>${explainer}</strong> erklärt und hält das Handy.
+        <strong>${watcher}</strong> aus ${esc(TABU.teamNames[watcherTeam(match)])} schaut mit drauf und passt auf.</p>
+    </header>
+    <div class="actions">
+      <button class="btn primary" data-action="localStartTurn">Uhr starten (${local.setup.turnSeconds} s)</button>
+    </div>
+    ${viewScoreboard(teamScores(match), match.currentTeam, match.targetScore)}
+    ${viewTurnResults("Letzter Zug", match.lastTurn, [...TABU.teamNames])}
+    <div class="actions">
+      <button class="btn quiet" data-action="localSetup">Spiel abbrechen</button>
+    </div>`;
+}
+
+function viewTabuTurn(local: LocalState, match: TabuMatch): string {
+  return `
+    <div class="turn-head">
+      <p class="game-label">${esc(TABU.teamNames[match.currentTeam])} · ${esc(local.players[explainerSeat(match)])} erklärt</p>
+      ${viewCountdown(local.deadline!)}
+    </div>
+    ${viewForbiddenCard(match.card!)}
+    <div class="turn-buttons">
+      <button class="btn primary" data-action="localCorrect">✓ Richtig</button>
+      <button class="btn" data-action="localSkip">Überspringen</button>
+    </div>
+    <button class="btn buzzer" data-action="localBuzz">🔔 Verboten! (${esc(local.players[watcherSeat(match)])})</button>
+    ${viewTurnResults("Dieser Zug", match.turnResults, [...TABU.teamNames])}
+    ${viewScoreboard(teamScores(match), match.currentTeam, match.targetScore)}`;
+}
+
+function viewTabuOver(local: LocalState, match: TabuMatch): string {
+  const winners = local.players.filter((_, seat) => match.teams[match.winner!].includes(seat)).map(esc).join(", ");
+  return `
+    <header class="phase-head">
+      <p class="game-label">Tabu</p>
+      <h1 class="title">${esc(TABU.teamNames[match.winner!])} gewinnt!</h1>
+      <p class="lead">Glückwunsch an ${winners}.</p>
+    </header>
+    ${viewScoreboard(teamScores(match), match.winner!, match.targetScore)}
+    ${viewTurnResults("Letzter Zug", match.lastTurn, [...TABU.teamNames])}
+    <div class="actions">
+      <button class="btn primary" data-action="localNewRound">Nochmal spielen</button>
+      <button class="btn quiet" data-action="localSetup">Einstellungen ändern</button>
+    </div>`;
+}
+
 // ---------------------------------------------------------------------------
 // Hilfsfunktionen
 
@@ -444,6 +622,11 @@ function loadSetup(): LocalSetup {
     categories: ALL_CATEGORIES,
     werewolfCount: null,
     roles: [SEER],
+    turnSeconds: 60,
+    autoTeams: true,
+    teamCount: TABU.minTeams,
+    targetScore: 30,
+    teams: [],
   };
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -456,6 +639,14 @@ function loadSetup(): LocalSetup {
     if (saved.categories.length === 0) saved.categories = ALL_CATEGORIES;
     saved.roles = normalizeRoles(Array.isArray(saved.roles) ? saved.roles : []);
     saved.impostorCount = clamp(Number(saved.impostorCount) || 1, 1, MAX_IMPOSTORS);
+    if (!["IMPOSTOR", "WERWOLF", "TABU"].includes(saved.game)) saved.game = "IMPOSTOR";
+    saved.turnSeconds = clamp(Number(saved.turnSeconds) || 60, TABU.minTurnSeconds, TABU.maxTurnSeconds);
+    saved.targetScore = clamp(Number(saved.targetScore) || 30, TABU.minTargetScore, TABU.maxTargetScore);
+    saved.teamCount = clamp(Number(saved.teamCount) || TABU.minTeams, TABU.minTeams, TABU.maxTeams);
+    saved.autoTeams = saved.autoTeams !== false;
+    saved.teams = Array.isArray(saved.teams)
+      ? saved.teams.map((t) => (typeof t === "number" && t >= 0 && t < saved.teamCount ? t : null))
+      : [];
     saved.werewolfCount =
       typeof saved.werewolfCount === "number" ? clamp(saved.werewolfCount, 1, MAX_PLAYERS - 1) : null;
     return saved;
