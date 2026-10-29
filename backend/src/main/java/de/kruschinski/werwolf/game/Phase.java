@@ -19,5 +19,13 @@ public enum Phase {
     /** Das nächste Team ist dran, der Erklärer startet die Uhr. */
     TURN_READY,
     /** Die Uhr läuft. */
-    TURN
+    TURN,
+
+    // Nobody is Perfect
+    /** Jeder denkt sich eine Antwort aus. */
+    WRITING,
+    /** Alle Antworten stehen zur Wahl, jeder tippt auf die echte. */
+    GUESSING,
+    /** Auflösung einer Frage. Nach der letzten Frage kommt stattdessen RESULT. */
+    REVEAL
 }

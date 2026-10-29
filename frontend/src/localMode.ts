@@ -1,9 +1,20 @@
 // Lokaler Modus: Ein Handy wird reihum weitergegeben, jeder sieht kurz seine Karte.
 // Läuft komplett im Browser, ohne Server. Nur die Einrichtung (Namen, Einstellungen) wird gespeichert.
 import { askConfirm } from "./confirmDialog";
-import { CATEGORIES, MAX_IMPOSTORS, MAX_PLAYERS, MIN_PLAYERS, SEER, TEAM_NAMES, TABU, preloadRoleImages } from "./gameData";
+import {
+  CATEGORIES,
+  NOBODY_IS_PERFECT,
+  MAX_IMPOSTORS,
+  MAX_PLAYERS,
+  MIN_PLAYERS,
+  SEER,
+  TEAM_NAMES,
+  TABU,
+  preloadRoleImages,
+} from "./gameData";
 import { esc } from "./html";
 import {
+  createNobodyIsPerfect,
   createMatch,
   dealImpostor,
   dealWerwolf,
@@ -11,7 +22,14 @@ import {
   duplicateName,
   endTurn,
   explainerSeat,
+  guessChoice,
+  isLastQuestion,
   makeTeams,
+  mixChoices,
+  nextQuestion,
+  pickQuestions,
+  revealQuestion,
+  submitLie,
   scoreCard,
   watcherSeat,
   watcherTeam,
@@ -22,6 +40,7 @@ import {
   playerNames,
   werewolves,
   werwolfProblem,
+  type NobodyIsPerfectMatch,
   type ImpostorDeal,
   type WerwolfDeal,
   type TabuMatch,
@@ -39,6 +58,11 @@ import {
   viewTurnResults,
   viewWerwolfOptions,
   viewTabuOptions,
+  viewChoices,
+  viewNobodyIsPerfectOptions,
+  viewPointTable,
+  viewQuestion,
+  viewReveal,
 } from "./sharedViews";
 import type { CardOutcome, GameType } from "./types";
 
@@ -64,9 +88,23 @@ export interface LocalSetup {
   targetScore: number;
   /** Pro Platz das selbst gewählte Team, null = noch keins. */
   teams: (number | null)[];
+  questionCount: number;
 }
 
-type Stage = "setup" | "pass" | "card" | "table" | "reveal" | "wvReady" | "wvTurn" | "wvOver";
+type Stage =
+  | "setup"
+  | "pass"
+  | "card"
+  | "table"
+  | "reveal"
+  | "wvReady"
+  | "wvTurn"
+  | "wvOver"
+  | "flPass"
+  | "flWrite"
+  | "flGuess"
+  | "flReveal"
+  | "flOver";
 
 export interface LocalState {
   setup: LocalSetup;
@@ -82,6 +120,10 @@ export interface LocalState {
   match: TabuMatch | null;
   /** Wann der laufende Tabu-Zug endet (ms). */
   deadline: number | null;
+  nobodyIsPerfect: NobodyIsPerfectMatch | null;
+  usedQuestions: string[];
+  /** Was gerade im Antwortfeld steht. */
+  answerDraft: string;
 }
 
 /** Was der lokale Modus von main.ts braucht. */
@@ -103,6 +145,9 @@ export function createLocalState(): LocalState {
     overviewOpen: false,
     match: null,
     deadline: null,
+    nobodyIsPerfect: null,
+    usedQuestions: [],
+    answerDraft: "",
   };
 }
 
@@ -124,7 +169,30 @@ export function actLocal(local: LocalState, action: string, value: string | unde
   const step = Number(value);
   switch (action) {
     case "localGame":
-      setup.game = value === "WERWOLF" || value === "TABU" ? value : "IMPOSTOR";
+      setup.game = value === "WERWOLF" || value === "TABU" || value === "NOBODY_IS_PERFECT" ? value : "IMPOSTOR";
+      break;
+    case "changeQuestionCount":
+      setup.questionCount = clamp(setup.questionCount + step, NOBODY_IS_PERFECT.minQuestions, NOBODY_IS_PERFECT.maxQuestions);
+      break;
+    case "localFlShow":
+      local.stage = local.nobodyIsPerfect!.choices.length ? "flGuess" : "flWrite";
+      break;
+    case "localSubmitAnswer":
+      submitLocalAnswer(local, ui);
+      return true;
+    case "localGuess":
+      if (value) {
+        const problem = guessChoice(local.nobodyIsPerfect!, local.index, value);
+        if (problem) ui.toast(problem);
+      }
+      break;
+    case "localGuessDone":
+      finishLocalGuess(local, ui);
+      return true;
+    case "localNextQuestion":
+      nextQuestion(local.nobodyIsPerfect!);
+      local.index = 0;
+      local.stage = "flPass";
       break;
     case "changeTurnSeconds":
       setup.turnSeconds = clamp(setup.turnSeconds + step * TABU.turnSecondsStep, TABU.minTurnSeconds, TABU.maxTurnSeconds);
@@ -193,7 +261,7 @@ export function actLocal(local: LocalState, action: string, value: string | unde
       startRound(local, ui);
       return true;
     case "localSetup":
-      if (local.stage === "setup" || local.stage === "reveal" || local.stage === "wvOver") {
+      if (local.stage === "setup" || local.stage === "reveal" || local.stage === "wvOver" || local.stage === "flOver") {
         local.stage = "setup";
         break;
       }
@@ -232,6 +300,10 @@ export function changeLocal(local: LocalState, input: HTMLInputElement, ui: Loca
 
 /** Tippen in ein Namensfeld. Kein Neuzeichnen, damit der Cursor bleibt. */
 export function inputLocal(local: LocalState, input: HTMLInputElement): boolean {
+  if (input.dataset.bind === "localAnswer") {
+    local.answerDraft = input.value;
+    return true;
+  }
   if (input.dataset.bind !== "localName") return false;
   local.setup.names[Number(input.dataset.index)] = input.value;
   saveSetup(local.setup);
@@ -246,6 +318,16 @@ function startRound(local: LocalState, ui: LocalUi): void {
     return;
   }
   local.players = playerNames(setup.playerCount, setup.names);
+  if (setup.game === "NOBODY_IS_PERFECT") {
+    const questions = pickQuestions(setup.questionCount, local.usedQuestions, Math.random);
+    local.usedQuestions.push(...questions.map((q) => q.question));
+    local.nobodyIsPerfect = createNobodyIsPerfect(setup.playerCount, questions);
+    local.answerDraft = "";
+    local.index = 0;
+    local.stage = "flPass";
+    ui.render();
+    return;
+  }
   if (setup.game === "TABU") {
     const teams = makeTeams(setup.playerCount, setup.teamCount, setup.autoTeams, setup.teams, Math.random);
     local.match = createMatch(teams, setup.targetScore);
@@ -300,6 +382,41 @@ function scoreLocal(local: LocalState, action: string): void {
   }
 }
 
+/** Antwort merken und das Handy weitergeben. Nach dem Letzten werden die Antworten gemischt. */
+function submitLocalAnswer(local: LocalState, ui: LocalUi): void {
+  const match = local.nobodyIsPerfect!;
+  const problem = submitLie(match, local.index, local.answerDraft);
+  if (problem) {
+    ui.toast(problem);
+    return;
+  }
+  local.answerDraft = "";
+  local.index++;
+  if (local.index === local.players.length) {
+    mixChoices(match, Math.random);
+    local.index = 0;
+  }
+  local.stage = "flPass";
+  ui.render();
+}
+
+/** Tipp steht, Handy weitergeben. Nach dem Letzten wird aufgelöst. */
+function finishLocalGuess(local: LocalState, ui: LocalUi): void {
+  const match = local.nobodyIsPerfect!;
+  if (match.guesses[local.index] === null) {
+    ui.toast("Tippe zuerst auf eine Antwort.");
+    return;
+  }
+  local.index++;
+  if (local.index < local.players.length) {
+    local.stage = "flPass";
+  } else {
+    revealQuestion(match);
+    local.stage = isLastQuestion(match) ? "flOver" : "flReveal";
+  }
+  ui.render();
+}
+
 async function confirmThen(ui: LocalUi, question: string, yes: string, then: () => void): Promise<void> {
   if (await askConfirm(question, yes)) {
     then();
@@ -311,6 +428,7 @@ function setupProblem(setup: LocalSetup): string | null {
   const duplicate = duplicateName(playerNames(setup.playerCount, setup.names));
   if (duplicate) return `Der Name „${duplicate}“ kommt doppelt vor.`;
   if (setup.game === "TABU") return tabuProblem(setup.playerCount, setup.teamCount, setup.autoTeams, setup.teams);
+  if (setup.game === "NOBODY_IS_PERFECT") return null;
   return setup.game === "IMPOSTOR"
     ? impostorProblem(setup.playerCount, setup.impostorCount)
     : werwolfProblem(setup.playerCount, setup.werewolfCount, setup.roles);
@@ -337,6 +455,15 @@ export function viewLocal(local: LocalState): string {
       return viewTabuTurn(local, local.match!);
     case "wvOver":
       return viewTabuOver(local, local.match!);
+    case "flPass":
+      return viewNobodyIsPerfectPass(local, local.nobodyIsPerfect!);
+    case "flWrite":
+      return viewNobodyIsPerfectWrite(local, local.nobodyIsPerfect!);
+    case "flGuess":
+      return viewNobodyIsPerfectGuess(local, local.nobodyIsPerfect!);
+    case "flReveal":
+    case "flOver":
+      return viewNobodyIsPerfectReveal(local, local.nobodyIsPerfect!);
   }
 }
 
@@ -353,7 +480,9 @@ function viewSetup(setup: LocalSetup): string {
   };
 
   let settings: string;
-  if (setup.game === "TABU") {
+  if (setup.game === "NOBODY_IS_PERFECT") {
+    settings = viewNobodyIsPerfectOptions(setup);
+  } else if (setup.game === "TABU") {
     settings = viewTabuOptions(setup) + (setup.autoTeams ? "" : viewTeamPicker(setup));
   } else if (setup.game === "IMPOSTOR") {
     settings = viewImpostorOptions({
@@ -392,6 +521,7 @@ function viewSetup(setup: LocalSetup): string {
         ${gameButton("IMPOSTOR", "Impostor", "Alle kennen ein geheimes Wort, nur die Impostor nicht.")}
         ${gameButton("WERWOLF", "Werwolf", "Das Handy verteilt nur die Rollen. Den Rest leitet ihr am Tisch.")}
         ${gameButton("TABU", "Tabu", "Erklärt eurem Team Begriffe, ohne die verbotenen Wörter zu sagen.")}
+        ${gameButton("NOBODY_IS_PERFECT", "Nobody is Perfect", "Erfindet glaubwürdige Antworten auf kuriose Fragen und findet die echte.")}
       </div>
     </section>
 
@@ -406,7 +536,7 @@ function viewSetup(setup: LocalSetup): string {
     </section>
 
     <div class="actions">
-      <button class="btn primary" data-action="localStart" ${problem ? "disabled" : ""}>Karten verteilen</button>
+      <button class="btn primary" data-action="localStart" ${problem ? "disabled" : ""}>${setup.game === "NOBODY_IS_PERFECT" ? "Los geht's" : "Karten verteilen"}</button>
       ${problem ? `<p class="hint">${esc(problem)}</p>` : ""}
       <button class="btn quiet" data-action="localExit">Zurück zum Start</button>
     </div>`;
@@ -573,7 +703,7 @@ function viewTabuTurn(local: LocalState, match: TabuMatch): string {
       <button class="btn primary" data-action="localCorrect">✓ Richtig</button>
       <button class="btn" data-action="localSkip">Überspringen</button>
     </div>
-    <button class="btn buzzer" data-action="localBuzz">🔔 Verboten! (${esc(local.players[watcherSeat(match)])})</button>
+    <button class="btn buzzer" data-action="localBuzz">Verboten! (${esc(local.players[watcherSeat(match)])})</button>
     ${viewTurnResults("Dieser Zug", match.turnResults, [...TABU.teamNames])}
     ${viewScoreboard(teamScores(match), match.currentTeam, match.targetScore)}`;
 }
@@ -588,6 +718,119 @@ function viewTabuOver(local: LocalState, match: TabuMatch): string {
     </header>
     ${viewScoreboard(teamScores(match), match.winner!, match.targetScore)}
     ${viewTurnResults("Letzter Zug", match.lastTurn, [...TABU.teamNames])}
+    <div class="actions">
+      <button class="btn primary" data-action="localNewRound">Nochmal spielen</button>
+      <button class="btn quiet" data-action="localSetup">Einstellungen ändern</button>
+    </div>`;
+}
+
+function nobodyIsPerfectLabel(match: NobodyIsPerfectMatch): string {
+  return `<p class="game-label">Nobody is Perfect · Frage ${match.index + 1} von ${match.questions.length}</p>`;
+}
+
+function viewNobodyIsPerfectPass(local: LocalState, match: NobodyIsPerfectMatch): string {
+  const name = esc(local.players[local.index]);
+  const guessing = match.choices.length > 0;
+  return `
+    <header class="phase-head pass-head">
+      ${nobodyIsPerfectLabel(match)}
+      <h1 class="title">Gib das Handy an ${name}</h1>
+      <p class="lead">${guessing ? "Jetzt wird getippt." : "Jetzt wird geflunkert."} Nur ${name} darf auf den Bildschirm schauen.</p>
+    </header>
+    <div class="actions">
+      <button class="btn primary" data-action="localFlShow">Ich bin ${name}, ${guessing ? "Antworten zeigen" : "Frage zeigen"}</button>
+      <button class="btn quiet" data-action="localSetup">Spiel abbrechen</button>
+    </div>`;
+}
+
+function viewNobodyIsPerfectWrite(local: LocalState, match: NobodyIsPerfectMatch): string {
+  const question = match.questions[match.index];
+  return `
+    <header class="phase-head">
+      ${nobodyIsPerfectLabel(match)}
+      <h1 class="title">Flunker los, ${esc(local.players[local.index])}!</h1>
+      <p class="lead">Denk dir eine Antwort aus, die echt klingt.</p>
+    </header>
+    ${viewQuestion(question.question, match.index + 1, match.questions.length)}
+    <div class="settings-group answer-form">
+      <label class="field">
+        <span>Deine erfundene Antwort</span>
+        <input id="local-answer" data-bind="localAnswer" maxlength="${NOBODY_IS_PERFECT.maxAnswerLength}" autocomplete="off"
+               value="${esc(local.answerDraft)}" placeholder="Klingt echt, ist aber ausgedacht" />
+      </label>
+    </div>
+    <div class="actions">
+      <button class="btn primary" data-action="localSubmitAnswer">Abgeben und weitergeben</button>
+    </div>`;
+}
+
+function viewNobodyIsPerfectGuess(local: LocalState, match: NobodyIsPerfectMatch): string {
+  const question = match.questions[match.index];
+  const own = match.choices.find((c) => c.author === local.index)?.id ?? null;
+  const chosen = match.guesses[local.index];
+  return `
+    <header class="phase-head">
+      ${nobodyIsPerfectLabel(match)}
+      <h1 class="title">Welche ist echt, ${esc(local.players[local.index])}?</h1>
+      <p class="lead">Tippe auf die Antwort, die du für die echte hältst.</p>
+    </header>
+    ${viewQuestion(question.question, match.index + 1, match.questions.length)}
+    ${viewChoices(match.choices, own, chosen, "localGuess")}
+    <div class="actions">
+      <button class="btn primary" data-action="localGuessDone" ${chosen ? "" : "disabled"}>Tipp abgeben und weitergeben</button>
+    </div>`;
+}
+
+function viewNobodyIsPerfectReveal(local: LocalState, match: NobodyIsPerfectMatch): string {
+  const question = match.questions[match.index];
+  const over = local.stage === "flOver";
+  const reveal = viewReveal(
+    match.choices.map((c) => ({
+      id: c.id,
+      text: c.text,
+      correct: c.author === null,
+      author: c.author === null ? null : local.players[c.author],
+      guessers: local.players.filter((_, seat) => match.guesses[seat] === c.id),
+    })),
+  );
+  const points = viewPointTable(
+    local.players.map((name, seat) => ({ name, score: match.scores[seat], gained: match.gained[seat] })),
+    over ? "Endstand" : "Punkte",
+  );
+  const answer = `
+    <section class="result-word">
+      <p>Die echte Antwort</p>
+      <strong class="answer-text">${esc(question.answer)}</strong>
+    </section>`;
+
+  if (!over) {
+    return `
+      <header class="phase-head">
+        ${nobodyIsPerfectLabel(match)}
+        <h1 class="title">Auflösung</h1>
+      </header>
+      ${viewQuestion(question.question, match.index + 1, match.questions.length)}
+      ${answer}
+      ${reveal}
+      ${points}
+      <div class="actions">
+        <button class="btn primary" data-action="localNextQuestion">Nächste Frage</button>
+        <button class="btn quiet" data-action="localSetup">Spiel abbrechen</button>
+      </div>`;
+  }
+
+  const best = Math.max(...match.scores);
+  const winners = local.players.filter((_, seat) => match.scores[seat] === best).map(esc);
+  return `
+    <header class="phase-head">
+      <p class="game-label">Nobody is Perfect · Spielende</p>
+      <h1 class="title">${winners.length === 1 ? `${winners[0]} gewinnt!` : `Gleichstand: ${winners.join(" und ")}`}</h1>
+      <p class="lead">Mit ${best} Punkten.</p>
+    </header>
+    ${points}
+    ${viewQuestion(question.question, match.index + 1, match.questions.length)}
+    ${answer}
+    ${reveal}
     <div class="actions">
       <button class="btn primary" data-action="localNewRound">Nochmal spielen</button>
       <button class="btn quiet" data-action="localSetup">Einstellungen ändern</button>
@@ -627,6 +870,7 @@ function loadSetup(): LocalSetup {
     teamCount: TABU.minTeams,
     targetScore: 30,
     teams: [],
+    questionCount: NOBODY_IS_PERFECT.defaultQuestions,
   };
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -639,7 +883,12 @@ function loadSetup(): LocalSetup {
     if (saved.categories.length === 0) saved.categories = ALL_CATEGORIES;
     saved.roles = normalizeRoles(Array.isArray(saved.roles) ? saved.roles : []);
     saved.impostorCount = clamp(Number(saved.impostorCount) || 1, 1, MAX_IMPOSTORS);
-    if (!["IMPOSTOR", "WERWOLF", "TABU"].includes(saved.game)) saved.game = "IMPOSTOR";
+    if (!["IMPOSTOR", "WERWOLF", "TABU", "NOBODY_IS_PERFECT"].includes(saved.game)) saved.game = "IMPOSTOR";
+    saved.questionCount = clamp(
+      Number(saved.questionCount) || NOBODY_IS_PERFECT.defaultQuestions,
+      NOBODY_IS_PERFECT.minQuestions,
+      NOBODY_IS_PERFECT.maxQuestions,
+    );
     saved.turnSeconds = clamp(Number(saved.turnSeconds) || 60, TABU.minTurnSeconds, TABU.maxTurnSeconds);
     saved.targetScore = clamp(Number(saved.targetScore) || 30, TABU.minTargetScore, TABU.maxTargetScore);
     saved.teamCount = clamp(Number(saved.teamCount) || TABU.minTeams, TABU.minTeams, TABU.maxTeams);

@@ -20,6 +20,10 @@ import java.util.List;
  *   <li>{@code configureTabu}: turnSeconds, autoTeams, teamCount, targetScore</li>
  *   <li>{@code chooseTeam}: team, targetId (nur Host, um andere zu verschieben)</li>
  *   <li>{@code startTurn}, {@code wordCorrect}, {@code wordSkip}, {@code buzz}: keine Felder</li>
+ *   <li>{@code configureNobodyIsPerfect}: questionCount</li>
+ *   <li>{@code submitAnswer}: answer</li>
+ *   <li>{@code guessAnswer}: choice (Buchstabe der Antwort)</li>
+ *   <li>{@code skipWaiting}, {@code nextQuestion}: keine Felder</li>
  *   <li>{@code leave}, {@code start}, {@code nextPhase}, {@code startVoting}, {@code nextRound},
  *       {@code backToLobby}, {@code ping}: keine Felder</li>
  * </ul>
@@ -45,6 +49,9 @@ public record ClientMessage(
         Boolean autoTeams,
         Integer teamCount,
         Integer targetScore,
-        Integer team
+        Integer team,
+        Integer questionCount,
+        String answer,
+        String choice
 ) {
 }

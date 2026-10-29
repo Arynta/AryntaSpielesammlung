@@ -1,7 +1,7 @@
 // Bausteine, die online (Lobby) und lokal (ein Handy) gleich aussehen.
 // Die Eingaben tragen data-setting, data-category, data-role bzw. data-action. Was beim Ändern
 // passiert, entscheidet main.ts (an den Server schicken) oder localMode.ts (lokal merken).
-import { MAX_PLAYERS, ROLE_IMAGES, SPECIAL_ROLES, TEAM_IDS, TEAM_NAMES, TABU, roleById } from "./gameData";
+import { NOBODY_IS_PERFECT, MAX_PLAYERS, ROLE_IMAGES, SPECIAL_ROLES, TEAM_IDS, TEAM_NAMES, TABU, roleById } from "./gameData";
 import { esc } from "./html";
 
 export function viewStepper(id: string, label: string, value: number, min: number, max: number, action: string): string {
@@ -303,7 +303,7 @@ export function viewScoreboard(teams: { name: string; score: number }[], current
     </section>`;
 }
 
-const OUTCOME_TEXT = { CORRECT: "✓ richtig", SKIPPED: "übersprungen", BUZZED: "🔔 verboten" } as const;
+const OUTCOME_TEXT = { CORRECT: "✓ richtig", SKIPPED: "übersprungen", BUZZED: "✗ verboten" } as const;
 
 export function viewTurnResults(
   title: string,
@@ -322,6 +322,112 @@ export function viewTurnResults(
     .join("");
   return `
     <section class="players turn-results">
+      <h2>${esc(title)}</h2>
+      <ul>${items}</ul>
+    </section>`;
+}
+
+// ---- Nobody is Perfect -----------------------------------------------
+
+export interface NobodyIsPerfectForm {
+  questionCount: number;
+}
+
+export function viewNobodyIsPerfectOptions(form: NobodyIsPerfectForm): string {
+  return `
+    <div class="settings-group">
+      ${viewStepper("question-count", "Fragen", form.questionCount, NOBODY_IS_PERFECT.minQuestions, NOBODY_IS_PERFECT.maxQuestions, "changeQuestionCount")}
+      <p class="hint">Richtig getippt: 1 Punkt. Für jeden, der auf deine erfundene Antwort hereinfällt: 1 Punkt.</p>
+    </div>`;
+}
+
+export function nobodyIsPerfectSummary(form: NobodyIsPerfectForm): string[] {
+  return [`Fragen: <strong>${form.questionCount}</strong>`];
+}
+
+export function viewQuestion(question: string, number: number, count: number): string {
+  return `
+    <section class="question-card">
+      <p class="question-number">Frage ${number} von ${count}</p>
+      <strong class="question-text">${esc(question)}</strong>
+    </section>`;
+}
+
+/**
+ * Antworten zum Tippen. Die eigene Erfindung ist gesperrt.
+ * @param action data-action der Knöpfe, data-value ist der Buchstabe
+ */
+export function viewChoices(
+  choices: { id: string; text: string }[],
+  ownId: string | null,
+  chosenId: string | null,
+  action: string,
+): string {
+  const items = choices
+    .map((c) => {
+      const own = c.id === ownId;
+      const chosen = c.id === chosenId;
+      return `
+        <li>
+          <button class="vote-option choice ${chosen ? "is-selected" : ""}" data-action="${action}" data-value="${c.id}"
+                  aria-pressed="${chosen}" ${own ? "disabled" : ""}>
+            <span class="choice-letter">${c.id}</span>
+            <span class="choice-text">${esc(c.text)}</span>
+            ${own ? `<span class="player-note">deine</span>` : ""}
+          </button>
+        </li>`;
+    })
+    .join("");
+  return `<section class="voting choices"><ul>${items}</ul></section>`;
+}
+
+export interface RevealRow {
+  id: string;
+  text: string;
+  correct: boolean;
+  /** null bei der echten Antwort. */
+  author: string | null;
+  guessers: string[];
+}
+
+/** Auflösung: echte Antwort zuerst, dann die Erfindungen nach Anzahl der Reingefallenen. */
+export function viewReveal(rows: RevealRow[]): string {
+  const sorted = [...rows].sort((a, b) => Number(b.correct) - Number(a.correct) || b.guessers.length - a.guessers.length);
+  const items = sorted
+    .map((r) => {
+      const who = r.correct ? "Die echte Antwort" : `Erfunden von ${esc(r.author ?? "?")}`;
+      const guessed = r.guessers.length ? `Getippt: ${r.guessers.map(esc).join(", ")}` : "Niemand hat darauf getippt";
+      return `
+        <li class="${r.correct ? "is-correct" : ""}">
+          <span class="choice-letter">${r.id}</span>
+          <span class="reveal-body">
+            <span class="choice-text">${esc(r.text)}</span>
+            <span class="player-note">${who} · ${guessed}</span>
+          </span>
+        </li>`;
+    })
+    .join("");
+  return `
+    <section class="players reveal-list">
+      <h2>Auflösung</h2>
+      <ul>${items}</ul>
+    </section>`;
+}
+
+/** Punktestand, Bester oben. {@code gained}: Punkte für die letzte Frage. */
+export function viewPointTable(rows: { name: string; score: number; gained: number }[], title = "Punkte"): string {
+  const items = [...rows]
+    .sort((a, b) => b.score - a.score)
+    .map(
+      (r) => `
+        <li>
+          <span class="player-name">${esc(r.name)}</span>
+          <span class="player-note">${r.gained ? `+${r.gained} · ` : ""}<strong>${r.score}</strong></span>
+        </li>`,
+    )
+    .join("");
+  return `
+    <section class="players point-table">
       <h2>${esc(title)}</h2>
       <ul>${items}</ul>
     </section>`;

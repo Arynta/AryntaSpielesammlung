@@ -16,11 +16,13 @@ import {
   type LocalUi,
 } from "./localMode";
 import {
+  nobodyIsPerfectSummary,
   impostorCardContent,
   impostorSummary,
   roleCardContent,
   roleCardVariant,
   updateCountdowns,
+  viewNobodyIsPerfectOptions,
   viewImpostorOptions,
   viewRoleOverview,
   viewSummary,
@@ -33,6 +35,7 @@ import {
   type TabuForm,
 } from "./sharedViews";
 import { viewTeamChoice, viewTabu } from "./onlineTabu";
+import { viewNobodyIsPerfect } from "./onlineNobodyIsPerfect";
 import type { GameType, ImpostorView, PlayerView, RoomView, ServerMessage, WerwolfView } from "./types";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "ws://localhost:8080/ws";
@@ -60,6 +63,8 @@ const state = {
   waitingForRejoin: false,
   /** Tabu: wann der laufende Zug endet (ms, Uhr dieses Handys). */
   turnDeadline: null as number | null,
+  /** Nobody is Perfect: was im Antwortfeld steht, noch nicht abgeschickt. */
+  answerDraft: "",
   /** Gesetzt, solange man ohne Server mit einem Handy spielt. */
   local: null as LocalState | null,
 };
@@ -103,6 +108,8 @@ function handleMessage(msg: ServerMessage): void {
     case "state":
       // Ein eigenes Wort gilt nur für eine Runde, also beim Spielstart auch das Eingabefeld leeren
       if (state.room?.phase === "LOBBY" && msg.state.phase !== "LOBBY") state.customWordDraft = "";
+      // Neue Nobody-is-Perfect-Frage, neues leeres Antwortfeld
+      if (msg.state.phase !== "WRITING" || msg.state.round !== state.room?.round) state.answerDraft = "";
       state.room = msg.state;
       // Restzeit statt Endzeitpunkt vom Server, damit falsch gestellte Handy-Uhren nicht stören
       state.turnDeadline =
@@ -241,6 +248,27 @@ function act(action: string, value?: string): void {
       break;
     case "buzz":
       sendOrComplain({ type: "buzz" });
+      break;
+    case "changeQuestionCount":
+      if (state.room) {
+        sendOrComplain({ type: "configureNobodyIsPerfect", questionCount: state.room.nobodyIsPerfectSettings.questionCount + Number(value) });
+      }
+      break;
+    case "submitAnswer":
+      if (state.answerDraft.trim().length === 0) {
+        showToast("Schreib zuerst eine Antwort.");
+        return;
+      }
+      sendOrComplain({ type: "submitAnswer", answer: state.answerDraft });
+      break;
+    case "guessAnswer":
+      if (value) sendOrComplain({ type: "guessAnswer", choice: value });
+      break;
+    case "skipWaiting":
+      sendOrComplain({ type: "skipWaiting" });
+      break;
+    case "nextQuestion":
+      sendOrComplain({ type: "nextQuestion" });
       break;
     case "nextRound":
       sendOrComplain({ type: "nextRound" });
@@ -416,6 +444,8 @@ function render(): void {
     body = viewWerwolf(room, room.werwolf);
   } else if (room.tabu) {
     body = viewTabu(room, room.tabu, state.turnDeadline, viewReadyButton(room));
+  } else if (room.nobodyIsPerfect) {
+    body = viewNobodyIsPerfect(room, room.nobodyIsPerfect, state.answerDraft, viewReadyButton(room));
   } else if (room.impostor) {
     body = viewImpostor(room, room.impostor);
   } else {
@@ -585,7 +615,7 @@ function viewSettings(room: RoomView): string {
   const open = state.settingsOpen;
   const toggle = `
     <button class="settings-toggle" data-action="toggleSettings" aria-expanded="${open}" aria-controls="settings-body">
-      <span>⚙ Spieleinstellungen</span>
+      <span>Spieleinstellungen</span>
       <span class="chevron" aria-hidden="true">${open ? "▴" : "▾"}</span>
     </button>`;
   if (!open) return `<section class="settings-panel">${toggle}</section>`;
@@ -596,6 +626,9 @@ function viewSettings(room: RoomView): string {
   } else if (room.game === "TABU") {
     const form = room.tabuSettings;
     gameSettings = room.you.host ? viewTabuOptions(form) : viewSummary(tabuSummary(form));
+  } else if (room.game === "NOBODY_IS_PERFECT") {
+    const form = room.nobodyIsPerfectSettings;
+    gameSettings = room.you.host ? viewNobodyIsPerfectOptions(form) : viewSummary(nobodyIsPerfectSummary(form));
   } else {
     const form = werwolfForm(room);
     gameSettings = room.you.host ? viewWerwolfOptions(form) : viewSummary(werwolfSummary(form));
@@ -914,7 +947,7 @@ function viewPlayerItem(room: RoomView, p: PlayerView, options: PlayerListOption
   ];
   const kickButton =
     options.kickable && p.id !== room.you.id
-      ? `<button class="kick" data-action="kick" data-value="${p.id}" aria-label="${esc(p.name)} entfernen">✕</button>`
+      ? `<button class="kick" data-action="kick" data-value="${p.id}" aria-label="${esc(p.name)} entfernen">✗</button>`
       : "";
   return `
     <li class="${classes.join(" ").trim()}">
@@ -950,6 +983,7 @@ app.addEventListener("input", (event) => {
   if (state.local && inputLocal(state.local, input)) return;
   if (input.dataset.bind === "name") state.name = input.value;
   if (input.dataset.bind === "customWordDraft") state.customWordDraft = input.value;
+  if (input.dataset.bind === "answerDraft") state.answerDraft = input.value;
   if (input.dataset.bind === "codeInput") {
     input.value = input.value.toUpperCase();
     state.codeInput = input.value;
@@ -985,6 +1019,8 @@ app.addEventListener("keydown", (event) => {
   if (event.key === "Enter" && input.id === "code") act("join");
   if (event.key === "Enter" && input.id === "name") act(state.codeInput ? "join" : "create");
   if (event.key === "Enter" && input.id === "custom-word") act("saveWord");
+  if (event.key === "Enter" && input.id === "answer") act("submitAnswer");
+  if (event.key === "Enter" && input.id === "local-answer") act("localSubmitAnswer");
   if ((event.key === " " || event.key === "Enter") && input.hasAttribute("data-reveal") && !event.repeat) {
     event.preventDefault();
     setRevealing(true);

@@ -7,7 +7,7 @@ import java.util.List;
  * Das, was ein bestimmter Spieler vom Raum sehen darf.
  * Jeder Spieler bekommt seine eigene Ansicht, damit Rollen und Wörter geheim bleiben.
  *
- * <p>{@code werwolf} bzw. {@code impostor} ist nur gefüllt, solange das jeweilige Spiel läuft.
+ * <p>{@code werwolf}, {@code impostor}, {@code tabu} bzw. {@code nobodyIsPerfect} ist nur gefüllt, solange das jeweilige Spiel läuft.
  */
 public record RoomView(
         String code,
@@ -16,6 +16,7 @@ public record RoomView(
         ImpostorSettings impostorSettings,
         WerwolfSettings werwolfSettings,
         TabuSettings tabuSettings,
+        NobodyIsPerfectSettings nobodyIsPerfectSettings,
         PlayerLimit playerLimit,
         Phase phase,
         int round,
@@ -26,7 +27,8 @@ public record RoomView(
         You you,
         WerwolfView werwolf,
         ImpostorView impostor,
-        TabuView tabu
+        TabuView tabu,
+        NobodyIsPerfectView nobodyIsPerfect
 ) {
 
     /** Öffentliche Infos über einen Mitspieler (ohne Rolle!). */
@@ -101,6 +103,41 @@ public record RoomView(
             List<TabuGame.CardResult> turnResults,
             List<TabuGame.CardResult> lastTurn,
             Integer winnerTeam
+    ) {
+    }
+
+    public record NobodyIsPerfectSettings(int questionCount) {
+    }
+
+    public record NobodyIsPerfectChoice(String id, String text) {
+    }
+
+    /** Eine Antwort nach der Auflösung: wer sie erfunden hat ({@code null} bei der echten) und wer darauf getippt hat. */
+    public record NobodyIsPerfectReveal(String id, String text, boolean correct, String authorId, List<String> guesserIds) {
+    }
+
+    /** {@code gained}: Punkte für die zuletzt aufgelöste Frage. */
+    public record NobodyIsPerfectScore(String playerId, int score, int gained) {
+    }
+
+    /**
+     * {@code choices} gibt es ab dem Tippen, die echte {@code answer} und {@code reveal} erst nach der Auflösung.
+     * Wer welche Antwort erfunden hat, steht vorher nirgends drin, nur die eigene ({@code yourChoiceId}).
+     */
+    public record NobodyIsPerfectView(
+            int questionNumber,
+            int questionCount,
+            String question,
+            String answer,
+            List<String> participantIds,
+            List<String> answeredIds,
+            String yourAnswer,
+            List<NobodyIsPerfectChoice> choices,
+            String yourChoiceId,
+            List<String> guessedIds,
+            String yourGuess,
+            List<NobodyIsPerfectReveal> reveal,
+            List<NobodyIsPerfectScore> scores
     ) {
     }
 

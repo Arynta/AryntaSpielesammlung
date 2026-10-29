@@ -1,9 +1,17 @@
 import { describe, expect, it } from "vitest";
-import { CATEGORIES, MAX_IMPOSTORS, SEER, SPECIAL_ROLES, TEAM_NAMES, THIEF, VILLAGER, WEREWOLF, TABU_CARDS } from "./gameData";
+import { CATEGORIES, NOBODY_IS_PERFECT_QUESTIONS, MAX_IMPOSTORS, SEER, SPECIAL_ROLES, TEAM_NAMES, THIEF, VILLAGER, WEREWOLF, TABU_CARDS } from "./gameData";
 import {
   autoWerewolves,
   cleanName,
+  createNobodyIsPerfect,
   createMatch,
+  guessChoice,
+  isLastQuestion,
+  mixChoices,
+  nextQuestion,
+  pickQuestions,
+  revealQuestion,
+  submitLie,
   drawCard,
   endTurn,
   explainerSeat,
@@ -212,5 +220,67 @@ describe("Tabu", () => {
       scoreCard(match, i % 2 ? "SKIPPED" : "CORRECT", random);
     }
     expect(seen.size).toBe(TABU_CARDS.length);
+  });
+});
+
+describe("Nobody is Perfect", () => {
+  /** Drei Spieler, alle haben geschrieben, die Antworten sind gemischt. */
+  function mixed(random: Random) {
+    const match = createNobodyIsPerfect(3, pickQuestions(3, [], random));
+    expect(submitLie(match, 0, "Lüge von Anna")).toBeNull();
+    expect(submitLie(match, 1, "Lüge von Ben")).toBeNull();
+    expect(submitLie(match, 2, "Lüge von Cem")).toBeNull();
+    mixChoices(match, random);
+    return match;
+  }
+  const choiceOf = (match: ReturnType<typeof mixed>, author: number | null) =>
+    match.choices.find((c) => c.author === author)!.id;
+
+  it("zieht erst Fragen, die noch nicht dran waren", () => {
+    const random = seeded(2);
+    const used = NOBODY_IS_PERFECT_QUESTIONS.slice(3).map((q) => q.question);
+    const picked = pickQuestions(5, used, random).map((q) => q.question);
+    expect(picked).toHaveLength(5);
+    expect(new Set(picked).size).toBe(5);
+    expect(picked.slice(0, 3).every((q) => !used.includes(q))).toBe(true);
+  });
+
+  it("prüft und bereinigt die Antwort", () => {
+    const match = createNobodyIsPerfect(3, pickQuestions(3, [], seeded(1)));
+    expect(submitLie(match, 0, "   ")).not.toBeNull();
+    expect(submitLie(match, 0, "x".repeat(101))).not.toBeNull();
+    expect(submitLie(match, 0, "  Eine   Lüge ")).toBeNull();
+    expect(match.answers[0]).toBe("Eine Lüge");
+  });
+
+  it("mischt alle Antworten und die echte mit Buchstaben", () => {
+    const match = mixed(seeded(3));
+    expect(match.choices.map((c) => c.id)).toEqual(["A", "B", "C", "D"]);
+    expect(match.choices.find((c) => c.author === null)!.text).toBe(match.questions[0].answer);
+  });
+
+  it("verbietet den Tipp auf die eigene Antwort", () => {
+    const match = mixed(seeded(4));
+    expect(guessChoice(match, 0, choiceOf(match, 0))).not.toBeNull();
+    expect(guessChoice(match, 0, "Z")).not.toBeNull();
+    expect(match.guesses[0]).toBeNull();
+  });
+
+  it("vergibt Punkte für richtige Tipps und gelungene Täuschungen", () => {
+    const match = mixed(seeded(5));
+    guessChoice(match, 0, choiceOf(match, null)); // Anna richtig: +1 Anna
+    guessChoice(match, 1, choiceOf(match, 0)); // Ben fällt auf Anna rein: +1 Anna
+    guessChoice(match, 2, choiceOf(match, 1)); // Cem fällt auf Ben rein: +1 Ben
+    revealQuestion(match);
+    expect(match.gained).toEqual([2, 1, 0]);
+    expect(match.scores).toEqual([2, 1, 0]);
+
+    expect(isLastQuestion(match)).toBe(false);
+    nextQuestion(match);
+    expect(match.index).toBe(1);
+    expect(match.answers).toEqual([null, null, null]);
+    expect(match.choices).toEqual([]);
+    expect(match.gained).toEqual([0, 0, 0]);
+    expect(match.scores).toEqual([2, 1, 0]);
   });
 });

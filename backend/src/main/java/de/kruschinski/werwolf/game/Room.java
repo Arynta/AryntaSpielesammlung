@@ -49,6 +49,9 @@ public class Room {
     private TabuOptions tabuOptions = TabuOptions.DEFAULT;
     /** Selbst gewählte Teams (Spieler-ID → Team-Nummer), nur wenn die Teams nicht automatisch sind. */
     private final Map<String, Integer> chosenTeams = new HashMap<>();
+    private NobodyIsPerfectOptions nobodyIsPerfectOptions = NobodyIsPerfectOptions.DEFAULT;
+    /** Nobody-is-Perfect-Fragen, die in diesem Raum schon dran waren. */
+    private final List<String> usedQuestions = new ArrayList<>();
     /** {@code null}, solange alle in der Lobby sind. */
     private Game game;
     private int nextPlayerNumber = 1;
@@ -178,6 +181,9 @@ public class Room {
         if (game instanceof ImpostorGame impostor) {
             impostor.closeVotingIfComplete();
         }
+        if (game instanceof NobodyIsPerfectGame nobodyIsPerfect) {
+            nobodyIsPerfect.closeStageIfComplete();
+        }
         touch();
     }
 
@@ -278,6 +284,17 @@ public class Room {
         touch();
     }
 
+    public synchronized void configureNobodyIsPerfect(String requesterId, int questionCount) {
+        requireHost(requesterId);
+        requireLobby();
+        NobodyIsPerfectOptions options = new NobodyIsPerfectOptions(questionCount);
+        if (!options.equals(nobodyIsPerfectOptions)) {
+            nobodyIsPerfectOptions = options;
+            resetReady();
+        }
+        touch();
+    }
+
     /** Jeder wählt sein Team selbst. Der Host darf auch andere verschieben ({@code targetId}). */
     public synchronized void chooseTeam(String requesterId, String targetId, int team) {
         require(requesterId);
@@ -309,6 +326,7 @@ public class Room {
             }
             case IMPOSTOR -> newImpostorRound(1, random);
             case TABU -> new TabuGame(tabuTeams(random), tabuOptions, random);
+            case NOBODY_IS_PERFECT -> newNobodyIsPerfect(random);
         };
         resetReady();
         touch();
@@ -334,7 +352,7 @@ public class Room {
         touch();
     }
 
-    /** Impostor: neue Runde mit neuem Wort. Tabu: neues Spiel. Beides erst, wenn alle bereit sind. */
+    /** Impostor: neue Runde mit neuem Wort. Tabu, Nobody is Perfect: neues Spiel. Alles erst, wenn alle bereit sind. */
     public synchronized void nextRound(String requesterId, RandomGenerator random) {
         requireHost(requesterId);
         if (game == null || !game.betweenRounds()) {
@@ -344,10 +362,45 @@ public class Room {
         game = switch (game) {
             case ImpostorGame impostor -> newImpostorRound(impostor.round() + 1, random);
             case TabuGame ignored -> new TabuGame(tabuTeams(random), tabuOptions, random);
+            case NobodyIsPerfectGame ignored -> newNobodyIsPerfect(random);
             case WerwolfGame ignored -> throw new GameException("Das geht in diesem Spiel gerade nicht.");
         };
         resetReady();
         touch();
+    }
+
+    // ---- Nobody is Perfect ---------------------------------------------
+
+    public synchronized void submitAnswer(String requesterId, String answer) {
+        require(requesterId);
+        requireGame(NobodyIsPerfectGame.class).submitAnswer(requesterId, answer);
+        touch();
+    }
+
+    public synchronized void guessAnswer(String requesterId, String choiceId) {
+        require(requesterId);
+        requireGame(NobodyIsPerfectGame.class).guess(requesterId, choiceId);
+        touch();
+    }
+
+    /** Spielleitung: nicht länger auf die warten, die noch schreiben oder tippen. */
+    public synchronized void skipWaiting(String requesterId) {
+        requireHost(requesterId);
+        requireGame(NobodyIsPerfectGame.class).skipWaiting();
+        touch();
+    }
+
+    public synchronized void nextQuestion(String requesterId) {
+        requireHost(requesterId);
+        requireGame(NobodyIsPerfectGame.class).nextQuestion();
+        touch();
+    }
+
+    private NobodyIsPerfectGame newNobodyIsPerfect(RandomGenerator random) {
+        List<NobodyIsPerfectQuestions.Question> questions =
+                NobodyIsPerfectQuestions.pick(nobodyIsPerfectOptions.questionCount(), usedQuestions, random);
+        questions.forEach(q -> usedQuestions.add(q.question()));
+        return new NobodyIsPerfectGame(List.copyOf(players.values()), questions, random);
     }
 
     // ---- Tabu ----------------------------------------------------
@@ -469,6 +522,7 @@ public class Room {
                 impostorSettings,
                 werwolfSettings,
                 tabuSettings,
+                new RoomView.NobodyIsPerfectSettings(nobodyIsPerfectOptions.questionCount()),
                 new RoomView.PlayerLimit(playerLimit, lowestPlayerLimit(), MAX_PLAYERS),
                 phase(),
                 round(),
@@ -479,7 +533,8 @@ public class Room {
                 new RoomView.You(me.id(), me.name(), isHost, me.ready()),
                 game instanceof WerwolfGame werwolf ? werwolf.viewFor(me.id()) : null,
                 game instanceof ImpostorGame impostor ? impostor.viewFor(me.id()) : null,
-                game instanceof TabuGame tabu ? tabu.viewFor(me.id(), clock.instant()) : null);
+                game instanceof TabuGame tabu ? tabu.viewFor(me.id(), clock.instant()) : null,
+                game instanceof NobodyIsPerfectGame nobodyIsPerfect ? nobodyIsPerfect.viewFor(me.id()) : null);
     }
 
     // ---- Hilfsmethoden -------------------------------------------------
@@ -498,6 +553,7 @@ public class Room {
             case WERWOLF -> RoleDistribution.problem(playing, werewolfCount, werwolfRoles);
             case IMPOSTOR -> impostorOptions.problem(playing);
             case TABU -> tabuProblem();
+            case NOBODY_IS_PERFECT -> null;
         };
         if (settingsProblem != null) {
             return settingsProblem;
@@ -522,7 +578,7 @@ public class Room {
         return switch (selectedGame) {
             case IMPOSTOR -> customWord != null;
             case WERWOLF -> werwolfHostIsGameMaster;
-            case TABU -> false;
+            case TABU, NOBODY_IS_PERFECT -> false;
         };
     }
 

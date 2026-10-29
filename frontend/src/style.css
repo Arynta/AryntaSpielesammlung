@@ -647,6 +647,88 @@ div.role-card {
   font-weight: 700;
 }
 
+/* ---- Nobody is Perfect ---------------------------------------------- */
+
+.question-card {
+  padding: 1.25rem;
+  border-radius: 12px;
+  background: var(--surface);
+  border: 2px solid var(--accent);
+}
+
+.question-number {
+  margin: 0 0 0.35rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.question-text {
+  display: block;
+  font-size: 1.35rem;
+  line-height: 1.3;
+}
+
+.answer-form {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.vote-option.choice {
+  justify-content: flex-start;
+}
+
+.vote-option.choice:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.choice-letter {
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  font-weight: 800;
+}
+
+.choice-text {
+  flex: 1;
+  overflow-wrap: anywhere;
+}
+
+.result-word strong.answer-text {
+  display: block;
+  font-size: 1.6rem;
+  margin-top: 0.25rem;
+}
+
+.reveal-list li {
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+
+.reveal-body {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.reveal-body .player-note {
+  text-align: left;
+}
+
+.reveal-list li.is-correct .choice-text,
+.reveal-list li.is-correct .choice-letter {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.point-table .player-note strong {
+  color: var(--text);
+  font-size: 1.1rem;
+}
+
 /* ---- Fußzeile und Rechtliches --------------------------------------- */
 
 a {

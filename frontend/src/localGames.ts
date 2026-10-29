@@ -1,7 +1,9 @@
 // Spielregeln für den lokalen Modus (ein Handy, kein Server). Sie entsprechen den Regeln im
-// Backend (RoleDistribution, ImpostorOptions, ImpostorWords, TabuGame) und haben eigene Tests.
+// Backend (RoleDistribution, ImpostorOptions, ImpostorWords, TabuGame, NobodyIsPerfectGame) und haben eigene Tests.
 import {
   CATEGORIES,
+  NOBODY_IS_PERFECT,
+  NOBODY_IS_PERFECT_QUESTIONS,
   MAX_IMPOSTORS,
   MIN_PLAYERS,
   SPECIAL_ROLES,
@@ -302,4 +304,100 @@ export function endTurn(match: TabuMatch): void {
   match.watcherTurns[watcherTeam(match)]++;
   match.currentTeam = (match.currentTeam + 1) % match.teams.length;
   match.card = null;
+}
+
+// ---- Nobody is Perfect -----------------------------------------------
+
+export interface NobodyIsPerfectQuestion {
+  question: string;
+  answer: string;
+}
+
+/** Eine Antwort zur Auswahl. {@code author} ist der Platz des Erfinders, null bei der echten. */
+export interface NobodyIsPerfectChoiceData {
+  id: string;
+  text: string;
+  author: number | null;
+}
+
+/** Ein laufendes Nobody-is-Perfect-Spiel. Spieler sind Plätze (Index in der Namensliste). */
+export interface NobodyIsPerfectMatch {
+  questions: NobodyIsPerfectQuestion[];
+  index: number;
+  scores: number[];
+  /** Punkte für die zuletzt aufgelöste Frage. */
+  gained: number[];
+  /** Pro Platz die erfundene Antwort zur aktuellen Frage. */
+  answers: (string | null)[];
+  /** Leer, solange noch geschrieben wird. */
+  choices: NobodyIsPerfectChoiceData[];
+  /** Pro Platz der Buchstabe, auf den getippt wurde. */
+  guesses: (string | null)[];
+}
+
+/** Zieht Fragen, die noch nicht dran waren. Reichen die nicht, kommen auch alte wieder. */
+export function pickQuestions(count: number, used: readonly string[], random: Random): NobodyIsPerfectQuestion[] {
+  const fresh = shuffled(NOBODY_IS_PERFECT_QUESTIONS.filter((q) => !used.includes(q.question)), random);
+  const old = shuffled(NOBODY_IS_PERFECT_QUESTIONS.filter((q) => used.includes(q.question)), random);
+  return [...fresh, ...old].slice(0, count);
+}
+
+export function createNobodyIsPerfect(playerCount: number, questions: NobodyIsPerfectQuestion[]): NobodyIsPerfectMatch {
+  return {
+    questions,
+    index: 0,
+    scores: Array(playerCount).fill(0),
+    gained: Array(playerCount).fill(0),
+    answers: Array(playerCount).fill(null),
+    choices: [],
+    guesses: Array(playerCount).fill(null),
+  };
+}
+
+/** Gibt zurück, was an der Antwort nicht stimmt, oder null. */
+export function submitLie(match: NobodyIsPerfectMatch, seat: number, raw: string): string | null {
+  const answer = cleanName(raw);
+  if (!answer) return "Bitte schreib eine Antwort.";
+  if (answer.length > NOBODY_IS_PERFECT.maxAnswerLength) return `Die Antwort darf höchstens ${NOBODY_IS_PERFECT.maxAnswerLength} Zeichen lang sein.`;
+  match.answers[seat] = answer;
+  return null;
+}
+
+/** Erfundene Antworten und die echte gemischt, mit Buchstaben A, B, C … */
+export function mixChoices(match: NobodyIsPerfectMatch, random: Random): void {
+  const all = match.answers.flatMap((text, seat) => (text === null ? [] : [{ text, author: seat as number | null }]));
+  all.push({ text: match.questions[match.index].answer, author: null });
+  match.choices = shuffled(all, random).map((c, i) => ({ id: String.fromCharCode(65 + i), ...c }));
+}
+
+/** Gibt zurück, warum der Tipp nicht geht, oder null. */
+export function guessChoice(match: NobodyIsPerfectMatch, seat: number, id: string): string | null {
+  const choice = match.choices.find((c) => c.id === id);
+  if (!choice) return "Diese Antwort gibt es nicht.";
+  if (choice.author === seat) return "Auf deine eigene Antwort kannst du nicht tippen.";
+  match.guesses[seat] = id;
+  return null;
+}
+
+/** Richtig getippt: +1. Jeder, der auf die eigene Erfindung hereinfällt: +1 für den Erfinder. */
+export function revealQuestion(match: NobodyIsPerfectMatch): void {
+  match.gained = match.scores.map(() => 0);
+  match.guesses.forEach((id, seat) => {
+    const choice = match.choices.find((c) => c.id === id);
+    if (!choice) return;
+    match.gained[choice.author ?? seat]++;
+  });
+  match.gained.forEach((points, seat) => (match.scores[seat] += points));
+}
+
+export function isLastQuestion(match: NobodyIsPerfectMatch): boolean {
+  return match.index === match.questions.length - 1;
+}
+
+export function nextQuestion(match: NobodyIsPerfectMatch): void {
+  match.index++;
+  match.answers = match.answers.map(() => null);
+  match.guesses = match.guesses.map(() => null);
+  match.gained = match.gained.map(() => 0);
+  match.choices = [];
 }

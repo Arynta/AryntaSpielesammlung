@@ -1,7 +1,7 @@
 // Spiegelt die Java-Klassen im Backend (RoomView, GameType, Phase).
 
-export type GameType = "WERWOLF" | "IMPOSTOR" | "TABU";
-export type Phase = "LOBBY" | "NIGHT" | "DAY" | "WORD" | "VOTING" | "RESULT" | "TURN_READY" | "TURN";
+export type GameType = "WERWOLF" | "IMPOSTOR" | "TABU" | "NOBODY_IS_PERFECT";
+export type Phase = "LOBBY" | "NIGHT" | "DAY" | "WORD" | "VOTING" | "RESULT" | "TURN_READY" | "TURN" | "WRITING" | "GUESSING" | "REVEAL";
 export type ImpostorPart = "CREW" | "IMPOSTOR" | "GAME_MASTER";
 
 export interface PlayerView {
@@ -94,6 +94,48 @@ export interface TabuView {
   winnerTeam: number | null;
 }
 
+export interface NobodyIsPerfectSettings {
+  questionCount: number;
+}
+
+export interface NobodyIsPerfectChoice {
+  id: string;
+  text: string;
+}
+
+export interface NobodyIsPerfectReveal {
+  id: string;
+  text: string;
+  correct: boolean;
+  /** null bei der echten Antwort. */
+  authorId: string | null;
+  guesserIds: string[];
+}
+
+export interface NobodyIsPerfectScore {
+  playerId: string;
+  score: number;
+  /** Punkte für die zuletzt aufgelöste Frage. */
+  gained: number;
+}
+
+/** choices ab dem Tippen, answer und reveal erst nach der Auflösung. */
+export interface NobodyIsPerfectView {
+  questionNumber: number;
+  questionCount: number;
+  question: string;
+  answer: string | null;
+  participantIds: string[];
+  answeredIds: string[];
+  yourAnswer: string | null;
+  choices: NobodyIsPerfectChoice[];
+  yourChoiceId: string | null;
+  guessedIds: string[];
+  yourGuess: string | null;
+  reveal: NobodyIsPerfectReveal[];
+  scores: NobodyIsPerfectScore[];
+}
+
 export interface PlayerLimit {
   value: number;
   /** Kleinster Wert, den der Host gerade einstellen darf. */
@@ -159,6 +201,7 @@ export interface RoomView {
   impostorSettings: ImpostorSettings;
   werwolfSettings: WerwolfSettings;
   tabuSettings: TabuSettings;
+  nobodyIsPerfectSettings: NobodyIsPerfectSettings;
   playerLimit: PlayerLimit;
   phase: Phase;
   round: number;
@@ -170,6 +213,7 @@ export interface RoomView {
   werwolf: WerwolfView | null;
   impostor: ImpostorView | null;
   tabu: TabuView | null;
+  nobodyIsPerfect: NobodyIsPerfectView | null;
 }
 
 /** Was der Server schickt. */
@@ -205,6 +249,11 @@ export type ClientMessage =
   | { type: "wordCorrect" }
   | { type: "wordSkip" }
   | { type: "buzz" }
+  | { type: "configureNobodyIsPerfect"; questionCount: number }
+  | { type: "submitAnswer"; answer: string }
+  | { type: "guessAnswer"; choice: string }
+  | { type: "skipWaiting" }
+  | { type: "nextQuestion" }
   | { type: "nextRound" }
   | { type: "backToLobby" }
   | { type: "ping" };

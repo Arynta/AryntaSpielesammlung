@@ -118,7 +118,7 @@ export function viewTabu(room: RoomView, game: TabuView, deadline: number | null
   } else if (youWatch && game.card) {
     main = `
       ${viewForbiddenCard(game.card)}
-      <button class="btn buzzer" data-action="buzz">🔔 Verboten!</button>
+      <button class="btn buzzer" data-action="buzz">Verboten!</button>
       <p class="hint">Drück, wenn ${esc(explainer)} ein verbotenes Wort, einen Teil davon oder eine Geste benutzt.</p>`;
   } else if (game.yourTeam === game.currentTeam) {
     main = `<p class="turn-role">Rate mit! <strong>${esc(explainer)}</strong> erklärt.</p>`;

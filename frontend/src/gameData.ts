@@ -2,6 +2,7 @@
 import wordFile from "../../backend/src/main/resources/games/impostor-words.json";
 import roleFile from "../../backend/src/main/resources/games/werwolf-roles.json";
 import cardFile from "../../backend/src/main/resources/games/tabu-cards.json";
+import questionFile from "../../backend/src/main/resources/games/nobody-is-perfect-questions.json";
 import werwolfCard from "../../assets/images/Werwolf/Werwolf_werwolf1.png";
 
 export interface RoleData {
@@ -25,6 +26,7 @@ export const TEAM_NAMES: Record<string, string> = Object.fromEntries(roleFile.te
 export const TEAM_IDS: string[] = roleFile.teams.map((t) => t.id);
 export const CATEGORIES: WordCategory[] = wordFile.categories;
 export const TABU_CARDS: { word: string; forbidden: string[] }[] = cardFile.cards;
+export const NOBODY_IS_PERFECT_QUESTIONS: { question: string; answer: string }[] = questionFile.questions;
 
 export const VILLAGER = "DORFBEWOHNER";
 export const WEREWOLF = "WERWOLF";
@@ -35,7 +37,7 @@ export const THIEF_EXTRA_CARDS = 2;
 
 // Gleiche Werte wie im Backend (GameType, Room, ImpostorOptions)
 export const MAX_PLAYERS = 20;
-export const MIN_PLAYERS = { WERWOLF: 4, IMPOSTOR: 3, TABU: 4 } as const;
+export const MIN_PLAYERS = { WERWOLF: 4, IMPOSTOR: 3, TABU: 4, NOBODY_IS_PERFECT: 3 } as const;
 export const MAX_IMPOSTORS = MAX_PLAYERS / 2 - 1;
 
 // Gleiche Werte wie im Backend (TabuOptions, TabuGame)
@@ -50,6 +52,14 @@ export const TABU = {
   maxTargetScore: 100,
   targetScoreStep: 5,
   minTeamSize: 2,
+} as const;
+
+// Gleiche Werte wie im Backend (NobodyIsPerfectOptions)
+export const NOBODY_IS_PERFECT = {
+  minQuestions: 3,
+  maxQuestions: 20,
+  defaultQuestions: 8,
+  maxAnswerLength: 100,
 } as const;
 
 /** Rollen zum Ankreuzen. Dorfbewohner füllen auf, Werwölfe werden gezählt. */
