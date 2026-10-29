@@ -45,7 +45,13 @@ public record RoomView(
     }
 
     /** {@code customWord} steht nur in der Ansicht des Hosts, alle anderen sehen nur, ob eins gesetzt ist. */
-    public record ImpostorSettings(boolean impostorSeesCategory, boolean customWordSet, String customWord) {
+    public record ImpostorSettings(
+            boolean impostorSeesCategory,
+            boolean customWordSet,
+            String customWord,
+            List<String> allCategories,
+            List<String> selectedCategories
+    ) {
     }
 
     /** Aktuelles Limit und in welchem Bereich der Host es gerade einstellen darf. */

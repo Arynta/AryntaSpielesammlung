@@ -22,6 +22,7 @@ import java.util.random.RandomGenerator;
 public class Room {
 
     public static final int MAX_PLAYERS = 20;
+    public static final int DEFAULT_PLAYER_LIMIT = 7;
     /** Kleiner darf der Host das Limit nicht stellen, sonst passt kein Spiel mehr rein. */
     public static final int MIN_PLAYER_LIMIT = 3;
     public static final int MAX_NAME_LENGTH = 20;
@@ -33,8 +34,10 @@ public class Room {
     private final List<String> usedWords = new ArrayList<>();
     private String hostId;
     private GameType selectedGame = GameType.IMPOSTOR;
-    private int playerLimit = MAX_PLAYERS;
+    private int playerLimit = DEFAULT_PLAYER_LIMIT;
     private boolean impostorSeesCategory = true;
+    /** Aus diesen Kategorien kommen die Impostor-Wörter. Reihenfolge wie in der Wortliste. */
+    private List<String> impostorCategories = ImpostorWords.categoryNames();
     /** Vom Host vorgegebenes Wort für die nächste Impostor-Runde, sonst {@code null}. */
     private String customWord;
     /** {@code null}, solange alle in der Lobby sind. */
@@ -202,6 +205,24 @@ public class Room {
         touch();
     }
 
+    public synchronized void setImpostorCategories(String requesterId, List<String> categories) {
+        requireHost(requesterId);
+        requireLobby();
+        if (categories == null || categories.isEmpty()) {
+            throw new GameException("Bitte wähle mindestens eine Kategorie.");
+        }
+        List<String> known = ImpostorWords.categoryNames();
+        if (!known.containsAll(categories)) {
+            throw new GameException("Diese Kategorie gibt es nicht.");
+        }
+        List<String> selected = known.stream().filter(categories::contains).toList();
+        if (!selected.equals(impostorCategories)) {
+            impostorCategories = selected;
+            resetReady();
+        }
+        touch();
+    }
+
     // ---- Spielablauf ---------------------------------------------------
 
     public synchronized void start(String requesterId, RandomGenerator random) {
@@ -279,7 +300,8 @@ public class Room {
         String startHint = canChooseNext ? startBlocker() : null;
 
         RoomView.ImpostorSettings settings = new RoomView.ImpostorSettings(
-                impostorSeesCategory, customWord != null, isHost ? customWord : null);
+                impostorSeesCategory, customWord != null, isHost ? customWord : null,
+                ImpostorWords.categoryNames(), impostorCategories);
 
         return new RoomView(
                 code,
@@ -334,7 +356,7 @@ public class Room {
         String gameMasterId = customWord != null ? hostId : null;
         SecretWord secret = customWord != null
                 ? new SecretWord(customWord, null)
-                : ImpostorWords.pick(random, usedWords);
+                : ImpostorWords.pick(random, usedWords, impostorCategories);
 
         List<Player> participants = players.values().stream()
                 .filter(p -> !p.id().equals(gameMasterId))

@@ -32,6 +32,8 @@ export interface ImpostorSettings {
   customWordSet: boolean;
   /** Nur beim Host gefüllt. */
   customWord: string | null;
+  allCategories: string[];
+  selectedCategories: string[];
 }
 
 export interface PlayerLimit {
@@ -115,6 +117,7 @@ export type ClientMessage =
   | { type: "vote"; targetId: string }
   | { type: "kick"; targetId: string }
   | { type: "setPlayerLimit"; playerLimit: number }
+  | { type: "setImpostorCategories"; categories: string[] }
   | { type: "nextRound" }
   | { type: "backToLobby" }
   | { type: "ping" };

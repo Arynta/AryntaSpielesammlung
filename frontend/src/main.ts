@@ -494,7 +494,9 @@ function viewImpostorSettings(room: RoomView): string {
                ${settings.impostorSeesCategory ? "checked" : ""} />
         <span>Impostor sieht die Kategorie</span>
       </label>
+    </div>
 
+    <div class="settings-group">
       <label class="field">
         <span>Eigenes Wort (optional)</span>
         <input id="custom-word" data-bind="customWordDraft" maxlength="30" autocomplete="off"
@@ -502,14 +504,50 @@ function viewImpostorSettings(room: RoomView): string {
       </label>
       <button class="btn small" data-action="saveWord">Wort übernehmen</button>
       ${current}
+    </div>
+
+    ${viewCategoryChoice(room)}`;
+}
+
+function viewCategoryChoice(room: RoomView): string {
+  const settings = room.impostorSettings;
+  const selected = new Set(settings.selectedCategories);
+  const onlyOneLeft = selected.size === 1;
+
+  const boxes = settings.allCategories
+    .map((name, index) => {
+      const checked = selected.has(name);
+      // Die letzte angekreuzte Kategorie lässt sich nicht abwählen, ohne Kategorie gäbe es kein Wort
+      const locked = checked && onlyOneLeft;
+      return `
+        <label class="check category">
+          <input type="checkbox" id="category-${index}" data-category="${esc(name)}"
+                 ${checked ? "checked" : ""} ${locked ? "disabled" : ""} />
+          <span>${esc(name)}</span>
+        </label>`;
+    })
+    .join("");
+
+  const hint = settings.customWordSet
+    ? "Gilt erst wieder, wenn kein eigenes Wort gesetzt ist."
+    : "Das Wort kommt zufällig aus den angekreuzten Kategorien.";
+
+  return `
+    <div class="settings-group" role="group" aria-labelledby="categories-label">
+      <span id="categories-label" class="settings-label">Kategorien</span>
+      <div class="category-grid">${boxes}</div>
+      <p class="hint">${hint}</p>
     </div>`;
 }
 
 function viewImpostorSettingsSummary(room: RoomView): string {
   const settings = room.impostorSettings;
+  const allSelected = settings.selectedCategories.length === settings.allCategories.length;
+  const categories = allSelected ? "alle" : settings.selectedCategories.map(esc).join(", ");
   return `
     <ul class="settings-summary settings-group">
       <li>Impostor sieht die Kategorie: <strong>${settings.impostorSeesCategory ? "an" : "aus"}</strong></li>
+      <li>Kategorien: <strong>${categories}</strong></li>
       ${settings.customWordSet ? "<li>Die Spielleitung hat ein eigenes Wort gewählt und spielt nicht mit.</li>" : ""}
     </ul>`;
 }
@@ -796,6 +834,12 @@ app.addEventListener("input", (event) => {
 app.addEventListener("change", (event) => {
   const input = event.target as HTMLInputElement;
   if (input.dataset.setting === "seesCategory") configureImpostor({ seesCategory: input.checked });
+  if (input.dataset.category !== undefined) {
+    const categories = [...app.querySelectorAll<HTMLInputElement>("[data-category]")]
+      .filter((box) => box.checked)
+      .map((box) => box.dataset.category!);
+    sendOrComplain({ type: "setImpostorCategories", categories });
+  }
 });
 
 app.addEventListener("keydown", (event) => {

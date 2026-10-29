@@ -55,14 +55,26 @@ public final class ImpostorWords {
     private ImpostorWords() {
     }
 
-    /** Ein zufälliges Wort, das noch nicht in {@code alreadyUsed} steht. Sind alle verbraucht, geht es von vorne los. */
-    public static SecretWord pick(RandomGenerator random, Collection<String> alreadyUsed) {
-        List<SecretWord> candidates = allWords().stream()
+    /** Alle Kategorien in fester Reihenfolge, so wie sie der Host zur Auswahl sieht. */
+    public static List<String> categoryNames() {
+        return CATEGORIES.stream().map(Category::name).toList();
+    }
+
+    /**
+     * Ein zufälliges Wort aus den gewählten Kategorien, das noch nicht in {@code alreadyUsed} steht.
+     * Sind dort alle verbraucht, geht es in diesen Kategorien von vorne los.
+     */
+    public static SecretWord pick(RandomGenerator random, Collection<String> alreadyUsed, Collection<String> categories) {
+        List<SecretWord> inCategories = allWords().stream()
+                .filter(w -> categories.contains(w.category()))
+                .toList();
+        if (inCategories.isEmpty()) {
+            throw new GameException("Bitte wähle mindestens eine Kategorie.");
+        }
+        List<SecretWord> unused = inCategories.stream()
                 .filter(w -> !alreadyUsed.contains(w.word()))
                 .toList();
-        if (candidates.isEmpty()) {
-            candidates = allWords();
-        }
+        List<SecretWord> candidates = unused.isEmpty() ? inCategories : unused;
         return candidates.get(random.nextInt(candidates.size()));
     }
 

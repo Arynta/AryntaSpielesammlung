@@ -320,6 +320,67 @@ class ImpostorTest {
         assertEquals(GameType.IMPOSTOR, room.selectedGame());
     }
 
+    // ---- Kategorien ----------------------------------------------------
+
+    @Test
+    void anfangsSindAlleKategorienGewaehlt() {
+        RoomView.ImpostorSettings settings = lobby("A").viewFor("p1").impostorSettings();
+        assertEquals(ImpostorWords.categoryNames(), settings.selectedCategories());
+        assertEquals(ImpostorWords.categoryNames(), settings.allCategories());
+    }
+
+    @Test
+    void wortKommtNurAusGewaehltenKategorien() {
+        Room room = lobby("A", "B", "C");
+        room.setImpostorCategories("p1", List.of("Tiere"));
+        for (int round = 1; round <= 5; round++) {
+            allReady(room);
+            if (round == 1) {
+                room.start("p1", new Random(round));
+            } else {
+                room.nextRound("p1", new Random(round));
+            }
+            assertEquals("Tiere", game(room).secret().category());
+            finishVoting(room);
+        }
+    }
+
+    @Test
+    void mindestensEineKategorie() {
+        Room room = lobby("A");
+        assertThrows(GameException.class, () -> room.setImpostorCategories("p1", List.of()));
+    }
+
+    @Test
+    void unbekannteKategorieWirdAbgelehnt() {
+        Room room = lobby("A");
+        assertThrows(GameException.class, () -> room.setImpostorCategories("p1", List.of("Tiere", "Quatsch")));
+    }
+
+    @Test
+    void nurDerHostWaehltKategorien() {
+        Room room = lobby("A", "B");
+        assertThrows(GameException.class, () -> room.setImpostorCategories("p2", List.of("Tiere")));
+    }
+
+    @Test
+    void kategorienAendernSetztBereitZurueck() {
+        Room room = lobby("A", "B", "C");
+        allReady(room);
+        room.setImpostorCategories("p1", List.of("Orte", "Tiere"));
+        room.players().forEach(p -> assertFalse(p.ready()));
+        // Reihenfolge wie in der Wortliste, egal wie sie geschickt wurde
+        assertEquals(List.of("Tiere", "Orte"), room.viewFor("p1").impostorSettings().selectedCategories());
+    }
+
+    private static void finishVoting(Room room) {
+        room.startVoting("p1");
+        String impostor = game(room).impostorId();
+        for (Player p : room.players()) {
+            room.vote(p.id(), p.id().equals(impostor) ? crewMember(room) : impostor);
+        }
+    }
+
     @Test
     void wortlisteHatKeineDoppelten() {
         List<String> words = ImpostorWords.allWords().stream().map(ImpostorWords.SecretWord::word).toList();

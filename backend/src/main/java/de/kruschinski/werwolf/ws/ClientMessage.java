@@ -1,5 +1,7 @@
 package de.kruschinski.werwolf.ws;
 
+import java.util.List;
+
 /**
  * Nachricht vom Handy an den Server. Je nach {@code type} sind nur manche Felder gefüllt.
  *
@@ -12,6 +14,7 @@ package de.kruschinski.werwolf.ws;
  *   <li>{@code configureImpostor}: impostorSeesCategory, customWord (leer = Wortliste)</li>
  *   <li>{@code vote}, {@code kick}: targetId</li>
  *   <li>{@code setPlayerLimit}: playerLimit</li>
+ *   <li>{@code setImpostorCategories}: categories</li>
  *   <li>{@code leave}, {@code start}, {@code nextPhase}, {@code startVoting}, {@code nextRound},
  *       {@code backToLobby}, {@code ping}: keine Felder</li>
  * </ul>
@@ -26,6 +29,7 @@ public record ClientMessage(
         Boolean impostorSeesCategory,
         String customWord,
         String targetId,
-        Integer playerLimit
+        Integer playerLimit,
+        List<String> categories
 ) {
 }

@@ -19,11 +19,17 @@ class RoomTest {
 
     private final Clock clock = Clock.fixed(Instant.parse("2026-10-29T18:00:00Z"), ZoneOffset.UTC);
 
-    /** Raum mit Werwolf als Spiel, weil die meisten Tests hier Werwolf prüfen. */
+    /**
+     * Raum mit Werwolf als Spiel, weil die meisten Tests hier Werwolf prüfen.
+     * Das Limit steht auf dem Maximum, damit auch Tests mit vielen Spielern reinpassen.
+     */
     private Room roomWith(String... names) {
         Room room = new Room("TEST", clock);
         for (String name : names) {
             room.addPlayer(name);
+            if (room.players().size() == 1) {
+                room.setPlayerLimit("p1", Room.MAX_PLAYERS);
+            }
         }
         if (names.length > 0) {
             room.selectGame("p1", GameType.WERWOLF);
@@ -105,8 +111,14 @@ class RoomTest {
     // ---- Spielerlimit --------------------------------------------------
 
     @Test
-    void limitIstAnfangsZwanzig() {
-        assertEquals(Room.MAX_PLAYERS, roomWith("A").viewFor("p1").playerLimit().value());
+    void limitIstAnfangsSieben() {
+        Room room = new Room("TEST", clock);
+        room.addPlayer("A");
+        assertEquals(7, room.viewFor("p1").playerLimit().value());
+        for (String name : List.of("B", "C", "D", "E", "F", "G")) {
+            room.addPlayer(name);
+        }
+        assertThrows(GameException.class, () -> room.addPlayer("H"));
     }
 
     @Test

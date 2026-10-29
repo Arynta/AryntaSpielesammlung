@@ -485,6 +485,28 @@ input:focus-visible,
   border-top: 1px solid var(--line);
 }
 
+.settings-label {
+  font-weight: 700;
+}
+
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr));
+  gap: 0.5rem 1rem;
+}
+
+.check.category {
+  font-weight: 400;
+}
+
+.check input:disabled + span {
+  opacity: 0.7;
+}
+
+.settings-group .hint {
+  margin: 0;
+}
+
 .setting-row {
   display: flex;
   justify-content: space-between;

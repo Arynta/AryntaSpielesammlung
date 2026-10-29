@@ -138,6 +138,8 @@ public class GameSocketHandler extends TextWebSocketHandler {
                     (room, playerId) -> room.setReady(playerId, Boolean.TRUE.equals(msg.ready())));
             case "configureImpostor" -> withRoom(session, (room, playerId) -> room.configureImpostor(
                     playerId, Boolean.TRUE.equals(msg.impostorSeesCategory()), msg.customWord()));
+            case "setImpostorCategories" -> withRoom(session,
+                    (room, playerId) -> room.setImpostorCategories(playerId, msg.categories()));
             case "setPlayerLimit" -> {
                 if (msg.playerLimit() == null) {
                     throw new GameException("Bitte gib ein Spielerlimit an.");
