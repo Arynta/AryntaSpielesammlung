@@ -1,0 +1,15 @@
+# Render Blueprint: legt das Backend als kostenlosen Docker-Service an.
+# Auf render.com: "New" → "Blueprint" → dieses Repo auswählen.
+services:
+  - type: web
+    name: werwolf-backend
+    runtime: docker
+    plan: free
+    rootDir: backend
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    envVars:
+      # Nach dem ersten Deploy des Frontends hier dessen Adresse eintragen,
+      # z. B. https://werwolf.pages.dev (mehrere kommagetrennt)
+      - key: ALLOWED_ORIGINS
+        sync: false

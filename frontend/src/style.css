@@ -1,0 +1,355 @@
+/* Die Farben hängen an der Spielphase: Dämmerung (Start/Lobby), Nacht, Tag. */
+
+:root,
+body[data-phase="home"],
+body[data-phase="lobby"] {
+  --bg: #2f2747;
+  --surface: #3c3359;
+  --line: #57497c;
+  --text: #f1ecf8;
+  --muted: #bcb1d3;
+  --accent: #f0b45c;
+  --on-accent: #2a1d07;
+}
+
+body[data-phase="night"] {
+  --bg: #1d1f3d;
+  --surface: #2a2d55;
+  --line: #3f4378;
+  --text: #e8eaf6;
+  --muted: #a3a8cf;
+  --accent: #f1dc93;
+  --on-accent: #1d1f3d;
+}
+
+body[data-phase="day"] {
+  --bg: #dce9f1;
+  --surface: #ffffff;
+  --line: #b4c7d4;
+  --text: #1f2a3a;
+  --muted: #4c5c70;
+  --accent: #9a4f0e;
+  --on-accent: #ffffff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Atkinson Hyperlegible", system-ui, sans-serif;
+  font-size: 1.0625rem;
+  line-height: 1.5;
+  transition: background-color 700ms ease, color 700ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body {
+    transition: none;
+  }
+}
+
+.screen {
+  max-width: 30rem;
+  margin: 0 auto;
+  padding: max(1.5rem, env(safe-area-inset-top)) 1rem max(2rem, env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* ---- Schrift -------------------------------------------------------- */
+
+.title {
+  font-family: "Grenze", Georgia, serif;
+  font-weight: 800;
+  font-size: 3rem;
+  line-height: 1;
+  margin: 0;
+  letter-spacing: 0.01em;
+}
+
+.lead {
+  margin: 0.5rem 0 0;
+  color: var(--muted);
+  max-width: 32ch;
+}
+
+.hint {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.or {
+  margin: 0.5rem 0 -0.25rem;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+h2 {
+  font-size: 1rem;
+  margin: 0 0 0.5rem;
+}
+
+/* ---- Formular ------------------------------------------------------- */
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+input {
+  font: inherit;
+  font-weight: 400;
+  font-size: 1.125rem;
+  color: var(--text);
+  background: var(--surface);
+  border: 2px solid var(--line);
+  border-radius: 10px;
+  padding: 0.75rem 0.85rem;
+  width: 100%;
+}
+
+input::placeholder {
+  color: var(--muted);
+  opacity: 0.7;
+}
+
+input:focus-visible,
+.btn:focus-visible,
+.role-card:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.code-input {
+  font-family: "Grenze", Georgia, serif;
+  font-weight: 800;
+  font-size: 1.6rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  padding-block: 0.45rem;
+}
+
+.join {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.6rem;
+  align-items: end;
+}
+
+/* ---- Knöpfe --------------------------------------------------------- */
+
+.btn {
+  font: inherit;
+  font-weight: 700;
+  min-height: 3.25rem;
+  padding: 0.75rem 1.25rem;
+  border-radius: 10px;
+  border: 2px solid var(--line);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.btn.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--on-accent);
+}
+
+.btn.quiet {
+  background: transparent;
+  border-color: transparent;
+  color: var(--muted);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.btn.small {
+  min-height: 2.5rem;
+  padding: 0.4rem 0.9rem;
+  font-size: 0.95rem;
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-top: 0.5rem;
+}
+
+/* ---- Raumcode ------------------------------------------------------- */
+
+.room-code {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: end;
+  gap: 0 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--line);
+}
+
+.room-code p {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: var(--muted);
+}
+
+.room-code strong {
+  font-family: "Grenze", Georgia, serif;
+  font-weight: 800;
+  font-size: 4.5rem;
+  line-height: 0.9;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+}
+
+/* ---- Mitspieler ----------------------------------------------------- */
+
+.players ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.players li {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.players .count {
+  color: var(--muted);
+  font-weight: 400;
+}
+
+.player-note {
+  color: var(--muted);
+  font-size: 0.9rem;
+  text-align: right;
+}
+
+.players li.is-offline .player-name {
+  opacity: 0.55;
+}
+
+.players li.is-dead .player-name {
+  text-decoration: line-through;
+}
+
+/* ---- Rollenkarte ---------------------------------------------------- */
+
+.role-card {
+  font: inherit;
+  color: var(--text);
+  width: 100%;
+  min-height: 15rem;
+  padding: 1.5rem 1.25rem;
+  border-radius: 18px;
+  border: 2px dashed var(--line);
+  background: var(--surface);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  text-align: center;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  touch-action: none;
+}
+
+.role-hidden {
+  color: var(--muted);
+  font-size: 1.1rem;
+}
+
+.role-card.is-open {
+  border-style: solid;
+  color: #fff;
+}
+
+.role-card.is-open.role-werwolf {
+  background: #7d2424;
+  border-color: #a63a3a;
+}
+
+.role-card.is-open.role-seherin {
+  background: #4a3d8c;
+  border-color: #6d5fb8;
+}
+
+.role-card.is-open.role-dorfbewohner {
+  background: #355a37;
+  border-color: #4f7d51;
+}
+
+.role-name {
+  font-family: "Grenze", Georgia, serif;
+  font-weight: 800;
+  font-size: 3rem;
+  line-height: 1;
+}
+
+.role-desc,
+.wolves {
+  margin: 0;
+  max-width: 28ch;
+}
+
+.wolves {
+  font-weight: 700;
+}
+
+/* ---- Meldungen ------------------------------------------------------ */
+
+.status {
+  margin: 0;
+  padding: 0.7rem 1rem;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+.toast:empty {
+  display: none;
+}
+
+.toast {
+  position: fixed;
+  left: 1rem;
+  right: 1rem;
+  bottom: max(1rem, env(safe-area-inset-bottom));
+  max-width: 28rem;
+  margin: 0 auto;
+  padding: 0.85rem 1rem;
+  border-radius: 10px;
+  background: var(--text);
+  color: var(--bg);
+  font-weight: 700;
+}

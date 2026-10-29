@@ -1,0 +1,11 @@
+{
+  "name": "Werwolf",
+  "short_name": "Werwolf",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#2f2747",
+  "theme_color": "#2f2747",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}
