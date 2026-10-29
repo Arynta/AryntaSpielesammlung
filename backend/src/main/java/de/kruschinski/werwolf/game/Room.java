@@ -22,6 +22,8 @@ import java.util.random.RandomGenerator;
 public class Room {
 
     public static final int MAX_PLAYERS = 20;
+    /** Kleiner darf der Host das Limit nicht stellen, sonst passt kein Spiel mehr rein. */
+    public static final int MIN_PLAYER_LIMIT = 3;
     public static final int MAX_NAME_LENGTH = 20;
     public static final int MAX_WORD_LENGTH = 30;
 
@@ -30,7 +32,8 @@ public class Room {
     private final Map<String, Player> players = new LinkedHashMap<>(); // Reihenfolge = Beitrittsreihenfolge
     private final List<String> usedWords = new ArrayList<>();
     private String hostId;
-    private GameType selectedGame = GameType.WERWOLF;
+    private GameType selectedGame = GameType.IMPOSTOR;
+    private int playerLimit = MAX_PLAYERS;
     private boolean impostorSeesCategory = true;
     /** Vom Host vorgegebenes Wort für die nächste Impostor-Runde, sonst {@code null}. */
     private String customWord;
@@ -87,7 +90,7 @@ public class Room {
         if (game != null) {
             throw new GameException("Das Spiel läuft schon. Warte, bis alle zurück in der Lobby sind.");
         }
-        if (players.size() >= MAX_PLAYERS) {
+        if (players.size() >= playerLimit) {
             throw new GameException("Der Raum ist voll.");
         }
         String name = cleanName(rawName);
@@ -124,6 +127,31 @@ public class Room {
             hostId = firstPlayerId();
         }
         touch();
+    }
+
+    /** Host wirft jemanden raus. Nur in der Lobby, damit keine laufende Runde kaputtgeht. */
+    public synchronized void kick(String requesterId, String targetId) {
+        requireHost(requesterId);
+        requireLobby();
+        if (requesterId.equals(targetId)) {
+            throw new GameException("Du kannst dich nicht selbst entfernen.");
+        }
+        players.remove(require(targetId).id());
+        touch();
+    }
+
+    public synchronized void setPlayerLimit(String requesterId, int limit) {
+        requireHost(requesterId);
+        int lowest = lowestPlayerLimit();
+        if (limit < lowest || limit > MAX_PLAYERS) {
+            throw new GameException("Das Spielerlimit muss zwischen " + lowest + " und " + MAX_PLAYERS + " liegen.");
+        }
+        playerLimit = limit;
+        touch();
+    }
+
+    public synchronized int playerLimit() {
+        return playerLimit;
     }
 
     public synchronized void setConnected(String playerId, boolean connected) {
@@ -258,6 +286,7 @@ public class Room {
                 selectedGame,
                 RoomView.GameOption.all(),
                 settings,
+                new RoomView.PlayerLimit(playerLimit, lowestPlayerLimit(), MAX_PLAYERS),
                 phase(),
                 round(),
                 hostId,
@@ -288,6 +317,10 @@ public class Room {
             return "Warte, bis alle bereit sind (" + ready + " von " + online.size() + ").";
         }
         return null;
+    }
+
+    private int lowestPlayerLimit() {
+        return Math.max(MIN_PLAYER_LIMIT, players.size());
     }
 
     private void requireStartable() {

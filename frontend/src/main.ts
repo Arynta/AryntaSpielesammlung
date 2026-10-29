@@ -1,5 +1,6 @@
 import "./fonts";
 import "./style.css";
+import { askConfirm } from "./confirmDialog";
 import { GameConnection, type ConnectionStatus } from "./connection";
 import type { GameType, ImpostorView, PlayerView, RoomView, ServerMessage, WerwolfView } from "./types";
 
@@ -21,6 +22,8 @@ const state = {
   codeInput: new URLSearchParams(location.search).get("raum")?.toUpperCase() ?? "",
   /** Eigenes Impostor-Wort, das der Host gerade tippt, aber noch nicht übernommen hat. */
   customWordDraft: "",
+  gamePickerOpen: false,
+  settingsOpen: load<boolean>("arynta.settingsOpen") ?? false,
   toast: null as string | null,
   revealing: false,
   waitingForRejoin: false,
@@ -61,6 +64,10 @@ function handleMessage(msg: ServerMessage): void {
     case "left":
       forgetRoom();
       break;
+    case "kicked":
+      forgetRoom();
+      showToast("Du wurdest aus dem Raum entfernt.");
+      return;
     case "error":
       if (state.waitingForRejoin) {
         // Raum gibt es nach einem Server-Neustart nicht mehr
@@ -101,8 +108,27 @@ function act(action: string, value?: string): void {
       }
       sendOrComplain({ type: "join", code: state.codeInput.trim(), name: state.name });
       break;
+    case "toggleGamePicker":
+      state.gamePickerOpen = !state.gamePickerOpen;
+      render();
+      break;
     case "selectGame":
-      sendOrComplain({ type: "selectGame", game: value as GameType });
+      state.gamePickerOpen = false;
+      if (value !== state.room?.game) sendOrComplain({ type: "selectGame", game: value as GameType });
+      else render();
+      break;
+    case "toggleSettings":
+      state.settingsOpen = !state.settingsOpen;
+      save("arynta.settingsOpen", state.settingsOpen);
+      render();
+      break;
+    case "changePlayerLimit":
+      if (state.room) {
+        sendOrComplain({ type: "setPlayerLimit", playerLimit: state.room.playerLimit.value + Number(value) });
+      }
+      break;
+    case "kick":
+      void kick(value);
       break;
     case "toggleReady":
       sendOrComplain({ type: "setReady", ready: !state.room?.you.ready });
@@ -130,24 +156,39 @@ function act(action: string, value?: string): void {
       sendOrComplain({ type: "nextRound" });
       break;
     case "backToLobby":
-      if (confirm("Spiel beenden und alle zurück in die Lobby schicken?")) {
-        sendOrComplain({ type: "backToLobby" });
-      }
+      void backToLobby();
       break;
     case "leave":
-      if (confirm("Raum wirklich verlassen?")) {
-        if (!connection.send({ type: "leave" })) {
-          forgetRoom();
-          render();
-        }
-      }
+      void leave();
       break;
     case "share":
       void shareRoom();
       break;
     case "forgetDevice":
-      forgetDevice();
+      void forgetDevice();
       break;
+  }
+}
+
+async function backToLobby(): Promise<void> {
+  if (await askConfirm("Spiel beenden und alle zurück in die Lobby schicken?", "Ja, beenden")) {
+    sendOrComplain({ type: "backToLobby" });
+  }
+}
+
+async function leave(): Promise<void> {
+  if (!(await askConfirm("Raum wirklich verlassen?", "Ja, verlassen"))) return;
+  if (!connection.send({ type: "leave" })) {
+    forgetRoom();
+    render();
+  }
+}
+
+async function kick(playerId: string | undefined): Promise<void> {
+  const player = state.room?.players.find((p) => p.id === playerId);
+  if (!player) return;
+  if (await askConfirm(`${player.name} aus dem Raum entfernen?`, "Ja, entfernen")) {
+    sendOrComplain({ type: "kick", targetId: player.id });
   }
 }
 
@@ -162,12 +203,12 @@ function configureImpostor(change: { seesCategory?: boolean; customWord?: string
   });
 }
 
-function forgetDevice(): void {
+async function forgetDevice(): Promise<void> {
   const inRoom = state.session !== null;
   const question = inRoom
     ? "Name und Raum auf diesem Gerät löschen? Du verlässt dabei den Raum."
     : "Deinen gespeicherten Namen auf diesem Gerät löschen?";
-  if (!confirm(question)) return;
+  if (!(await askConfirm(question, "Ja, löschen"))) return;
 
   if (inRoom) connection.send({ type: "leave" });
   forgetRoom();
@@ -332,7 +373,8 @@ function viewLobby(room: RoomView): string {
     </section>
 
     ${viewGamePicker(room)}
-    ${viewPlayers(room, { showReady: true })}
+    ${viewSettings(room)}
+    ${viewPlayers(room, { showReady: true, showLimit: true, kickable: room.you.host })}
 
     <div class="actions">
       ${viewReadyButton(room)}
@@ -361,7 +403,18 @@ function viewGamePicker(room: RoomView): string {
           <span class="game-min">ab ${selected.minPlayers} Spielern</span>
           <p>${esc(selected.description)}</p>
         </div>
-        ${room.game === "IMPOSTOR" ? viewImpostorSettingsSummary(room) : ""}
+      </section>`;
+  }
+
+  if (!state.gamePickerOpen) {
+    return `
+      <section class="game-picker">
+        <h2>Spiel</h2>
+        <button class="game-option is-selected" data-action="toggleGamePicker" aria-expanded="false">
+          <strong>${esc(selected.name)}</strong>
+          <span class="game-min">Wechseln ▾</span>
+          <span class="game-desc">${esc(selected.description)}</span>
+        </button>
       </section>`;
   }
 
@@ -382,8 +435,49 @@ function viewGamePicker(room: RoomView): string {
     <section class="game-picker">
       <h2>Spiel wählen</h2>
       <div class="game-options">${options}</div>
-      ${room.game === "IMPOSTOR" ? viewImpostorSettings(room) : ""}
     </section>`;
+}
+
+/** Aufklappbarer Bereich: Spielerlimit für alle Spiele, dazu die Einstellungen des gewählten Spiels. */
+function viewSettings(room: RoomView): string {
+  const open = state.settingsOpen;
+  const toggle = `
+    <button class="settings-toggle" data-action="toggleSettings" aria-expanded="${open}" aria-controls="settings-body">
+      <span>⚙ Spieleinstellungen</span>
+      <span class="chevron" aria-hidden="true">${open ? "▴" : "▾"}</span>
+    </button>`;
+  if (!open) return `<section class="settings-panel">${toggle}</section>`;
+
+  const gameSettings = room.game === "IMPOSTOR"
+    ? room.you.host ? viewImpostorSettings(room) : viewImpostorSettingsSummary(room)
+    : "";
+
+  return `
+    <section class="settings-panel">
+      ${toggle}
+      <div id="settings-body" class="settings">
+        ${viewPlayerLimit(room)}
+        ${gameSettings}
+      </div>
+    </section>`;
+}
+
+function viewPlayerLimit(room: RoomView): string {
+  const limit = room.playerLimit;
+  if (!room.you.host) {
+    return `<p class="setting-row"><span>Spielerlimit</span><strong>${limit.value}</strong></p>`;
+  }
+  return `
+    <div class="setting-row">
+      <span id="limit-label">Spielerlimit</span>
+      <div class="stepper" role="group" aria-labelledby="limit-label">
+        <button class="btn small" data-action="changePlayerLimit" data-value="-1"
+                aria-label="Limit verringern" ${limit.value <= limit.min ? "disabled" : ""}>−</button>
+        <output aria-live="polite">${limit.value}</output>
+        <button class="btn small" data-action="changePlayerLimit" data-value="1"
+                aria-label="Limit erhöhen" ${limit.value >= limit.max ? "disabled" : ""}>+</button>
+      </div>
+    </div>`;
 }
 
 function viewImpostorSettings(room: RoomView): string {
@@ -394,7 +488,7 @@ function viewImpostorSettings(room: RoomView): string {
     : "";
 
   return `
-    <div class="settings">
+    <div class="settings-group">
       <label class="check">
         <input type="checkbox" id="sees-category" data-setting="seesCategory"
                ${settings.impostorSeesCategory ? "checked" : ""} />
@@ -414,7 +508,7 @@ function viewImpostorSettings(room: RoomView): string {
 function viewImpostorSettingsSummary(room: RoomView): string {
   const settings = room.impostorSettings;
   return `
-    <ul class="settings-summary">
+    <ul class="settings-summary settings-group">
       <li>Impostor sieht die Kategorie: <strong>${settings.impostorSeesCategory ? "an" : "aus"}</strong></li>
       ${settings.customWordSet ? "<li>Die Spielleitung hat ein eigenes Wort gewählt und spielt nicht mit.</li>" : ""}
     </ul>`;
@@ -566,16 +660,7 @@ function viewImpostorResult(room: RoomView, impostor: ImpostorView): string {
       : "Du hast alle getäuscht."
     : `${esc(result.impostorName)} war der Impostor.`;
   const category = result.category ? ` <span class="hint">(${esc(result.category)})</span>` : "";
-
-  const tally = result.votes
-    .map(
-      (v) => `
-        <li class="${v.playerId === result.impostorId ? "is-impostor" : ""}">
-          <span class="player-name">${esc(v.name)}</span>
-          <span class="player-note">${v.votes} ${v.votes === 1 ? "Stimme" : "Stimmen"}</span>
-        </li>`,
-    )
-    .join("");
+  const votes = new Map(result.votes.map((v) => [v.playerId, v.votes]));
 
   const hostControls = room.you.host
     ? `<button class="btn primary" data-action="nextRound" ${room.canStart ? "" : "disabled"}>Nächste Runde</button>
@@ -595,12 +680,7 @@ function viewImpostorResult(room: RoomView, impostor: ImpostorView): string {
       <strong>${esc(result.word)}</strong>${category}
     </section>
 
-    <section class="players">
-      <h2>Stimmen</h2>
-      <ul>${tally}</ul>
-    </section>
-
-    ${viewPlayers(room, { showReady: true })}
+    ${viewPlayers(room, { showReady: true, votes, impostorId: result.impostorId })}
 
     <div class="actions">
       ${viewReadyButton(room)}
@@ -626,33 +706,61 @@ function viewSecretCard(variant: string, what: string, openContent: string): str
 
 interface PlayerListOptions {
   showReady?: boolean;
+  /** Zeigt „3 / 20“ statt nur „3“. */
+  showLimit?: boolean;
+  /** Host sieht neben jedem anderen Spieler einen Knopf zum Entfernen. */
+  kickable?: boolean;
   only?: string[];
   votedIds?: Set<string>;
+  /** Stimmen nach der Abstimmung. Ist das gesetzt, wird nach Stimmen sortiert. */
+  votes?: Map<string, number>;
+  impostorId?: string;
 }
 
 function viewPlayers(room: RoomView, options: PlayerListOptions = {}): string {
-  const players = options.only ? room.players.filter((p) => options.only!.includes(p.id)) : room.players;
+  let players = options.only ? room.players.filter((p) => options.only!.includes(p.id)) : room.players;
+  if (options.votes) {
+    const votesOf = (p: PlayerView) => options.votes!.get(p.id) ?? -1;
+    // sort() ist stabil, bei Gleichstand bleibt die Beitrittsreihenfolge
+    players = [...players].sort((a, b) => votesOf(b) - votesOf(a));
+  }
   const items = players.map((p) => viewPlayerItem(room, p, options)).join("");
+  const count = options.showLimit ? `${players.length} / ${room.playerLimit.value}` : `${players.length}`;
 
   return `
     <section class="players">
-      <h2>Mitspieler <span class="count">${players.length}</span></h2>
+      <h2>Mitspieler <span class="count">${count}</span></h2>
       <ul>${items}</ul>
     </section>`;
 }
 
 function viewPlayerItem(room: RoomView, p: PlayerView, options: PlayerListOptions): string {
   const notes: string[] = [];
+  const voteCount = options.votes?.get(p.id);
+  if (voteCount !== undefined) notes.push(`${voteCount} ${voteCount === 1 ? "Stimme" : "Stimmen"}`);
   if (p.id === room.you.id) notes.push("du");
   if (p.id === room.hostId) notes.push("Spielleitung");
   if (options.showReady && p.ready) notes.push("bereit");
   if (options.votedIds?.has(p.id)) notes.push("hat abgestimmt");
   if (!p.connected) notes.push("offline");
-  const classes = [p.alive ? "" : "is-dead", p.connected ? "" : "is-offline", options.showReady && p.ready ? "is-ready" : ""];
+
+  const classes = [
+    p.alive ? "" : "is-dead",
+    p.connected ? "" : "is-offline",
+    options.showReady && p.ready ? "is-ready" : "",
+    p.id === options.impostorId ? "is-impostor" : "",
+  ];
+  const kickButton =
+    options.kickable && p.id !== room.you.id
+      ? `<button class="kick" data-action="kick" data-value="${p.id}" aria-label="${esc(p.name)} entfernen">✕</button>`
+      : "";
   return `
     <li class="${classes.join(" ").trim()}">
       <span class="player-name">${esc(p.name)}</span>
-      ${notes.length ? `<span class="player-note">${notes.join(", ")}</span>` : ""}
+      <span class="player-side">
+        ${notes.length ? `<span class="player-note">${notes.join(" · ")}</span>` : ""}
+        ${kickButton}
+      </span>
     </li>`;
 }
 

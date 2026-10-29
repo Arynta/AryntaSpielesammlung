@@ -10,7 +10,8 @@ package de.kruschinski.werwolf.ws;
  *   <li>{@code selectGame}: game (z. B. "IMPOSTOR")</li>
  *   <li>{@code setReady}: ready</li>
  *   <li>{@code configureImpostor}: impostorSeesCategory, customWord (leer = Wortliste)</li>
- *   <li>{@code vote}: targetId</li>
+ *   <li>{@code vote}, {@code kick}: targetId</li>
+ *   <li>{@code setPlayerLimit}: playerLimit</li>
  *   <li>{@code leave}, {@code start}, {@code nextPhase}, {@code startVoting}, {@code nextRound},
  *       {@code backToLobby}, {@code ping}: keine Felder</li>
  * </ul>
@@ -24,6 +25,7 @@ public record ClientMessage(
         Boolean ready,
         Boolean impostorSeesCategory,
         String customWord,
-        String targetId
+        String targetId,
+        Integer playerLimit
 ) {
 }

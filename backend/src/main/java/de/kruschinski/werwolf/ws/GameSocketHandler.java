@@ -138,6 +138,16 @@ public class GameSocketHandler extends TextWebSocketHandler {
                     (room, playerId) -> room.setReady(playerId, Boolean.TRUE.equals(msg.ready())));
             case "configureImpostor" -> withRoom(session, (room, playerId) -> room.configureImpostor(
                     playerId, Boolean.TRUE.equals(msg.impostorSeesCategory()), msg.customWord()));
+            case "setPlayerLimit" -> {
+                if (msg.playerLimit() == null) {
+                    throw new GameException("Bitte gib ein Spielerlimit an.");
+                }
+                withRoom(session, (room, playerId) -> room.setPlayerLimit(playerId, msg.playerLimit()));
+            }
+            case "kick" -> withRoom(session, (room, playerId) -> {
+                room.kick(playerId, msg.targetId());
+                sendOff(room, msg.targetId());
+            });
 
             case "start" -> withRoom(session, (room, playerId) -> room.start(playerId, rooms.random()));
             case "nextPhase" -> withRoom(session, Room::nextPhase);
@@ -196,6 +206,16 @@ public class GameSocketHandler extends TextWebSocketHandler {
         sessionsBySeat.put(seat.key(), session);
         send(session, Map.of("type", "joined", "code", room.code(), "secret", player.secret()));
         broadcast(room);
+    }
+
+    /** Meldet die Verbindung eines gekickten Spielers ab, damit sein Handy auf die Startseite geht. */
+    private void sendOff(Room room, String playerId) {
+        WebSocketSession kicked = sessionsBySeat.get(new Seat(room.code(), playerId).key());
+        if (kicked == null) {
+            return;
+        }
+        standUp(kicked);
+        send(kicked, Map.of("type", "kicked"));
     }
 
     private void standUp(WebSocketSession session) {

@@ -14,6 +14,7 @@ public record RoomView(
         GameType game,
         List<GameOption> games,
         ImpostorSettings impostorSettings,
+        PlayerLimit playerLimit,
         Phase phase,
         int round,
         String hostId,
@@ -45,6 +46,10 @@ public record RoomView(
 
     /** {@code customWord} steht nur in der Ansicht des Hosts, alle anderen sehen nur, ob eins gesetzt ist. */
     public record ImpostorSettings(boolean impostorSeesCategory, boolean customWordSet, String customWord) {
+    }
+
+    /** Aktuelles Limit und in welchem Bereich der Host es gerade einstellen darf. */
+    public record PlayerLimit(int value, int min, int max) {
     }
 
     public record WerwolfView(Role role, String roleName, String roleDescription, List<String> fellowWerewolves) {

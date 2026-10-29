@@ -19,10 +19,14 @@ class RoomTest {
 
     private final Clock clock = Clock.fixed(Instant.parse("2026-10-29T18:00:00Z"), ZoneOffset.UTC);
 
+    /** Raum mit Werwolf als Spiel, weil die meisten Tests hier Werwolf prüfen. */
     private Room roomWith(String... names) {
         Room room = new Room("TEST", clock);
         for (String name : names) {
             room.addPlayer(name);
+        }
+        if (names.length > 0) {
+            room.selectGame("p1", GameType.WERWOLF);
         }
         return room;
     }
@@ -59,8 +63,79 @@ class RoomTest {
     }
 
     @Test
-    void werwolfIstVorausgewaehlt() {
-        assertEquals(GameType.WERWOLF, roomWith("A").selectedGame());
+    void impostorIstVorausgewaehlt() {
+        assertEquals(GameType.IMPOSTOR, new Room("TEST", clock).selectedGame());
+    }
+
+    // ---- Kicken --------------------------------------------------------
+
+    @Test
+    void hostKannInDerLobbyKicken() {
+        Room room = roomWith("A", "B", "C");
+        room.kick("p1", "p2");
+        assertEquals(List.of("A", "C"), room.players().stream().map(Player::name).toList());
+    }
+
+    @Test
+    void nurDerHostKannKicken() {
+        Room room = roomWith("A", "B", "C");
+        assertThrows(GameException.class, () -> room.kick("p2", "p3"));
+    }
+
+    @Test
+    void hostKannSichNichtSelbstKicken() {
+        Room room = roomWith("A", "B");
+        assertThrows(GameException.class, () -> room.kick("p1", "p1"));
+    }
+
+    @Test
+    void imLaufendenSpielWirdNichtGekickt() {
+        Room room = startedWerwolf("A", "B", "C", "D");
+        assertThrows(GameException.class, () -> room.kick("p1", "p2"));
+    }
+
+    @Test
+    void gekickteKoennenMitDemCodeWiederRein() {
+        Room room = roomWith("A", "B");
+        room.kick("p1", "p2");
+        room.addPlayer("B");
+        assertEquals(2, room.players().size());
+    }
+
+    // ---- Spielerlimit --------------------------------------------------
+
+    @Test
+    void limitIstAnfangsZwanzig() {
+        assertEquals(Room.MAX_PLAYERS, roomWith("A").viewFor("p1").playerLimit().value());
+    }
+
+    @Test
+    void volleRaeumeNehmenNiemandenMehrAuf() {
+        Room room = roomWith("A", "B", "C");
+        room.setPlayerLimit("p1", 3);
+        assertThrows(GameException.class, () -> room.addPlayer("D"));
+    }
+
+    @Test
+    void limitNichtUnterAktuellerSpielerzahl() {
+        Room room = roomWith("A", "B", "C", "D");
+        assertEquals(4, room.viewFor("p1").playerLimit().min());
+        assertThrows(GameException.class, () -> room.setPlayerLimit("p1", 3));
+    }
+
+    @Test
+    void limitBleibtImErlaubtenBereich() {
+        Room room = roomWith("A");
+        assertThrows(GameException.class, () -> room.setPlayerLimit("p1", Room.MIN_PLAYER_LIMIT - 1));
+        assertThrows(GameException.class, () -> room.setPlayerLimit("p1", Room.MAX_PLAYERS + 1));
+        room.setPlayerLimit("p1", Room.MIN_PLAYER_LIMIT);
+        assertEquals(Room.MIN_PLAYER_LIMIT, room.playerLimit());
+    }
+
+    @Test
+    void nurDerHostSetztDasLimit() {
+        Room room = roomWith("A", "B");
+        assertThrows(GameException.class, () -> room.setPlayerLimit("p2", 5));
     }
 
     @Test

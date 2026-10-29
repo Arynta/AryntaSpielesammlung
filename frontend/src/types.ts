@@ -34,6 +34,13 @@ export interface ImpostorSettings {
   customWord: string | null;
 }
 
+export interface PlayerLimit {
+  value: number;
+  /** Kleinster Wert, den der Host gerade einstellen darf. */
+  min: number;
+  max: number;
+}
+
 export interface WerwolfView {
   role: Role;
   roleName: string;
@@ -72,6 +79,7 @@ export interface RoomView {
   game: GameType;
   games: GameOption[];
   impostorSettings: ImpostorSettings;
+  playerLimit: PlayerLimit;
   phase: Phase;
   round: number;
   hostId: string;
@@ -88,6 +96,7 @@ export type ServerMessage =
   | { type: "joined"; code: string; secret: string }
   | { type: "state"; state: RoomView }
   | { type: "left" }
+  | { type: "kicked" }
   | { type: "error"; message: string }
   | { type: "pong" };
 
@@ -104,6 +113,8 @@ export type ClientMessage =
   | { type: "nextPhase" }
   | { type: "startVoting" }
   | { type: "vote"; targetId: string }
+  | { type: "kick"; targetId: string }
+  | { type: "setPlayerLimit"; playerLimit: number }
   | { type: "nextRound" }
   | { type: "backToLobby" }
   | { type: "ping" };
