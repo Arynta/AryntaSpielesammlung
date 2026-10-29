@@ -2,7 +2,7 @@ import "./style.css";
 import { GameConnection, type ConnectionStatus } from "./connection";
 import type { RoomView, ServerMessage } from "./types";
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL ?? "ws://localhost:8080/ws";
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "ws://localhost:8080/ws";
 const MIN_PLAYERS = 4; // muss zu Room.MIN_PLAYERS im Backend passen
 
 // ---------------------------------------------------------------------------

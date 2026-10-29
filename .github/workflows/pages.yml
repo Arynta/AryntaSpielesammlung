@@ -1,0 +1,50 @@
+# Baut das Frontend und stellt es auf GitHub Pages.
+# Läuft bei jedem Push auf main, oder von Hand unter Actions → "Run workflow".
+# Die Backend-Adresse kommt aus der Repo-Variable VITE_BACKEND_URL
+# (Settings → Secrets and variables → Actions → Variables).
+name: GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths: ["frontend/**", ".github/workflows/pages.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - run: npm install
+      - run: npm run build
+        env:
+          VITE_BACKEND_URL: ${{ vars.VITE_BACKEND_URL }}
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: frontend/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
