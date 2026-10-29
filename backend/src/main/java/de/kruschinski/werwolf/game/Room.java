@@ -1,5 +1,7 @@
 package de.kruschinski.werwolf.game;
 
+import de.kruschinski.werwolf.game.ImpostorWords.SecretWord;
+
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -11,21 +13,29 @@ import java.util.UUID;
 import java.util.random.RandomGenerator;
 
 /**
- * Ein Spielraum. Alle Methoden sind synchronized, weil mehrere Handys gleichzeitig
- * Nachrichten schicken können. Für ein paar Freunde ist das mehr als schnell genug.
+ * Ein Spielraum. Er verwaltet die Lobby (Spieler, Host, Spielauswahl, Bereit) und gibt
+ * Spielaktionen an das laufende {@link Game} weiter.
+ *
+ * <p>Alle Methoden sind synchronized, weil mehrere Handys gleichzeitig Nachrichten schicken
+ * können. Für ein paar Freunde ist das mehr als schnell genug.
  */
 public class Room {
 
-    public static final int MIN_PLAYERS = 4;
     public static final int MAX_PLAYERS = 20;
     public static final int MAX_NAME_LENGTH = 20;
+    public static final int MAX_WORD_LENGTH = 30;
 
     private final String code;
     private final Clock clock;
     private final Map<String, Player> players = new LinkedHashMap<>(); // Reihenfolge = Beitrittsreihenfolge
+    private final List<String> usedWords = new ArrayList<>();
     private String hostId;
-    private Phase phase = Phase.LOBBY;
-    private int round = 0;
+    private GameType selectedGame = GameType.WERWOLF;
+    private boolean impostorSeesCategory = true;
+    /** Vom Host vorgegebenes Wort für die nächste Impostor-Runde, sonst {@code null}. */
+    private String customWord;
+    /** {@code null}, solange alle in der Lobby sind. */
+    private Game game;
     private int nextPlayerNumber = 1;
     private Instant lastActivity;
 
@@ -40,11 +50,19 @@ public class Room {
     }
 
     public synchronized Phase phase() {
-        return phase;
+        return game == null ? Phase.LOBBY : game.phase();
     }
 
     public synchronized int round() {
-        return round;
+        return game == null ? 0 : game.round();
+    }
+
+    public synchronized Game game() {
+        return game;
+    }
+
+    public synchronized GameType selectedGame() {
+        return selectedGame;
     }
 
     public synchronized String hostId() {
@@ -63,9 +81,11 @@ public class Room {
         return List.copyOf(players.values());
     }
 
+    // ---- Spieler -------------------------------------------------------
+
     public synchronized Player addPlayer(String rawName) {
-        if (phase != Phase.LOBBY) {
-            throw new GameException("Das Spiel läuft schon. Warte auf die nächste Runde.");
+        if (game != null) {
+            throw new GameException("Das Spiel läuft schon. Warte, bis alle zurück in der Lobby sind.");
         }
         if (players.size() >= MAX_PLAYERS) {
             throw new GameException("Der Raum ist voll.");
@@ -95,102 +115,216 @@ public class Room {
     /** Spieler verlässt den Raum. Im laufenden Spiel bleibt er drin und gilt nur als offline. */
     public synchronized void leave(String playerId) {
         Player player = require(playerId);
-        if (phase != Phase.LOBBY) {
-            player.setConnected(false);
-            touch();
+        if (game != null) {
+            setConnected(playerId, false);
             return;
         }
-        players.remove(playerId);
+        players.remove(player.id());
         if (playerId.equals(hostId)) {
-            hostId = players.isEmpty() ? null : players.keySet().iterator().next();
+            hostId = firstPlayerId();
         }
         touch();
     }
 
     public synchronized void setConnected(String playerId, boolean connected) {
         Player player = players.get(playerId);
-        if (player != null) {
-            player.setConnected(connected);
-            touch();
+        if (player == null) {
+            return;
         }
+        player.setConnected(connected);
+        // Wer offline geht, soll eine laufende Abstimmung nicht blockieren
+        if (game instanceof ImpostorGame impostor) {
+            impostor.closeVotingIfComplete();
+        }
+        touch();
     }
+
+    public synchronized void setReady(String playerId, boolean ready) {
+        Player player = require(playerId);
+        if (game != null && !game.betweenRounds()) {
+            throw new GameException("Gerade läuft eine Runde.");
+        }
+        player.setReady(ready);
+        touch();
+    }
+
+    // ---- Lobby: Spielauswahl -------------------------------------------
+
+    public synchronized void selectGame(String requesterId, GameType type) {
+        requireHost(requesterId);
+        requireLobby();
+        if (type != selectedGame) {
+            selectedGame = type;
+            resetReady();
+        }
+        touch();
+    }
+
+    /** Ein leeres {@code rawCustomWord} bedeutet: Wort aus der eingebauten Liste nehmen. */
+    public synchronized void configureImpostor(String requesterId, boolean seesCategory, String rawCustomWord) {
+        requireHost(requesterId);
+        requireLobby();
+        String word = cleanWord(rawCustomWord);
+        boolean changed = seesCategory != impostorSeesCategory || !Optional.ofNullable(word).equals(Optional.ofNullable(customWord));
+        impostorSeesCategory = seesCategory;
+        customWord = word;
+        if (changed) {
+            resetReady();
+        }
+        touch();
+    }
+
+    // ---- Spielablauf ---------------------------------------------------
 
     public synchronized void start(String requesterId, RandomGenerator random) {
         requireHost(requesterId);
-        if (phase != Phase.LOBBY) {
+        if (game != null) {
             throw new GameException("Das Spiel läuft schon.");
         }
-        List<Player> list = new ArrayList<>(players.values());
-        List<Role> roles = RoleDistribution.shuffledRolesFor(list.size(), random);
-        for (int i = 0; i < list.size(); i++) {
-            list.get(i).setRole(roles.get(i));
-            list.get(i).setAlive(true);
-        }
-        phase = Phase.NIGHT;
-        round = 1;
+        requireStartable();
+        game = switch (selectedGame) {
+            case WERWOLF -> new WerwolfGame(new ArrayList<>(players.values()), random);
+            case IMPOSTOR -> newImpostorRound(1, random);
+        };
+        resetReady();
         touch();
     }
 
-    /**
-     * Schaltet zwischen Nacht und Tag um. Das ist die Stelle, an der du die eigentlichen
-     * Spielregeln einbaust (Abstimmungen auswerten, Opfer bestimmen, Siegbedingung prüfen).
-     */
+    /** Werwolf: zwischen Nacht und Tag umschalten. */
     public synchronized void nextPhase(String requesterId) {
         requireHost(requesterId);
-        switch (phase) {
-            case LOBBY -> throw new GameException("Das Spiel wurde noch nicht gestartet.");
-            case NIGHT -> phase = Phase.DAY;
-            case DAY -> {
-                phase = Phase.NIGHT;
-                round++;
-            }
-        }
+        requireGame(WerwolfGame.class).nextPhase();
         touch();
     }
 
-    /** Zurück in die Lobby, z. B. für eine neue Runde mit denselben Leuten. */
+    /** Impostor: Hinweise sind gegeben, jetzt wird abgestimmt. */
+    public synchronized void startVoting(String requesterId) {
+        requireHost(requesterId);
+        requireGame(ImpostorGame.class).startVoting();
+        touch();
+    }
+
+    public synchronized void vote(String playerId, String targetId) {
+        require(playerId);
+        requireGame(ImpostorGame.class).vote(playerId, targetId);
+        touch();
+    }
+
+    /** Impostor: neue Runde mit neuem Wort, wenn alle bereit sind. */
+    public synchronized void nextRound(String requesterId, RandomGenerator random) {
+        requireHost(requesterId);
+        ImpostorGame current = requireGame(ImpostorGame.class);
+        if (!current.betweenRounds()) {
+            throw new GameException("Die Runde ist noch nicht vorbei.");
+        }
+        requireStartable();
+        game = newImpostorRound(current.round() + 1, random);
+        resetReady();
+        touch();
+    }
+
+    /** Zurück in die Lobby, z. B. um ein anderes Spiel zu wählen. */
     public synchronized void backToLobby(String requesterId) {
         requireHost(requesterId);
         players.values().removeIf(p -> !p.connected());
-        for (Player p : players.values()) {
-            p.setRole(null);
-            p.setAlive(true);
-        }
+        players.values().forEach(p -> p.setAlive(true));
         if (!players.containsKey(hostId)) {
-            hostId = players.isEmpty() ? null : players.keySet().iterator().next();
+            hostId = firstPlayerId();
         }
-        phase = Phase.LOBBY;
-        round = 0;
+        game = null;
+        resetReady();
         touch();
     }
 
-    /** Baut die Ansicht für genau einen Spieler. Fremde Rollen stehen hier nie drin. */
+    // ---- Ansicht -------------------------------------------------------
+
+    /** Baut die Ansicht für genau einen Spieler. Fremde Rollen und Wörter stehen hier nie drin. */
     public synchronized RoomView viewFor(String playerId) {
         Player me = require(playerId);
+        boolean isHost = me.id().equals(hostId);
 
         List<RoomView.PlayerView> publicPlayers = players.values().stream()
-                .map(p -> new RoomView.PlayerView(p.id(), p.name(), p.alive(), p.connected()))
+                .map(p -> new RoomView.PlayerView(p.id(), p.name(), p.alive(), p.connected(), p.ready()))
                 .toList();
 
-        List<String> fellowWerewolves = List.of();
-        if (me.role() == Role.WERWOLF) {
-            fellowWerewolves = players.values().stream()
-                    .filter(p -> p.role() == Role.WERWOLF && !p.id().equals(me.id()))
-                    .map(Player::name)
-                    .toList();
+        boolean canChooseNext = game == null || game.betweenRounds();
+        String startHint = canChooseNext ? startBlocker() : null;
+
+        RoomView.ImpostorSettings settings = new RoomView.ImpostorSettings(
+                impostorSeesCategory, customWord != null, isHost ? customWord : null);
+
+        return new RoomView(
+                code,
+                selectedGame,
+                RoomView.GameOption.all(),
+                settings,
+                phase(),
+                round(),
+                hostId,
+                publicPlayers,
+                canChooseNext && startHint == null,
+                startHint,
+                new RoomView.You(me.id(), me.name(), isHost, me.ready()),
+                game instanceof WerwolfGame werwolf ? werwolf.viewFor(me.id()) : null,
+                game instanceof ImpostorGame impostor ? impostor.viewFor(me.id()) : null);
+    }
+
+    // ---- Hilfsmethoden -------------------------------------------------
+
+    /** Warum noch nicht gestartet werden kann, oder {@code null}, wenn alles passt. */
+    private String startBlocker() {
+        boolean hostSitsOut = selectedGame == GameType.IMPOSTOR && customWord != null;
+        int playing = players.size() - (hostSitsOut ? 1 : 0);
+        int missing = selectedGame.minPlayers() - playing;
+        if (missing > 0) {
+            return hostSitsOut
+                    ? "Noch " + missing + " Spieler (ohne Spielleitung), dann kann es losgehen."
+                    : "Noch " + missing + " Spieler, dann kann es losgehen.";
         }
 
-        Role role = me.role();
-        RoomView.You you = new RoomView.You(
-                me.id(),
-                me.name(),
-                me.id().equals(hostId),
-                role,
-                role == null ? null : role.displayName(),
-                role == null ? null : role.description(),
-                fellowWerewolves);
+        List<Player> online = players.values().stream().filter(Player::connected).toList();
+        long ready = online.stream().filter(Player::ready).count();
+        if (ready < online.size()) {
+            return "Warte, bis alle bereit sind (" + ready + " von " + online.size() + ").";
+        }
+        return null;
+    }
 
-        return new RoomView(code, phase, round, hostId, publicPlayers, you);
+    private void requireStartable() {
+        String blocker = startBlocker();
+        if (blocker != null) {
+            throw new GameException(blocker);
+        }
+    }
+
+    private ImpostorGame newImpostorRound(int round, RandomGenerator random) {
+        String gameMasterId = customWord != null ? hostId : null;
+        SecretWord secret = customWord != null
+                ? new SecretWord(customWord, null)
+                : ImpostorWords.pick(random, usedWords);
+
+        List<Player> participants = players.values().stream()
+                .filter(p -> !p.id().equals(gameMasterId))
+                .toList();
+        ImpostorGame next = new ImpostorGame(participants, gameMasterId, secret, impostorSeesCategory, round, random);
+
+        // Ein eigenes Wort gilt nur für eine Runde, danach spielt der Host wieder mit
+        customWord = null;
+        usedWords.add(secret.word());
+        return next;
+    }
+
+    private <T extends Game> T requireGame(Class<T> type) {
+        if (!type.isInstance(game)) {
+            throw new GameException("Das geht in diesem Spiel gerade nicht.");
+        }
+        return type.cast(game);
+    }
+
+    private void requireLobby() {
+        if (game != null) {
+            throw new GameException("Das geht nur in der Lobby.");
+        }
     }
 
     private void requireHost(String requesterId) {
@@ -207,6 +341,14 @@ public class Room {
         return player;
     }
 
+    private void resetReady() {
+        players.values().forEach(p -> p.setReady(false));
+    }
+
+    private String firstPlayerId() {
+        return players.isEmpty() ? null : players.keySet().iterator().next();
+    }
+
     private void touch() {
         lastActivity = clock.instant();
     }
@@ -220,5 +362,17 @@ public class Room {
             throw new GameException("Der Name darf höchstens " + MAX_NAME_LENGTH + " Zeichen lang sein.");
         }
         return name;
+    }
+
+    /** Leeres Wort → {@code null}, also eingebaute Liste. */
+    static String cleanWord(String rawWord) {
+        String word = rawWord == null ? "" : rawWord.strip().replaceAll("\\s+", " ");
+        if (word.isEmpty()) {
+            return null;
+        }
+        if (word.length() > MAX_WORD_LENGTH) {
+            throw new GameException("Das Wort darf höchstens " + MAX_WORD_LENGTH + " Zeichen lang sein.");
+        }
+        return word;
     }
 }

@@ -6,6 +6,12 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["--prefix", "frontend", "run", "preview", "--", "--port", "4173", "--strictPort"],
       "port": 4173
+    },
+    {
+      "name": "backend",
+      "runtimeExecutable": "C:/Users/Richa/AppData/Local/Temp/claude/C--Projekte-Webseite-Spielesammlung/b4ccd88f-3bb0-4a97-8a4b-68056a806775/scratchpad/tools/jdk/jdk-21.0.13+9/bin/java.exe",
+      "runtimeArgs": ["-jar", "backend/target/app.jar", "--app.allowed-origins=http://localhost:4173"],
+      "port": 8080
     }
   ]
 }

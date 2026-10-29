@@ -27,6 +27,19 @@ class RoomTest {
         return room;
     }
 
+    private static void allReady(Room room) {
+        room.players().forEach(p -> room.setReady(p.id(), true));
+    }
+
+    private Room startedWerwolf(String... names) {
+        Room room = roomWith(names);
+        allReady(room);
+        room.start("p1", new Random(42));
+        return room;
+    }
+
+    // ---- Lobby ---------------------------------------------------------
+
     @Test
     void ersterSpielerWirdSpielleitung() {
         Room room = roomWith("Richard", "Anna");
@@ -46,12 +59,118 @@ class RoomTest {
     }
 
     @Test
+    void werwolfIstVorausgewaehlt() {
+        assertEquals(GameType.WERWOLF, roomWith("A").selectedGame());
+    }
+
+    @Test
+    void nurSpielleitungDarfSpielWaehlen() {
+        Room room = roomWith("A", "B");
+        assertThrows(GameException.class, () -> room.selectGame("p2", GameType.IMPOSTOR));
+        room.selectGame("p1", GameType.IMPOSTOR);
+        assertEquals(GameType.IMPOSTOR, room.selectedGame());
+    }
+
+    @Test
+    void spielwechselSetztBereitZurueck() {
+        Room room = roomWith("A", "B");
+        allReady(room);
+        room.selectGame("p1", GameType.IMPOSTOR);
+        room.players().forEach(p -> assertFalse(p.ready()));
+    }
+
+    @Test
+    void gleichesSpielNochmalWaehlenSetztBereitNichtZurueck() {
+        Room room = roomWith("A", "B");
+        allReady(room);
+        room.selectGame("p1", GameType.WERWOLF);
+        room.players().forEach(p -> assertTrue(p.ready()));
+    }
+
+    @Test
+    void ansichtZeigtStartHinweis() {
+        Room room = roomWith("A", "B", "C");
+        RoomView view = room.viewFor("p1");
+        assertFalse(view.canStart());
+        assertEquals("Noch 1 Spieler, dann kann es losgehen.", view.startHint());
+
+        room.addPlayer("D");
+        room.setReady("p1", true);
+        assertEquals("Warte, bis alle bereit sind (1 von 4).", room.viewFor("p1").startHint());
+
+        allReady(room);
+        assertTrue(room.viewFor("p2").canStart());
+        assertNull(room.viewFor("p2").startHint());
+    }
+
+    @Test
+    void offlineSpielerBlockierenDenStartNicht() {
+        Room room = roomWith("A", "B", "C", "D");
+        room.setConnected("p4", false);
+        room.setReady("p1", true);
+        room.setReady("p2", true);
+        room.setReady("p3", true);
+        room.start("p1", new Random(1));
+        assertEquals(Phase.NIGHT, room.phase());
+    }
+
+    // ---- Start ---------------------------------------------------------
+
+    @Test
+    void zuWenigeSpielerKoennenNichtStarten() {
+        Room room = roomWith("A", "B", "C");
+        allReady(room);
+        assertThrows(GameException.class, () -> room.start("p1", new Random(1)));
+        assertEquals(Phase.LOBBY, room.phase());
+    }
+
+    @Test
+    void ohneBereitKannNichtGestartetWerden() {
+        Room room = roomWith("A", "B", "C", "D");
+        room.setReady("p1", true);
+        assertThrows(GameException.class, () -> room.start("p1", new Random(1)));
+    }
+
+    @Test
+    void nurSpielleitungDarfStarten() {
+        Room room = roomWith("A", "B", "C", "D");
+        allReady(room);
+        assertThrows(GameException.class, () -> room.start("p2", new Random(1)));
+    }
+
+    @Test
+    void startSetztBereitZurueck() {
+        Room room = startedWerwolf("A", "B", "C", "D");
+        room.players().forEach(p -> assertFalse(p.ready()));
+    }
+
+    @Test
+    void imLaufendenSpielKannNiemandMehrBeitreten() {
+        Room room = startedWerwolf("A", "B", "C", "D");
+        assertThrows(GameException.class, () -> room.addPlayer("E"));
+    }
+
+    @Test
+    void imLaufendenSpielGibtEsKeinBereit() {
+        Room room = startedWerwolf("A", "B", "C", "D");
+        assertThrows(GameException.class, () -> room.setReady("p2", true));
+    }
+
+    @Test
+    void imLaufendenSpielKannManDasSpielNichtWechseln() {
+        Room room = startedWerwolf("A", "B", "C", "D");
+        assertThrows(GameException.class, () -> room.selectGame("p1", GameType.IMPOSTOR));
+    }
+
+    // ---- Werwolf -------------------------------------------------------
+
+    @Test
     void rollenverteilungPasstZurSpielerzahl() {
         assertEquals(1, count(RoleDistribution.rolesFor(4), Role.WERWOLF));
         assertEquals(1, count(RoleDistribution.rolesFor(7), Role.WERWOLF));
         assertEquals(2, count(RoleDistribution.rolesFor(8), Role.WERWOLF));
         assertEquals(3, count(RoleDistribution.rolesFor(12), Role.WERWOLF));
-        for (int n = Room.MIN_PLAYERS; n <= Room.MAX_PLAYERS; n++) {
+        for (int n = GameType.WERWOLF.minPlayers(); n <= Room.MAX_PLAYERS; n++) {
             List<Role> roles = RoleDistribution.rolesFor(n);
             assertEquals(n, roles.size());
             assertEquals(1, count(roles, Role.SEHERIN));
@@ -59,50 +178,37 @@ class RoomTest {
     }
 
     @Test
-    void zuWenigeSpielerKoennenNichtStarten() {
-        Room room = roomWith("A", "B", "C");
-        assertThrows(GameException.class, () -> room.start("p1", new Random(1)));
-        assertEquals(Phase.LOBBY, room.phase());
-    }
-
-    @Test
-    void nurSpielleitungDarfStarten() {
-        Room room = roomWith("A", "B", "C", "D");
-        assertThrows(GameException.class, () -> room.start("p2", new Random(1)));
-    }
-
-    @Test
     void startVerteiltRollenUndBeginntMitNacht() {
-        Room room = roomWith("A", "B", "C", "D", "E", "F", "G", "H");
-        room.start("p1", new Random(42));
+        Room room = startedWerwolf("A", "B", "C", "D", "E", "F", "G", "H");
 
         assertEquals(Phase.NIGHT, room.phase());
         assertEquals(1, room.round());
-        List<Role> roles = room.players().stream().map(Player::role).toList();
+        WerwolfGame game = (WerwolfGame) room.game();
+        List<Role> roles = room.players().stream().map(p -> game.roleOf(p.id())).toList();
         assertEquals(2, count(roles, Role.WERWOLF));
         assertFalse(roles.contains(null));
     }
 
     @Test
     void ansichtVerraetKeineFremdenRollen() {
-        Room room = roomWith("A", "B", "C", "D", "E", "F", "G", "H");
-        room.start("p1", new Random(42));
+        Room room = startedWerwolf("A", "B", "C", "D", "E", "F", "G", "H");
+        WerwolfGame game = (WerwolfGame) room.game();
 
         for (Player p : room.players()) {
             RoomView view = room.viewFor(p.id());
-            assertEquals(p.role(), view.you().role());
-            if (p.role() == Role.WERWOLF) {
-                assertEquals(1, view.you().fellowWerewolves().size(), "Werwolf soll den anderen Werwolf kennen");
+            assertNull(view.impostor());
+            assertEquals(game.roleOf(p.id()), view.werwolf().role());
+            if (game.roleOf(p.id()) == Role.WERWOLF) {
+                assertEquals(1, view.werwolf().fellowWerewolves().size(), "Werwolf soll den anderen Werwolf kennen");
             } else {
-                assertTrue(view.you().fellowWerewolves().isEmpty(), "Nur Werwölfe kennen Werwölfe");
+                assertTrue(view.werwolf().fellowWerewolves().isEmpty(), "Nur Werwölfe kennen Werwölfe");
             }
         }
     }
 
     @Test
     void phasenWechselnUndRundenZaehlenHoch() {
-        Room room = roomWith("A", "B", "C", "D");
-        room.start("p1", new Random(1));
+        Room room = startedWerwolf("A", "B", "C", "D");
         room.nextPhase("p1");
         assertEquals(Phase.DAY, room.phase());
         room.nextPhase("p1");
@@ -111,20 +217,15 @@ class RoomTest {
     }
 
     @Test
-    void imLaufendenSpielKannNiemandMehrBeitreten() {
-        Room room = roomWith("A", "B", "C", "D");
-        room.start("p1", new Random(1));
-        assertThrows(GameException.class, () -> room.addPlayer("E"));
-    }
-
-    @Test
-    void zurueckInDieLobbyLoeschtRollen() {
-        Room room = roomWith("A", "B", "C", "D");
-        room.start("p1", new Random(1));
+    void zurueckInDieLobbyBeendetDasSpiel() {
+        Room room = startedWerwolf("A", "B", "C", "D");
         room.backToLobby("p1");
         assertEquals(Phase.LOBBY, room.phase());
-        room.players().forEach(p -> assertNull(p.role()));
+        assertNull(room.game());
+        assertNull(room.viewFor("p1").werwolf());
     }
+
+    // ---- Raum ----------------------------------------------------------
 
     @Test
     void wennSpielleitungGehtUebernimmtDerNaechste() {

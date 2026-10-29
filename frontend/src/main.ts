@@ -1,10 +1,9 @@
 import "./fonts";
 import "./style.css";
 import { GameConnection, type ConnectionStatus } from "./connection";
-import type { RoomView, ServerMessage } from "./types";
+import type { GameType, ImpostorView, PlayerView, RoomView, ServerMessage, WerwolfView } from "./types";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "ws://localhost:8080/ws";
-const MIN_PLAYERS = 4; // muss zu Room.MIN_PLAYERS im Backend passen
 
 // ---------------------------------------------------------------------------
 // Zustand
@@ -20,6 +19,8 @@ const state = {
   room: null as RoomView | null,
   name: load<string>("werwolf.name") ?? "",
   codeInput: new URLSearchParams(location.search).get("raum")?.toUpperCase() ?? "",
+  /** Eigenes Impostor-Wort, das der Host gerade tippt, aber noch nicht übernommen hat. */
+  customWordDraft: "",
   toast: null as string | null,
   revealing: false,
   waitingForRejoin: false,
@@ -53,6 +54,8 @@ function handleMessage(msg: ServerMessage): void {
       history.replaceState(null, "", `?raum=${msg.code}`);
       break;
     case "state":
+      // Ein eigenes Wort gilt nur für eine Runde, also beim Spielstart auch das Eingabefeld leeren
+      if (state.room?.phase === "LOBBY" && msg.state.phase !== "LOBBY") state.customWordDraft = "";
       state.room = msg.state;
       break;
     case "left":
@@ -76,14 +79,15 @@ function forgetRoom(): void {
   state.room = null;
   state.revealing = false;
   state.waitingForRejoin = false;
+  state.customWordDraft = "";
   save("werwolf.session", null);
   history.replaceState(null, "", location.pathname);
 }
 
 // ---------------------------------------------------------------------------
-// Aktionen (über data-action im HTML)
+// Aktionen (über data-action im HTML, ein eventuelles data-value steht in value)
 
-function act(action: string): void {
+function act(action: string, value?: string): void {
   switch (action) {
     case "create":
       if (!requireName()) return;
@@ -97,11 +101,33 @@ function act(action: string): void {
       }
       sendOrComplain({ type: "join", code: state.codeInput.trim(), name: state.name });
       break;
+    case "selectGame":
+      sendOrComplain({ type: "selectGame", game: value as GameType });
+      break;
+    case "toggleReady":
+      sendOrComplain({ type: "setReady", ready: !state.room?.you.ready });
+      break;
+    case "saveWord":
+      configureImpostor({ customWord: state.customWordDraft });
+      break;
+    case "clearWord":
+      state.customWordDraft = "";
+      configureImpostor({ customWord: "" });
+      break;
     case "start":
       sendOrComplain({ type: "start" });
       break;
     case "nextPhase":
       sendOrComplain({ type: "nextPhase" });
+      break;
+    case "startVoting":
+      sendOrComplain({ type: "startVoting" });
+      break;
+    case "vote":
+      if (value) sendOrComplain({ type: "vote", targetId: value });
+      break;
+    case "nextRound":
+      sendOrComplain({ type: "nextRound" });
       break;
     case "backToLobby":
       if (confirm("Spiel beenden und alle zurück in die Lobby schicken?")) {
@@ -123,6 +149,17 @@ function act(action: string): void {
       forgetDevice();
       break;
   }
+}
+
+/** Schickt die Impostor-Einstellungen. Was nicht angegeben ist, bleibt wie es auf dem Server steht. */
+function configureImpostor(change: { seesCategory?: boolean; customWord?: string }): void {
+  const current = state.room?.impostorSettings;
+  if (!current) return;
+  sendOrComplain({
+    type: "configureImpostor",
+    impostorSeesCategory: change.seesCategory ?? current.impostorSeesCategory,
+    customWord: change.customWord ?? current.customWord ?? "",
+  });
 }
 
 function forgetDevice(): void {
@@ -161,7 +198,7 @@ async function shareRoom(): Promise<void> {
   const url = `${location.origin}${location.pathname}?raum=${state.room.code}`;
   try {
     if (navigator.share) {
-      await navigator.share({ title: "Werwolf", text: `Komm in meinen Werwolf-Raum: ${state.room.code}`, url });
+      await navigator.share({ title: "Arynta", text: `Komm in meinen Spieleraum: ${state.room.code}`, url });
     } else {
       await navigator.clipboard.writeText(url);
       showToast("Link kopiert");
@@ -198,8 +235,12 @@ function render(): void {
     body = state.session ? viewReconnecting() : viewHome();
   } else if (room.phase === "LOBBY") {
     body = viewLobby(room);
+  } else if (room.werwolf) {
+    body = viewWerwolf(room, room.werwolf);
+  } else if (room.impostor) {
+    body = viewImpostor(room, room.impostor);
   } else {
-    body = viewGame(room);
+    body = viewLobby(room);
   }
 
   app.innerHTML = `
@@ -211,24 +252,20 @@ function render(): void {
   if (focusSelector) {
     const el = app.querySelector<HTMLInputElement>(focusSelector);
     el?.focus();
-    if (el instanceof HTMLInputElement && selection !== null) el.setSelectionRange(selection, selection);
+    if (el instanceof HTMLInputElement && el.type === "text" && selection !== null) {
+      el.setSelectionRange(selection, selection);
+    }
   }
 }
 
 function focusSelectorFor(el: HTMLElement | null): string | null {
   if (!el || !app.contains(el)) return null;
   if (el.id) return `#${el.id}`;
+  if (el.dataset.action && el.dataset.value) {
+    return `[data-action="${el.dataset.action}"][data-value="${el.dataset.value}"]`;
+  }
   if (el.dataset.action) return `[data-action="${el.dataset.action}"]`;
   return null;
-}
-
-function viewFooter(): string {
-  return `
-    <footer class="site-footer">
-      <a href="./impressum.html">Impressum</a>
-      <a href="./datenschutz.html">Datenschutz</a>
-      <button class="link-button" data-action="forgetDevice">Meine Daten löschen</button>
-    </footer>`;
 }
 
 function viewStatus(): string {
@@ -244,8 +281,8 @@ function viewHome(): string {
   const online = state.status === "online";
   return `
     <header class="home-head">
-      <h1 class="title">Werwolf</h1>
-      <p class="lead">Für Spieleabende mit Freunden. Jeder spielt am eigenen Handy, gesprochen wird am Tisch.</p>
+      <h1 class="title">Arynta</h1>
+      <p class="lead">Spieleabend mit Freunden. Jeder spielt am eigenen Handy, gesprochen wird am Tisch.</p>
     </header>
 
     <label class="field">
@@ -272,18 +309,20 @@ function viewHome(): string {
 
 function viewReconnecting(): string {
   return `
-    <h1 class="title">Werwolf</h1>
+    <h1 class="title">Arynta</h1>
     <p class="lead">Du kommst zurück in Raum <strong>${esc(state.session!.code)}</strong> …</p>
     <button class="btn quiet" data-action="leave">Abbrechen</button>
   `;
 }
 
+// ---- Lobby ----------------------------------------------------------------
+
 function viewLobby(room: RoomView): string {
-  const missing = Math.max(0, MIN_PLAYERS - room.players.length);
-  const hostControls = room.you.host
-    ? `<button class="btn primary" data-action="start" ${missing > 0 ? "disabled" : ""}>Spiel starten</button>
-       ${missing > 0 ? `<p class="hint">Noch ${missing} Spieler, dann kann es losgehen.</p>` : ""}`
-    : `<p class="hint">Warte, bis die Spielleitung das Spiel startet.</p>`;
+  const startControls = room.you.host
+    ? `<button class="btn primary" data-action="start" ${room.canStart ? "" : "disabled"}>Spiel starten</button>`
+    : "";
+  const waitHint =
+    room.canStart && !room.you.host ? "Alle sind bereit. Die Spielleitung kann starten." : room.startHint;
 
   return `
     <section class="room-code">
@@ -292,16 +331,98 @@ function viewLobby(room: RoomView): string {
       <button class="btn small" data-action="share">Link teilen</button>
     </section>
 
-    ${viewPlayers(room)}
+    ${viewGamePicker(room)}
+    ${viewPlayers(room, { showReady: true })}
 
     <div class="actions">
-      ${hostControls}
+      ${viewReadyButton(room)}
+      ${startControls}
+      ${waitHint ? `<p class="hint">${esc(waitHint)}</p>` : ""}
       <button class="btn quiet" data-action="leave">Raum verlassen</button>
     </div>
   `;
 }
 
-function viewGame(room: RoomView): string {
+function viewReadyButton(room: RoomView): string {
+  return room.you.ready
+    ? `<button class="btn ready is-ready" data-action="toggleReady" aria-pressed="true">✓ Bereit</button>`
+    : `<button class="btn ready" data-action="toggleReady" aria-pressed="false">Ich bin bereit</button>`;
+}
+
+function viewGamePicker(room: RoomView): string {
+  const selected = room.games.find((g) => g.type === room.game)!;
+
+  if (!room.you.host) {
+    return `
+      <section class="game-picker">
+        <h2>Spiel</h2>
+        <div class="game-chosen">
+          <strong>${esc(selected.name)}</strong>
+          <span class="game-min">ab ${selected.minPlayers} Spielern</span>
+          <p>${esc(selected.description)}</p>
+        </div>
+        ${room.game === "IMPOSTOR" ? viewImpostorSettingsSummary(room) : ""}
+      </section>`;
+  }
+
+  const options = room.games
+    .map((g) => {
+      const active = g.type === room.game;
+      return `
+        <button class="game-option ${active ? "is-selected" : ""}" data-action="selectGame"
+                data-value="${g.type}" aria-pressed="${active}">
+          <strong>${esc(g.name)}</strong>
+          <span class="game-min">ab ${g.minPlayers} Spielern</span>
+          <span class="game-desc">${esc(g.description)}</span>
+        </button>`;
+    })
+    .join("");
+
+  return `
+    <section class="game-picker">
+      <h2>Spiel wählen</h2>
+      <div class="game-options">${options}</div>
+      ${room.game === "IMPOSTOR" ? viewImpostorSettings(room) : ""}
+    </section>`;
+}
+
+function viewImpostorSettings(room: RoomView): string {
+  const settings = room.impostorSettings;
+  const current = settings.customWord
+    ? `<p class="hint">Eigenes Wort: <strong>${esc(settings.customWord)}</strong>. Du spielst die nächste Runde nicht mit.</p>
+       <button class="btn quiet" data-action="clearWord">Wort entfernen, Wortliste nehmen</button>`
+    : "";
+
+  return `
+    <div class="settings">
+      <label class="check">
+        <input type="checkbox" id="sees-category" data-setting="seesCategory"
+               ${settings.impostorSeesCategory ? "checked" : ""} />
+        <span>Impostor sieht die Kategorie</span>
+      </label>
+
+      <label class="field">
+        <span>Eigenes Wort (optional)</span>
+        <input id="custom-word" data-bind="customWordDraft" maxlength="30" autocomplete="off"
+               value="${esc(state.customWordDraft)}" placeholder="leer lassen = Wortliste" />
+      </label>
+      <button class="btn small" data-action="saveWord">Wort übernehmen</button>
+      ${current}
+    </div>`;
+}
+
+function viewImpostorSettingsSummary(room: RoomView): string {
+  const settings = room.impostorSettings;
+  return `
+    <ul class="settings-summary">
+      <li>Impostor sieht die Kategorie: <strong>${settings.impostorSeesCategory ? "an" : "aus"}</strong></li>
+      ${settings.customWordSet ? "<li>Die Spielleitung hat ein eigenes Wort gewählt und spielt nicht mit.</li>" : ""}
+    </ul>`;
+}
+
+// ---- Werwolf --------------------------------------------------------------
+
+function viewWerwolf(room: RoomView, werwolf: WerwolfView): string {
   const night = room.phase === "NIGHT";
   const heading = `${night ? "Nacht" : "Tag"} ${room.round}`;
   const hint = night
@@ -313,67 +434,235 @@ function viewGame(room: RoomView): string {
        <button class="btn quiet" data-action="backToLobby">Spiel beenden</button>`
     : `<button class="btn quiet" data-action="leave">Raum verlassen</button>`;
 
+  let wolves = "";
+  if (werwolf.role === "WERWOLF") {
+    wolves =
+      werwolf.fellowWerewolves.length > 0
+        ? `<p class="wolves">Mit dir jagen: ${werwolf.fellowWerewolves.map(esc).join(", ")}</p>`
+        : `<p class="wolves">Du bist der einzige Werwolf.</p>`;
+  }
+  const card = viewSecretCard(
+    `role-${werwolf.role.toLowerCase()}`,
+    "um deine Rolle zu sehen",
+    `<span class="role-name">${esc(werwolf.roleName)}</span>
+     <p class="role-desc">${esc(werwolf.roleDescription)}</p>
+     ${wolves}`,
+  );
+
   return `
     <header class="phase-head">
+      <p class="game-label">Werwolf</p>
       <h1 class="title">${heading}</h1>
       <p class="lead">${hint}</p>
     </header>
 
-    ${viewRoleCard(room)}
+    ${card}
     ${viewPlayers(room)}
 
     <div class="actions">${hostControls}</div>
   `;
 }
 
-function viewRoleCard(room: RoomView): string {
-  const you = room.you;
-  if (!you.role) return "";
+// ---- Impostor -------------------------------------------------------------
 
-  let inner: string;
-  if (state.revealing) {
-    let wolves = "";
-    if (you.role === "WERWOLF") {
-      wolves =
-        you.fellowWerewolves.length > 0
-          ? `<p class="wolves">Mit dir jagen: ${you.fellowWerewolves.map(esc).join(", ")}</p>`
-          : `<p class="wolves">Du bist der einzige Werwolf.</p>`;
-    }
-    inner = `
-      <span class="role-name">${esc(you.roleName ?? "")}</span>
-      <p class="role-desc">${esc(you.roleDescription ?? "")}</p>
-      ${wolves}`;
-  } else {
-    inner = `<span class="role-hidden">Gedrückt halten,<br />um deine Rolle zu sehen</span>`;
+function viewImpostor(room: RoomView, impostor: ImpostorView): string {
+  const label = `<p class="game-label">Impostor · Runde ${room.round}</p>`;
+  if (room.phase === "RESULT" && impostor.result) {
+    return label + viewImpostorResult(room, impostor);
   }
 
+  const voting = room.phase === "VOTING";
+  const title = voting ? "Abstimmung" : "Hinweise";
+  const lead = voting
+    ? "Wer ist der Impostor? Tippe auf einen Namen. Du kannst deine Stimme noch ändern."
+    : "Reihum sagt jeder ein Wort als Hinweis. Nicht zu deutlich, sonst errät der Impostor das Wort.";
+
+  const hostControls = room.you.host
+    ? `${voting ? "" : `<button class="btn primary" data-action="startVoting">Zur Abstimmung</button>`}
+       <button class="btn quiet" data-action="backToLobby">Spiel beenden</button>`
+    : `<button class="btn quiet" data-action="leave">Raum verlassen</button>`;
+
   return `
-    <button class="role-card ${state.revealing ? "is-open" : ""} role-${you.role.toLowerCase()}"
-            data-reveal aria-label="Rolle ansehen, gedrückt halten">
-      ${inner}
-    </button>`;
+    <header class="phase-head">
+      ${label}
+      <h1 class="title">${title}</h1>
+      <p class="lead">${lead}</p>
+    </header>
+
+    ${voting ? viewVoting(room, impostor) : ""}
+    ${viewWordCard(impostor)}
+    ${voting ? "" : viewPlayers(room, { only: impostor.participantIds })}
+
+    <div class="actions">${hostControls}</div>
+  `;
 }
 
-function viewPlayers(room: RoomView): string {
-  const items = room.players
+function viewWordCard(impostor: ImpostorView): string {
+  if (impostor.part === "GAME_MASTER") {
+    return `
+      <section class="game-master">
+        <p>Du leitest diese Runde und spielst nicht mit.</p>
+        <p>Das Wort: <strong>${esc(impostor.word ?? "")}</strong></p>
+      </section>`;
+  }
+
+  if (impostor.part === "IMPOSTOR") {
+    const category = impostor.category
+      ? `<p class="role-desc">Kategorie: <strong>${esc(impostor.category)}</strong></p>`
+      : `<p class="role-desc">Du kennst das Wort nicht. Hör gut zu und bluffe.</p>`;
+    return viewSecretCard(
+      "role-impostor",
+      "um dein Wort zu sehen",
+      `<span class="role-name">Impostor</span>${category}`,
+    );
+  }
+
+  const category = impostor.category ? `<p class="role-desc">Kategorie: ${esc(impostor.category)}</p>` : "";
+  return viewSecretCard(
+    "role-crew",
+    "um dein Wort zu sehen",
+    `<span class="role-name">${esc(impostor.word ?? "")}</span>${category}`,
+  );
+}
+
+function viewVoting(room: RoomView, impostor: ImpostorView): string {
+  const voted = new Set(impostor.votedIds);
+  const participants = room.players.filter((p) => impostor.participantIds.includes(p.id));
+  const progress = `<p class="hint">${voted.size} von ${participants.filter((p) => p.connected).length} haben abgestimmt.</p>`;
+
+  if (impostor.part === "GAME_MASTER") {
+    return `${progress}${viewPlayers(room, { only: impostor.participantIds, votedIds: voted })}`;
+  }
+
+  const options = participants
+    .filter((p) => p.id !== room.you.id)
     .map((p) => {
-      const notes: string[] = [];
-      if (p.id === room.you.id) notes.push("du");
-      if (p.id === room.hostId) notes.push("Spielleitung");
-      if (!p.connected) notes.push("offline");
+      const chosen = impostor.yourVote === p.id;
       return `
-        <li class="${p.alive ? "" : "is-dead"} ${p.connected ? "" : "is-offline"}">
-          <span class="player-name">${esc(p.name)}</span>
-          ${notes.length ? `<span class="player-note">${notes.join(", ")}</span>` : ""}
+        <li>
+          <button class="vote-option ${chosen ? "is-selected" : ""}" data-action="vote" data-value="${p.id}"
+                  aria-pressed="${chosen}">
+            <span class="player-name">${esc(p.name)}</span>
+            <span class="player-note">${voted.has(p.id) ? "hat abgestimmt" : ""}</span>
+          </button>
         </li>`;
     })
     .join("");
 
   return `
+    <section class="voting">
+      ${progress}
+      <ul>${options}</ul>
+    </section>`;
+}
+
+function viewImpostorResult(room: RoomView, impostor: ImpostorView): string {
+  const result = impostor.result!;
+  const youWereImpostor = result.impostorId === room.you.id;
+  const title = result.impostorCaught ? "Erwischt!" : "Der Impostor gewinnt!";
+  const lead = youWereImpostor
+    ? result.impostorCaught
+      ? "Sie haben dich durchschaut."
+      : "Du hast alle getäuscht."
+    : `${esc(result.impostorName)} war der Impostor.`;
+  const category = result.category ? ` <span class="hint">(${esc(result.category)})</span>` : "";
+
+  const tally = result.votes
+    .map(
+      (v) => `
+        <li class="${v.playerId === result.impostorId ? "is-impostor" : ""}">
+          <span class="player-name">${esc(v.name)}</span>
+          <span class="player-note">${v.votes} ${v.votes === 1 ? "Stimme" : "Stimmen"}</span>
+        </li>`,
+    )
+    .join("");
+
+  const hostControls = room.you.host
+    ? `<button class="btn primary" data-action="nextRound" ${room.canStart ? "" : "disabled"}>Nächste Runde</button>
+       <button class="btn quiet" data-action="backToLobby">Zurück zur Lobby</button>`
+    : `<button class="btn quiet" data-action="leave">Raum verlassen</button>`;
+  const waitHint =
+    room.canStart && !room.you.host ? "Alle sind bereit. Die Spielleitung startet die nächste Runde." : room.startHint;
+
+  return `
+    <header class="phase-head">
+      <h1 class="title">${title}</h1>
+      <p class="lead">${lead}</p>
+    </header>
+
+    <section class="result-word">
+      <p>Das Wort war</p>
+      <strong>${esc(result.word)}</strong>${category}
+    </section>
+
     <section class="players">
-      <h2>Mitspieler <span class="count">${room.players.length}</span></h2>
+      <h2>Stimmen</h2>
+      <ul>${tally}</ul>
+    </section>
+
+    ${viewPlayers(room, { showReady: true })}
+
+    <div class="actions">
+      ${viewReadyButton(room)}
+      ${hostControls}
+      ${waitHint ? `<p class="hint">${esc(waitHint)}</p>` : ""}
+    </div>
+  `;
+}
+
+// ---- Gemeinsame Bausteine -------------------------------------------------
+
+/** Karte, die ihren Inhalt nur zeigt, solange man sie gedrückt hält. */
+function viewSecretCard(variant: string, what: string, openContent: string): string {
+  const inner = state.revealing
+    ? openContent
+    : `<span class="role-hidden">Gedrückt halten,<br />${what}</span>`;
+  return `
+    <button class="role-card ${state.revealing ? "is-open" : ""} ${variant}"
+            data-reveal aria-label="Gedrückt halten, ${what}">
+      ${inner}
+    </button>`;
+}
+
+interface PlayerListOptions {
+  showReady?: boolean;
+  only?: string[];
+  votedIds?: Set<string>;
+}
+
+function viewPlayers(room: RoomView, options: PlayerListOptions = {}): string {
+  const players = options.only ? room.players.filter((p) => options.only!.includes(p.id)) : room.players;
+  const items = players.map((p) => viewPlayerItem(room, p, options)).join("");
+
+  return `
+    <section class="players">
+      <h2>Mitspieler <span class="count">${players.length}</span></h2>
       <ul>${items}</ul>
     </section>`;
+}
+
+function viewPlayerItem(room: RoomView, p: PlayerView, options: PlayerListOptions): string {
+  const notes: string[] = [];
+  if (p.id === room.you.id) notes.push("du");
+  if (p.id === room.hostId) notes.push("Spielleitung");
+  if (options.showReady && p.ready) notes.push("bereit");
+  if (options.votedIds?.has(p.id)) notes.push("hat abgestimmt");
+  if (!p.connected) notes.push("offline");
+  const classes = [p.alive ? "" : "is-dead", p.connected ? "" : "is-offline", options.showReady && p.ready ? "is-ready" : ""];
+  return `
+    <li class="${classes.join(" ").trim()}">
+      <span class="player-name">${esc(p.name)}</span>
+      ${notes.length ? `<span class="player-note">${notes.join(", ")}</span>` : ""}
+    </li>`;
+}
+
+function viewFooter(): string {
+  return `
+    <footer class="site-footer">
+      <a href="./impressum.html">Impressum</a>
+      <a href="./datenschutz.html">Datenschutz</a>
+      <button class="link-button" data-action="forgetDevice">Meine Daten löschen</button>
+    </footer>`;
 }
 
 // ---------------------------------------------------------------------------
@@ -382,23 +671,30 @@ function viewPlayers(room: RoomView): string {
 app.addEventListener("click", (event) => {
   const target = (event.target as HTMLElement).closest<HTMLElement>("[data-action]");
   if (target && !(target as HTMLButtonElement).disabled) {
-    act(target.dataset.action!);
+    act(target.dataset.action!, target.dataset.value);
   }
 });
 
 app.addEventListener("input", (event) => {
   const input = event.target as HTMLInputElement;
   if (input.dataset.bind === "name") state.name = input.value;
+  if (input.dataset.bind === "customWordDraft") state.customWordDraft = input.value;
   if (input.dataset.bind === "codeInput") {
     input.value = input.value.toUpperCase();
     state.codeInput = input.value;
   }
 });
 
+app.addEventListener("change", (event) => {
+  const input = event.target as HTMLInputElement;
+  if (input.dataset.setting === "seesCategory") configureImpostor({ seesCategory: input.checked });
+});
+
 app.addEventListener("keydown", (event) => {
   const input = event.target as HTMLElement;
   if (event.key === "Enter" && input.id === "code") act("join");
   if (event.key === "Enter" && input.id === "name") act(state.codeInput ? "join" : "create");
+  if (event.key === "Enter" && input.id === "custom-word") act("saveWord");
   if ((event.key === " " || event.key === "Enter") && input.hasAttribute("data-reveal") && !event.repeat) {
     event.preventDefault();
     setRevealing(true);
@@ -409,7 +705,7 @@ app.addEventListener("keyup", (event) => {
   if (event.key === " " || event.key === "Enter") setRevealing(false);
 });
 
-// Rolle nur zeigen, solange der Finger auf der Karte liegt
+// Karte nur aufdecken, solange der Finger darauf liegt
 app.addEventListener("pointerdown", (event) => {
   if ((event.target as HTMLElement).closest("[data-reveal]")) {
     event.preventDefault();

@@ -1,7 +1,6 @@
 package de.kruschinski.werwolf.game;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.random.RandomGenerator;
 
@@ -13,8 +12,9 @@ public final class RoleDistribution {
 
     /** Ein Werwolf pro angefangene vier Spieler (4–7 → 1, 8–11 → 2, ...), immer eine Seherin, Rest Dorfbewohner. */
     public static List<Role> rolesFor(int playerCount) {
-        if (playerCount < Room.MIN_PLAYERS) {
-            throw new GameException("Es werden mindestens " + Room.MIN_PLAYERS + " Spieler gebraucht.");
+        int minPlayers = GameType.WERWOLF.minPlayers();
+        if (playerCount < minPlayers) {
+            throw new GameException("Es werden mindestens " + minPlayers + " Spieler gebraucht.");
         }
         int werewolves = Math.max(1, playerCount / 4);
 
@@ -31,10 +31,7 @@ public final class RoleDistribution {
 
     public static List<Role> shuffledRolesFor(int playerCount, RandomGenerator random) {
         List<Role> roles = rolesFor(playerCount);
-        // Fisher-Yates, damit wir einen beliebigen RandomGenerator (auch einen festen für Tests) nutzen können
-        for (int i = roles.size() - 1; i > 0; i--) {
-            Collections.swap(roles, i, random.nextInt(i + 1));
-        }
+        Shuffle.inPlace(roles, random);
         return roles;
     }
 }

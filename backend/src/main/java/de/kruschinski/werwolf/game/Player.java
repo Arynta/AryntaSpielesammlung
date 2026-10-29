@@ -12,9 +12,9 @@ public class Player {
     private final String id;
     private final String secret;
     private final String name;
-    private Role role;
     private boolean alive = true;
     private boolean connected = true;
+    private boolean ready;
 
     Player(String id, String secret, String name) {
         this.id = id;
@@ -34,14 +34,6 @@ public class Player {
         return name;
     }
 
-    public Role role() {
-        return role;
-    }
-
-    void setRole(Role role) {
-        this.role = role;
-    }
-
     public boolean alive() {
         return alive;
     }
@@ -56,5 +48,13 @@ public class Player {
 
     void setConnected(boolean connected) {
         this.connected = connected;
+    }
+
+    public boolean ready() {
+        return ready;
+    }
+
+    void setReady(boolean ready) {
+        this.ready = ready;
     }
 }

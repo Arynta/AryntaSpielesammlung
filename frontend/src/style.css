@@ -325,6 +325,191 @@ input:focus-visible,
   font-weight: 700;
 }
 
+/* ---- Spielauswahl --------------------------------------------------- */
+
+.game-label {
+  margin: 0 0 0.35rem;
+  color: var(--accent);
+  font-weight: 700;
+  font-size: 0.9rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.game-options {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.game-option,
+.game-chosen {
+  font: inherit;
+  color: var(--text);
+  text-align: left;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.15rem 0.75rem;
+  padding: 0.85rem 1rem;
+  border-radius: 12px;
+  border: 2px solid var(--line);
+  background: var(--surface);
+}
+
+.game-option {
+  cursor: pointer;
+}
+
+.game-option.is-selected {
+  border-color: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+.game-option strong,
+.game-chosen strong {
+  font-family: "Grenze", Georgia, serif;
+  font-weight: 800;
+  font-size: 1.5rem;
+  line-height: 1.1;
+}
+
+.game-min {
+  color: var(--muted);
+  font-size: 0.85rem;
+  align-self: center;
+}
+
+.game-desc,
+.game-chosen p {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.game-option:focus-visible,
+.vote-option:focus-visible,
+.check input:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.settings {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  padding: 1rem;
+  border-radius: 12px;
+  border: 1px dashed var(--line);
+}
+
+.settings .btn.small {
+  align-self: flex-start;
+}
+
+.check {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.check input {
+  width: 1.3rem;
+  height: 1.3rem;
+  accent-color: var(--accent);
+}
+
+.settings-summary {
+  margin: 0.75rem 0 0;
+  padding-left: 1.25rem;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.btn.ready.is-ready {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.players li.is-ready .player-note {
+  color: var(--accent);
+}
+
+/* ---- Impostor ------------------------------------------------------- */
+
+.voting ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.vote-option {
+  font: inherit;
+  color: var(--text);
+  width: 100%;
+  min-height: 3.25rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.6rem 1rem;
+  border-radius: 10px;
+  border: 2px solid var(--line);
+  background: var(--surface);
+  cursor: pointer;
+  text-align: left;
+}
+
+.vote-option.is-selected {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.vote-option.is-selected .player-note {
+  color: var(--on-accent);
+}
+
+.role-card.is-open.role-impostor {
+  background: #7d2424;
+  border-color: #a63a3a;
+}
+
+.role-card.is-open.role-crew {
+  background: #4a3d8c;
+  border-color: #6d5fb8;
+}
+
+.game-master,
+.result-word {
+  padding: 1rem 1.25rem;
+  border-radius: 12px;
+  background: var(--surface);
+  border: 2px solid var(--line);
+}
+
+.game-master p,
+.result-word p {
+  margin: 0;
+}
+
+.result-word strong {
+  font-family: "Grenze", Georgia, serif;
+  font-weight: 800;
+  font-size: 2.5rem;
+  line-height: 1.1;
+  color: var(--accent);
+}
+
+.players li.is-impostor .player-name {
+  color: var(--accent);
+  font-weight: 700;
+}
+
 /* ---- Fußzeile und Rechtliches --------------------------------------- */
 
 a {

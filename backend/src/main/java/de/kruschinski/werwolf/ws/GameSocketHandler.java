@@ -1,6 +1,7 @@
 package de.kruschinski.werwolf.ws;
 
 import de.kruschinski.werwolf.game.GameException;
+import de.kruschinski.werwolf.game.GameType;
 import de.kruschinski.werwolf.game.Player;
 import de.kruschinski.werwolf.game.Room;
 import de.kruschinski.werwolf.game.RoomRegistry;
@@ -129,8 +130,20 @@ public class GameSocketHandler extends TextWebSocketHandler {
                 broadcast(room);
             }
 
+            case "selectGame" -> {
+                GameType game = parseGameType(msg.game());
+                withRoom(session, (room, playerId) -> room.selectGame(playerId, game));
+            }
+            case "setReady" -> withRoom(session,
+                    (room, playerId) -> room.setReady(playerId, Boolean.TRUE.equals(msg.ready())));
+            case "configureImpostor" -> withRoom(session, (room, playerId) -> room.configureImpostor(
+                    playerId, Boolean.TRUE.equals(msg.impostorSeesCategory()), msg.customWord()));
+
             case "start" -> withRoom(session, (room, playerId) -> room.start(playerId, rooms.random()));
             case "nextPhase" -> withRoom(session, Room::nextPhase);
+            case "startVoting" -> withRoom(session, Room::startVoting);
+            case "vote" -> withRoom(session, (room, playerId) -> room.vote(playerId, msg.targetId()));
+            case "nextRound" -> withRoom(session, (room, playerId) -> room.nextRound(playerId, rooms.random()));
             case "backToLobby" -> withRoom(session, Room::backToLobby);
 
             default -> throw new GameException("Unbekannte Aktion: " + type);
@@ -156,6 +169,14 @@ public class GameSocketHandler extends TextWebSocketHandler {
     }
 
     // ---------------------------------------------------------------------
+
+    private static GameType parseGameType(String raw) {
+        try {
+            return GameType.valueOf(raw == null ? "" : raw.strip().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new GameException("Dieses Spiel gibt es nicht.");
+        }
+    }
 
     private interface RoomAction {
         void apply(Room room, String playerId);
