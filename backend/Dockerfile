@@ -9,8 +9,11 @@ RUN mvn -q -B package -DskipTests
 
 # --- Laufen ---
 FROM eclipse-temurin:21-jre
+# Eigener Benutzer ohne Sonderrechte: Bricht jemand ein, hat er im Container nicht gleich alle Rechte
+RUN groupadd --system app && useradd --system --gid app --no-create-home app
 WORKDIR /app
-COPY --from=build /app/target/app.jar app.jar
+COPY --from=build --chown=app:app /app/target/app.jar app.jar
+USER app
 
 # Auf Render Free gibt es nur 512 MB RAM. Die Optionen halten Java darunter.
 ENV JAVA_OPTS="-XX:MaxRAMPercentage=70 -XX:+UseSerialGC -Xss512k -XX:TieredStopAtLevel=1"

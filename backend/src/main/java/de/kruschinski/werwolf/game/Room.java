@@ -408,8 +408,22 @@ public class Room {
         lastActivity = clock.instant();
     }
 
+    /**
+     * Entfernt Steuerzeichen und unsichtbare Zeichen (z. B. Zero-Width-Space, Schreibrichtungs-Umkehr),
+     * damit sich niemand mit "Anna" plus unsichtbarem Zeichen als Anna ausgeben kann.
+     * Jede Art von Leerraum wird zu einem normalen Leerzeichen.
+     */
+    static String normalizeText(String raw) {
+        if (raw == null) {
+            return "";
+        }
+        return raw.replaceAll("[\\p{Cc}\\p{Cf}\\p{Co}\\p{Cn}&&[^\\s]]", "")
+                .replaceAll("[\\s\\p{Z}]+", " ")
+                .strip();
+    }
+
     static String cleanName(String rawName) {
-        String name = rawName == null ? "" : rawName.strip().replaceAll("\\s+", " ");
+        String name = normalizeText(rawName);
         if (name.isEmpty()) {
             throw new GameException("Bitte gib einen Namen ein.");
         }
@@ -421,7 +435,7 @@ public class Room {
 
     /** Leeres Wort → {@code null}, also eingebaute Liste. */
     static String cleanWord(String rawWord) {
-        String word = rawWord == null ? "" : rawWord.strip().replaceAll("\\s+", " ");
+        String word = normalizeText(rawWord);
         if (word.isEmpty()) {
             return null;
         }

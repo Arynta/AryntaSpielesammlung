@@ -202,12 +202,33 @@ public class GameSocketHandler extends TextWebSocketHandler {
     }
 
     private void sitDown(WebSocketSession session, Room room, Player player) {
-        standUp(session); // falls die Verbindung vorher in einem anderen Raum war
+        leavePreviousRoom(session, room);
+        standUp(session);
         Seat seat = new Seat(room.code(), player.id());
         seatsBySession.put(session.getId(), seat);
         sessionsBySeat.put(seat.key(), session);
         send(session, Map.of("type", "joined", "code", room.code(), "secret", player.secret()));
         broadcast(room);
+    }
+
+    /**
+     * Wechselt eine Verbindung in einen anderen Raum, verlässt sie den alten. Sonst bliebe dort ein
+     * Spieler zurück, der als online gilt, nie bereit wird und den Raum nie leer werden lässt.
+     */
+    private void leavePreviousRoom(WebSocketSession session, Room next) {
+        Seat previous = seatsBySession.get(session.getId());
+        if (previous == null || previous.roomCode().equals(next.code())) {
+            return;
+        }
+        rooms.find(previous.roomCode()).ifPresent(oldRoom -> {
+            boolean stillSeated = oldRoom.players().stream().anyMatch(p -> p.id().equals(previous.playerId()));
+            if (stillSeated) {
+                oldRoom.leave(previous.playerId());
+            }
+            standUp(session);
+            rooms.removeIfEmpty(oldRoom);
+            broadcast(oldRoom);
+        });
     }
 
     /** Meldet die Verbindung eines gekickten Spielers ab, damit sein Handy auf die Startseite geht. */

@@ -18,6 +18,8 @@ public class RoomRegistry {
     /** Ohne I, L, O, 0, 1, damit man den Code gut vorlesen kann. */
     private static final String CODE_ALPHABET = "ABCDEFGHJKMNPQRSTUVWXYZ23456789";
     private static final int CODE_LENGTH = 4;
+    /** Schützt den kleinen Server (512 MB) davor, dass ein Skript ihn mit Räumen vollstopft. */
+    public static final int MAX_ROOMS = 200;
 
     private final Map<String, Room> rooms = new ConcurrentHashMap<>();
     private final Clock clock;
@@ -37,6 +39,9 @@ public class RoomRegistry {
     }
 
     public Room createRoom() {
+        if (rooms.size() >= MAX_ROOMS) {
+            throw new GameException("Gerade sind zu viele Räume offen. Versuch es in ein paar Minuten nochmal.");
+        }
         for (int attempt = 0; attempt < 100; attempt++) {
             String code = randomCode();
             Room room = new Room(code, clock);

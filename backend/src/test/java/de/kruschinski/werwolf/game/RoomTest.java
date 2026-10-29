@@ -69,6 +69,30 @@ class RoomTest {
     }
 
     @Test
+    void unsichtbareZeichenWerdenEntfernt() {
+        Room room = roomWith("Anna");
+        // Zero-Width-Space, Schreibrichtungs-Umkehr und geschütztes Leerzeichen
+        assertThrows(GameException.class, () -> room.addPlayer("An​na"));
+        assertThrows(GameException.class, () -> room.addPlayer("‮Anna"));
+        assertEquals("Ben Bo", room.addPlayer("Ben  Bo\u0007").name());
+    }
+
+    @Test
+    void nurUnsichtbareZeichenSindKeinName() {
+        Room room = roomWith();
+        assertThrows(GameException.class, () -> room.addPlayer("​‍⁠"));
+    }
+
+    @Test
+    void raumLimitSchuetztDenServer() {
+        RoomRegistry registry = new RoomRegistry(clock, new Random(7));
+        for (int i = 0; i < RoomRegistry.MAX_ROOMS; i++) {
+            registry.createRoom();
+        }
+        assertThrows(GameException.class, registry::createRoom);
+    }
+
+    @Test
     void impostorIstVorausgewaehlt() {
         assertEquals(GameType.IMPOSTOR, new Room("TEST", clock).selectedGame());
     }
