@@ -1,6 +1,7 @@
 // Wörter und Rollen kommen aus denselben Dateien wie im Backend, damit es nur eine Liste gibt.
 import wordFile from "../../backend/src/main/resources/games/impostor-words.json";
 import roleFile from "../../backend/src/main/resources/games/werwolf-roles.json";
+import werwolfCard from "../../assets/images/Werwolf/Werwolf_werwolf1.png";
 
 export interface RoleData {
   id: string;
@@ -37,6 +38,19 @@ export const MAX_IMPOSTORS = MAX_PLAYERS / 2 - 1;
 
 /** Rollen zum Ankreuzen. Dorfbewohner füllen auf, Werwölfe werden gezählt. */
 export const SPECIAL_ROLES: RoleData[] = ROLES.filter((r) => r.id !== VILLAGER && r.id !== WEREWOLF);
+
+/** Kartenbilder für Rollen. Hat eine Rolle ein Bild, zeigt die Karte das Bild statt des Rollennamens. */
+export const ROLE_IMAGES: Partial<Record<string, string>> = {
+  [WEREWOLF]: werwolfCard,
+};
+
+/** Lädt die Bilder vorab, damit sie beim Aufdecken sofort da sind und nicht erst nachladen. */
+export function preloadRoleImages(roleIds: readonly string[]): void {
+  for (const id of new Set(roleIds)) {
+    const url = ROLE_IMAGES[id];
+    if (url) new Image().src = url;
+  }
+}
 
 export function roleById(id: string): RoleData {
   const role = ROLES.find((r) => r.id === id);

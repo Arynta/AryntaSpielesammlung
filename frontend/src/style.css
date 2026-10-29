@@ -335,6 +335,17 @@ div.role-card {
   cursor: default;
 }
 
+/* Kartenbild statt Rollenname. Klicks gehen an die Karte, damit Gedrückthalten auch auf dem Bild klappt. */
+.role-image {
+  display: block;
+  width: min(100%, 16rem);
+  height: auto;
+  border-radius: 14px;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
 .role-team {
   font-size: 0.85rem;
   font-weight: 700;

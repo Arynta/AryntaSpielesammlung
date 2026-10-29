@@ -1,7 +1,7 @@
 // Lokaler Modus: Ein Handy wird reihum weitergegeben, jeder sieht kurz seine Karte.
 // Läuft komplett im Browser, ohne Server. Nur die Einrichtung (Namen, Einstellungen) wird gespeichert.
 import { askConfirm } from "./confirmDialog";
-import { CATEGORIES, MAX_IMPOSTORS, MAX_PLAYERS, MIN_PLAYERS, SEER, TEAM_NAMES } from "./gameData";
+import { CATEGORIES, MAX_IMPOSTORS, MAX_PLAYERS, MIN_PLAYERS, SEER, TEAM_NAMES, preloadRoleImages } from "./gameData";
 import { esc } from "./html";
 import {
   dealImpostor,
@@ -207,6 +207,7 @@ function startRound(local: LocalState, ui: LocalUi): void {
     local.werwolf = null;
   } else {
     local.werwolf = dealWerwolf(setup.playerCount, setup.werewolfCount, setup.roles, Math.random);
+    preloadRoleImages(local.werwolf.perPlayer.map((r) => r.id));
     local.impostor = null;
   }
   local.index = 0;

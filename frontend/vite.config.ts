@@ -6,8 +6,8 @@ export default defineConfig({
   base: "./",
   server: {
     fs: {
-      // Wörter und Rollen liegen im Backend-Ordner, damit beide dieselbe Datei nutzen
-      allow: [searchForWorkspaceRoot(process.cwd()), "../backend/src/main/resources/games"],
+      // Wörter und Rollen liegen im Backend-Ordner, damit beide dieselbe Datei nutzen. Bilder liegen in assets/.
+      allow: [searchForWorkspaceRoot(process.cwd()), "../backend/src/main/resources/games", "../assets"],
     },
   },
   build: {

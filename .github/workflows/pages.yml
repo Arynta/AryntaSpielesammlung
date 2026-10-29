@@ -7,7 +7,7 @@ name: GitHub Pages
 on:
   push:
     branches: [main]
-    paths: ["frontend/**", "backend/src/main/resources/games/**", ".github/workflows/pages.yml"]
+    paths: ["frontend/**", "backend/src/main/resources/games/**", "assets/**", ".github/workflows/pages.yml"]
   workflow_dispatch:
 
 permissions:

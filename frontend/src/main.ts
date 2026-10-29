@@ -2,6 +2,7 @@ import "./fonts";
 import "./style.css";
 import { askConfirm } from "./confirmDialog";
 import { GameConnection, type ConnectionStatus } from "./connection";
+import { preloadRoleImages } from "./gameData";
 import { esc } from "./html";
 import {
   actLocal,
@@ -362,7 +363,7 @@ function render(): void {
   }
 
   app.innerHTML = `
-    ${viewStatus()}
+    ${state.local ? "" : viewStatus()}
     <main class="screen">${body}${viewFooter()}</main>
     <div class="toast" role="status" aria-live="polite">${state.toast ? esc(state.toast) : ""}</div>
   `;
@@ -630,6 +631,7 @@ function viewWerwolf(room: RoomView, werwolf: WerwolfView): string {
        <button class="btn quiet" data-action="backToLobby">Spiel beenden</button>`
     : `<button class="btn quiet" data-action="leave">Raum verlassen</button>`;
 
+  if (werwolf.role) preloadRoleImages([werwolf.role.id]);
   const card = werwolf.gameMaster
     ? viewRoleOverview(
         (werwolf.overview ?? []).map((a) => ({ name: a.playerName, role: a.role })),

@@ -1,7 +1,7 @@
 // Bausteine, die online (Lobby) und lokal (ein Handy) gleich aussehen.
 // Die Eingaben tragen data-setting, data-category, data-role bzw. data-action. Was beim Ändern
 // passiert, entscheidet main.ts (an den Server schicken) oder localMode.ts (lokal merken).
-import { MAX_PLAYERS, SPECIAL_ROLES, TEAM_IDS, TEAM_NAMES, roleById } from "./gameData";
+import { MAX_PLAYERS, ROLE_IMAGES, SPECIAL_ROLES, TEAM_IDS, TEAM_NAMES, roleById } from "./gameData";
 import { esc } from "./html";
 
 export function viewStepper(id: string, label: string, value: number, min: number, max: number, action: string): string {
@@ -188,9 +188,13 @@ export function roleCardContent(role: RoleCardContent, knownWolves: string[], le
   const thief = leftoverRoles.length
     ? `<p class="wolves">Übrige Karten: ${leftoverRoles.map(esc).join(" und ")}</p>`
     : "";
+  const image = ROLE_IMAGES[role.id];
+  const title = image
+    ? `<img class="role-image" src="${image}" alt="${esc(role.name)}" draggable="false" />`
+    : `<span class="role-team">${esc(role.teamName)}</span>
+       <span class="role-name">${esc(role.name)}</span>`;
   return `
-    <span class="role-team">${esc(role.teamName)}</span>
-    <span class="role-name">${esc(role.name)}</span>
+    ${title}
     <p class="role-desc">${esc(role.description)}</p>
     ${wolves}${thief}`;
 }
