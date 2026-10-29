@@ -1,3 +1,4 @@
+import "./fonts";
 import "./style.css";
 import { GameConnection, type ConnectionStatus } from "./connection";
 import type { RoomView, ServerMessage } from "./types";
@@ -118,7 +119,24 @@ function act(action: string): void {
     case "share":
       void shareRoom();
       break;
+    case "forgetDevice":
+      forgetDevice();
+      break;
   }
+}
+
+function forgetDevice(): void {
+  const inRoom = state.session !== null;
+  const question = inRoom
+    ? "Name und Raum auf diesem Gerät löschen? Du verlässt dabei den Raum."
+    : "Deinen gespeicherten Namen auf diesem Gerät löschen?";
+  if (!confirm(question)) return;
+
+  if (inRoom) connection.send({ type: "leave" });
+  forgetRoom();
+  state.name = "";
+  save("werwolf.name", null);
+  showToast("Deine Daten auf diesem Gerät sind gelöscht.");
 }
 
 function requireName(): boolean {
@@ -170,9 +188,9 @@ function render(): void {
   const room = state.room;
   document.body.dataset.phase = room ? room.phase.toLowerCase() : "home";
 
-  // Fokus und Cursor merken, damit Neuzeichnen beim Tippen nicht stört
+  // Fokus und Cursor merken, damit Neuzeichnen beim Tippen und bei Tastaturbedienung nicht stört
   const active = document.activeElement as HTMLInputElement | null;
-  const focusId = active?.id;
+  const focusSelector = focusSelectorFor(active);
   const selection = active?.selectionStart ?? null;
 
   let body: string;
@@ -186,15 +204,31 @@ function render(): void {
 
   app.innerHTML = `
     ${viewStatus()}
-    <main class="screen">${body}</main>
+    <main class="screen">${body}${viewFooter()}</main>
     <div class="toast" role="status" aria-live="polite">${state.toast ? esc(state.toast) : ""}</div>
   `;
 
-  if (focusId) {
-    const el = document.getElementById(focusId) as HTMLInputElement | null;
+  if (focusSelector) {
+    const el = app.querySelector<HTMLInputElement>(focusSelector);
     el?.focus();
-    if (el && selection !== null) el.setSelectionRange(selection, selection);
+    if (el instanceof HTMLInputElement && selection !== null) el.setSelectionRange(selection, selection);
   }
+}
+
+function focusSelectorFor(el: HTMLElement | null): string | null {
+  if (!el || !app.contains(el)) return null;
+  if (el.id) return `#${el.id}`;
+  if (el.dataset.action) return `[data-action="${el.dataset.action}"]`;
+  return null;
+}
+
+function viewFooter(): string {
+  return `
+    <footer class="site-footer">
+      <a href="./impressum.html">Impressum</a>
+      <a href="./datenschutz.html">Datenschutz</a>
+      <button class="link-button" data-action="forgetDevice">Meine Daten löschen</button>
+    </footer>`;
 }
 
 function viewStatus(): string {

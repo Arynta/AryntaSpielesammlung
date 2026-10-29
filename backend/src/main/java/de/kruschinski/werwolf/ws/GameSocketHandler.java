@@ -12,6 +12,7 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.ConcurrentWebSocketSessionDecorator;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
+import tools.jackson.core.JacksonException;
 import tools.jackson.databind.json.JsonMapper;
 
 import java.io.IOException;
@@ -58,15 +59,35 @@ public class GameSocketHandler extends TextWebSocketHandler {
     @Override
     protected void handleTextMessage(WebSocketSession rawSession, TextMessage message) {
         WebSocketSession session = sessions.getOrDefault(rawSession.getId(), rawSession);
+        ClientMessage msg = parse(message);
+        if (msg == null) {
+            sendUnexpectedError(session);
+            return;
+        }
+
         try {
-            ClientMessage msg = json.readValue(message.getPayload(), ClientMessage.class);
             handle(session, msg);
         } catch (GameException e) {
             send(session, Map.of("type", "error", "message", e.getMessage()));
         } catch (Exception e) {
-            log.warn("Fehler bei Nachricht {}", message.getPayload(), e);
-            send(session, Map.of("type", "error", "message", "Da ist etwas schiefgelaufen."));
+            log.warn("Fehler bei Nachricht vom Typ {}", msg.type(), e);
+            sendUnexpectedError(session);
         }
+    }
+
+    /** Liefert {@code null}, wenn die Nachricht kein gültiges JSON ist. */
+    private ClientMessage parse(TextMessage message) {
+        try {
+            return json.readValue(message.getPayload(), ClientMessage.class);
+        } catch (JacksonException e) {
+            // Weder Inhalt noch Jackson-Meldung loggen: beides kann Spielernamen enthalten
+            log.warn("Unlesbare Nachricht verworfen ({} Zeichen)", message.getPayloadLength());
+            return null;
+        }
+    }
+
+    private void sendUnexpectedError(WebSocketSession session) {
+        send(session, Map.of("type", "error", "message", "Da ist etwas schiefgelaufen."));
     }
 
     private void handle(WebSocketSession session, ClientMessage msg) {
