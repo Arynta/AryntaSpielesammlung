@@ -52,7 +52,8 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  body {
+  body,
+  button {
     transition: none;
   }
 }
@@ -188,6 +189,14 @@ input:focus-visible,
 .btn:disabled {
   opacity: 0.45;
   cursor: not-allowed;
+}
+
+button {
+  transition: transform 100ms ease;
+}
+
+button:active:not(:disabled) {
+  transform: scale(0.97);
 }
 
 .actions {
