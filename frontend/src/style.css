@@ -53,7 +53,13 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   body,
-  button {
+  button,
+  .chevron {
+    transition: none;
+  }
+
+  /* Eigene Regel: Browser ohne ::details-content würden sonst die ganze Liste verwerfen */
+  details::details-content {
     transition: none;
   }
 }
@@ -492,8 +498,50 @@ div.role-card {
   cursor: pointer;
 }
 
-.settings-toggle[aria-expanded="true"] {
+.settings-panel[open] > .settings-toggle {
   border-color: var(--accent);
+}
+
+/* ---- Aufklappen ----------------------------------------------------- */
+
+.settings-panel,
+.game-switch {
+  interpolate-size: allow-keywords;
+}
+
+.settings-panel > summary,
+.game-switch > summary {
+  list-style: none;
+}
+
+.settings-panel > summary::-webkit-details-marker,
+.game-switch > summary::-webkit-details-marker {
+  display: none;
+}
+
+.settings-panel::details-content,
+.game-switch::details-content {
+  block-size: 0;
+  overflow-y: clip;
+  transition: block-size 250ms ease, content-visibility 250ms allow-discrete;
+}
+
+.settings-panel[open]::details-content,
+.game-switch[open]::details-content {
+  block-size: auto;
+}
+
+.game-switch .game-options {
+  margin-top: 0.6rem;
+}
+
+.chevron {
+  display: inline-block;
+  transition: transform 250ms ease;
+}
+
+details[open] .chevron {
+  transform: rotate(180deg);
 }
 
 .settings-toggle:focus-visible,

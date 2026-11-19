@@ -168,19 +168,10 @@ function act(action: string, value?: string): void {
       }
       sendOrComplain({ type: "join", code: state.codeInput.trim(), name: state.name });
       break;
-    case "toggleGamePicker":
-      state.gamePickerOpen = !state.gamePickerOpen;
-      render();
-      break;
     case "selectGame":
       state.gamePickerOpen = false;
       if (value !== state.room?.game) sendOrComplain({ type: "selectGame", game: value as GameType });
       else render();
-      break;
-    case "toggleSettings":
-      state.settingsOpen = !state.settingsOpen;
-      save("arynta.settingsOpen", state.settingsOpen);
-      render();
       break;
     case "changePlayerLimit":
       if (state.room) {
@@ -584,48 +575,34 @@ function viewGamePicker(room: RoomView): string {
       </section>`;
   }
 
-  if (!state.gamePickerOpen) {
-    return `
-      <section class="game-picker">
-        <h2>Spiel</h2>
-        <button class="game-option is-selected" data-action="toggleGamePicker" aria-expanded="false">
-          <strong>${esc(selected.name)}</strong>
-          <span class="game-min">Wechseln ▾</span>
-          <span class="game-desc">${esc(selected.description)}</span>
-        </button>
-      </section>`;
-  }
-
   const options = room.games
-    .map((g) => {
-      const active = g.type === room.game;
-      return `
-        <button class="game-option ${active ? "is-selected" : ""}" data-action="selectGame"
-                data-value="${g.type}" aria-pressed="${active}">
+    .filter((g) => g.type !== room.game)
+    .map(
+      (g) => `
+        <button class="game-option" data-action="selectGame" data-value="${g.type}">
           <strong>${esc(g.name)}</strong>
           <span class="game-min">ab ${g.minPlayers} Spielern</span>
           <span class="game-desc">${esc(g.description)}</span>
-        </button>`;
-    })
+        </button>`,
+    )
     .join("");
 
   return `
     <section class="game-picker">
-      <h2>Spiel wählen</h2>
-      <div class="game-options">${options}</div>
+      <h2>Spiel</h2>
+      <details class="game-switch" data-toggle="gamePickerOpen" ${state.gamePickerOpen ? "open" : ""}>
+        <summary id="game-picker-toggle" class="game-option is-selected">
+          <strong>${esc(selected.name)}</strong>
+          <span class="game-min">Wechseln <span class="chevron" aria-hidden="true">▾</span></span>
+          <span class="game-desc">${esc(selected.description)}</span>
+        </summary>
+        <div class="game-options">${options}</div>
+      </details>
     </section>`;
 }
 
 /** Aufklappbarer Bereich: Spielerlimit für alle Spiele, dazu die Einstellungen des gewählten Spiels. */
 function viewSettings(room: RoomView): string {
-  const open = state.settingsOpen;
-  const toggle = `
-    <button class="settings-toggle" data-action="toggleSettings" aria-expanded="${open}" aria-controls="settings-body">
-      <span>Spieleinstellungen</span>
-      <span class="chevron" aria-hidden="true">${open ? "▴" : "▾"}</span>
-    </button>`;
-  if (!open) return `<section class="settings-panel">${toggle}</section>`;
-
   let gameSettings: string;
   if (room.game === "IMPOSTOR") {
     gameSettings = room.you.host ? viewImpostorSettings(room) : viewImpostorSettingsSummary(room);
@@ -643,13 +620,16 @@ function viewSettings(room: RoomView): string {
   }
 
   return `
-    <section class="settings-panel">
-      ${toggle}
-      <div id="settings-body" class="settings">
+    <details class="settings-panel" data-toggle="settingsOpen" ${state.settingsOpen ? "open" : ""}>
+      <summary id="settings-toggle" class="settings-toggle">
+        <span>Spieleinstellungen</span>
+        <span class="chevron" aria-hidden="true">▾</span>
+      </summary>
+      <div class="settings">
         ${viewPlayerLimit(room)}
         ${gameSettings}
       </div>
-    </section>`;
+    </details>`;
 }
 
 function viewPlayerLimit(room: RoomView): string {
@@ -987,6 +967,20 @@ app.addEventListener("click", (event) => {
     act(target.dataset.action!, target.dataset.value);
   }
 });
+
+// Aufklappen ohne render(): Neuzeichnen würde die Animation abbrechen. "toggle" blubbert nicht, daher capture.
+app.addEventListener(
+  "toggle",
+  (event) => {
+    const details = event.target as HTMLDetailsElement;
+    if (details.dataset.toggle === "gamePickerOpen") state.gamePickerOpen = details.open;
+    if (details.dataset.toggle === "settingsOpen") {
+      state.settingsOpen = details.open;
+      save("arynta.settingsOpen", state.settingsOpen);
+    }
+  },
+  true,
+);
 
 app.addEventListener("input", (event) => {
   const input = event.target as HTMLInputElement;
