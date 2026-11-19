@@ -38,6 +38,8 @@ body[data-phase="day"] {
 
 html {
   -webkit-text-size-adjust: 100%;
+  /* Platz für die Scrollleiste immer freihalten, beidseitig, damit die Mitte nicht springt */
+  scrollbar-gutter: stable both-edges;
 }
 
 body {
