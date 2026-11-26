@@ -2,7 +2,8 @@
 // Server jede Nachricht annimmt und jede Antwort in die Datenmodelle passt, und schreibt typische
 // Ansichten nach test/fixtures/states.json (Grundlage für test/ui/views_test.dart).
 //
-// Backend starten, dann in app/: dart run tool/record_states.dart [ws://localhost:8080/ws]
+// Backend mit MAX_MESSAGES_PER_SECOND=1000 und LOCKED_GAMES= starten (das Skript schickt schneller als ein
+// Mensch, und Geo-Bingo muss wählbar sein), dann in app/: dart run tool/record_states.dart [ws://localhost:8080/ws]
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';

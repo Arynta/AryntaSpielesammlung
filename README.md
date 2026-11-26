@@ -108,7 +108,8 @@ flutter test
 
 `test/ui/views_test.dart` arbeitet mit Server-Antworten aus `test/fixtures/states.json`.
 Ändert sich das Protokoll, erzeugst du sie bei laufendem Backend neu. Das Skript spielt
-dabei alle Spiele einmal durch:
+dabei alle Spiele einmal durch. Es schickt viel schneller als ein Mensch, deshalb das Backend
+dafür mit `MAX_MESSAGES_PER_SECOND=1000` und `LOCKED_GAMES=` (leer, sonst fehlt Geo-Bingo) starten:
 
 ```bash
 dart run tool/record_states.dart ws://localhost:8080/ws
@@ -144,6 +145,9 @@ Beim Einschlafen gehen offene Räume verloren, während eines Spiels passiert da
 nicht, weil die Handys die Verbindung aktiv halten.
 
 ## Wo du weiterbaust
+
+Warum Dinge so gebaut sind (Sprachen, Sicherheitsgrenzen, Layout) und was bewusst offen ist, steht in
+[docs/entscheidungen.md](docs/entscheidungen.md).
 
 | Was | Wo |
 | --- | --- |

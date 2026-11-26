@@ -11,7 +11,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
+import org.springframework.web.socket.server.standard.ServletServerContainerFactoryBean;
 
+import java.time.Duration;
 import java.util.Set;
 
 @Configuration
@@ -33,8 +35,21 @@ public class AppConfig implements WebSocketConfigurer, WebMvcConfigurer {
 
     /** {@code app.locked-games}: Spiele, die in der Lobby noch gesperrt sind ("Bald verfügbar"). */
     @Bean
-    public static RoomRegistry roomRegistry(@Value("${app.locked-games:}") Set<GameType> lockedGames) {
-        return new RoomRegistry(lockedGames);
+    public static RoomRegistry roomRegistry(@Value("${app.locked-games:}") Set<GameType> lockedGames,
+                                            @Value("${app.limits.rooms-per-address}") int maxRoomsPerAddress) {
+        return new RoomRegistry(lockedGames, maxRoomsPerAddress);
+    }
+
+    /** Größere Nachrichten und stille Verbindungen beendet der Server selbst (Schutz vor Skripten). */
+    @Bean
+    public static ServletServerContainerFactoryBean webSocketContainer(
+            @Value("${app.limits.max-message-bytes}") int maxMessageBytes,
+            @Value("${app.limits.idle-timeout}") Duration idleTimeout) {
+        ServletServerContainerFactoryBean container = new ServletServerContainerFactoryBean();
+        container.setMaxTextMessageBufferSize(maxMessageBytes);
+        container.setMaxBinaryMessageBufferSize(maxMessageBytes);
+        container.setMaxSessionIdleTimeout(idleTimeout.toMillis());
+        return container;
     }
 
     @Override

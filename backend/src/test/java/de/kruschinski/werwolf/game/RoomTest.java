@@ -11,6 +11,7 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -94,6 +95,22 @@ class RoomTest {
             registry.createRoom();
         }
         assertThrows(GameException.class, registry::createRoom);
+    }
+
+    @Test
+    void eineAdresseBelegtNichtAlleRaeume() {
+        RoomRegistry registry = new RoomRegistry(clock, new Random(7), Set.of(), 2);
+        registry.createRoom("1.2.3.4").addPlayer("Anna");
+        Room second = registry.createRoom("1.2.3.4");
+        String host = second.addPlayer("Ben").id();
+        GameException error = assertThrows(GameException.class, () -> registry.createRoom("1.2.3.4"));
+        assertEquals("error.rooms.tooManyFromAddress", error.key());
+        // Andere Adressen sind davon nicht betroffen
+        registry.createRoom("5.6.7.8");
+
+        // Hat jeder den Raum verlassen (Seite zu), zählt er nicht mehr
+        second.setConnected(host, false);
+        registry.createRoom("1.2.3.4");
     }
 
     @Test

@@ -11,6 +11,7 @@ import de.kruschinski.werwolf.i18n.Text;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.CloseStatus;
@@ -22,6 +23,8 @@ import tools.jackson.core.JacksonException;
 import tools.jackson.databind.json.JsonMapper;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.time.Clock;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -54,22 +57,44 @@ public class GameSocketHandler extends TextWebSocketHandler {
     private final Map<String, WebSocketSession> sessionsBySeat = new ConcurrentHashMap<>();
     /** Session-ID → Sprache des Handys, für Fehlermeldungen auch ohne Raum. */
     private final Map<String, Language> languagesBySession = new ConcurrentHashMap<>();
+    /** Session-ID → Bremse gegen Skripte. */
+    private final Map<String, ConnectionGuard> guardsBySession = new ConcurrentHashMap<>();
+    /** Session-ID → Adresse des Handys, für das Raumlimit pro Adresse. */
+    private final Map<String, String> addressesBySession = new ConcurrentHashMap<>();
+    private final int maxMessagesPerSecond;
+    private final int maxUnknownCodes;
+    /** Kopfzeile mit der echten Adresse hinter einem Proxy (z. B. X-Forwarded-For), leer = Socket-Adresse. */
+    private final String clientIpHeader;
 
-    public GameSocketHandler(RoomRegistry rooms, JsonMapper json, TaskScheduler scheduler) {
+    public GameSocketHandler(RoomRegistry rooms, JsonMapper json, TaskScheduler scheduler,
+                             @Value("${app.limits.messages-per-second}") int maxMessagesPerSecond,
+                             @Value("${app.limits.unknown-codes}") int maxUnknownCodes,
+                             @Value("${app.client-ip-header:}") String clientIpHeader) {
         this.rooms = rooms;
         this.json = json;
         this.scheduler = scheduler;
+        this.maxMessagesPerSecond = maxMessagesPerSecond;
+        this.maxUnknownCodes = maxUnknownCodes;
+        this.clientIpHeader = clientIpHeader;
     }
 
     @Override
     public void afterConnectionEstablished(@NonNull WebSocketSession session) {
         // Der Decorator sorgt dafür, dass zwei Threads nicht gleichzeitig in dieselbe Verbindung schreiben
         sessions.put(session.getId(), new ConcurrentWebSocketSessionDecorator(session, 5_000, 64 * 1024));
+        guardsBySession.put(session.getId(), new ConnectionGuard(Clock.systemUTC(), maxMessagesPerSecond, maxUnknownCodes));
+        addressesBySession.put(session.getId(), clientAddress(session));
     }
 
     @Override
     protected void handleTextMessage(@NonNull WebSocketSession rawSession, @NonNull TextMessage message) {
         WebSocketSession session = sessions.getOrDefault(rawSession.getId(), rawSession);
+        ConnectionGuard guard = guardsBySession.get(session.getId());
+        if (guard != null && !guard.allowMessage()) {
+            log.warn("Verbindung wegen zu vieler Nachrichten geschlossen");
+            closeForAbuse(session);
+            return;
+        }
         ClientMessage msg = parse(message);
         if (msg == null) {
             sendUnexpectedError(session);
@@ -83,6 +108,10 @@ public class GameSocketHandler extends TextWebSocketHandler {
             handle(session, msg);
         } catch (GameException e) {
             send(session, Map.of("type", "error", "message", e.messageIn(languageOf(session)), "key", e.key()));
+            if ("error.rooms.unknown".equals(e.key()) && guard != null && !guard.allowUnknownCode()) {
+                log.warn("Verbindung wegen zu vieler unbekannter Raumcodes geschlossen");
+                closeForAbuse(session);
+            }
         } catch (Exception e) {
             log.warn("Fehler bei Nachricht vom Typ {}", msg.type(), e);
             sendUnexpectedError(session);
@@ -110,7 +139,7 @@ public class GameSocketHandler extends TextWebSocketHandler {
             case "ping" -> send(session, Map.of("type", "pong"));
 
             case "create" -> {
-                Room room = rooms.createRoom();
+                Room room = rooms.createRoom(addressesBySession.get(session.getId()));
                 try {
                     Player player = room.addPlayer(msg.name());
                     room.setLanguage(player.id(), languageOf(session));
@@ -263,6 +292,8 @@ public class GameSocketHandler extends TextWebSocketHandler {
     public void afterConnectionClosed(@NonNull WebSocketSession session, @NonNull CloseStatus status) {
         sessions.remove(session.getId());
         languagesBySession.remove(session.getId());
+        guardsBySession.remove(session.getId());
+        addressesBySession.remove(session.getId());
         Seat seat = seatsBySession.remove(session.getId());
         if (seat == null) {
             return;
@@ -324,7 +355,35 @@ public class GameSocketHandler extends TextWebSocketHandler {
         return languagesBySession.getOrDefault(session.getId(), Language.DE);
     }
 
+    /**
+     * Hinter einem Proxy steht die echte Adresse in einer Kopfzeile. Genommen wird der erste Eintrag:
+     * Ist er gefälscht, greift nur das Raumlimit nicht. Der letzte Eintrag könnte dagegen die Adresse
+     * des Proxys sein, dann teilten sich alle Spieler ein Limit.
+     */
+    private String clientAddress(WebSocketSession session) {
+        if (!clientIpHeader.isBlank()) {
+            String forwarded = session.getHandshakeHeaders().getFirst(clientIpHeader);
+            if (forwarded != null && !forwarded.isBlank()) {
+                return forwarded.split(",")[0].strip();
+            }
+        }
+        InetSocketAddress remote = session.getRemoteAddress();
+        return remote == null ? "unbekannt" : remote.getHostString();
+    }
+
+    private void closeForAbuse(WebSocketSession session) {
+        try {
+            session.close(CloseStatus.POLICY_VIOLATION);
+        } catch (IOException e) {
+            log.debug("Konnte Verbindung {} nicht schließen", session.getId(), e);
+        }
+    }
+
     private void sitDown(WebSocketSession session, Room room, Player player) {
+        ConnectionGuard guard = guardsBySession.get(session.getId());
+        if (guard != null) {
+            guard.joined();
+        }
         leavePreviousRoom(session, room);
         standUp(session);
         Seat seat = new Seat(room.code(), player.id());

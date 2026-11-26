@@ -15,3 +15,7 @@ services:
       # z. B. https://werwolf.pages.dev (mehrere kommagetrennt)
       - key: ALLOWED_ORIGINS
         sync: false
+      # Render steht als Proxy davor. Ohne diese Zeile hätten alle Spieler dieselbe Adresse
+      # und teilten sich das Raumlimit pro Adresse (app.limits.rooms-per-address).
+      - key: CLIENT_IP_HEADER
+        value: X-Forwarded-For

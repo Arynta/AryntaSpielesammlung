@@ -110,6 +110,11 @@ public class Room {
         return players.isEmpty();
     }
 
+    /** Sitzt noch jemand mit offener Verbindung im Raum? Verlassene Räume bleiben bis zum Aufräumen stehen. */
+    public synchronized boolean hasConnectedPlayers() {
+        return players.values().stream().anyMatch(Player::connected);
+    }
+
     public synchronized List<Player> players() {
         return List.copyOf(players.values());
     }
