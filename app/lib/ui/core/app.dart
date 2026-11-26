@@ -1,5 +1,4 @@
-// Rahmen der App: Farben je nach Spielphase, Seiten, Statuszeile, Meldungen und Rückfragen.
-import 'package:flutter/services.dart';
+// Rahmen der App: Farben je nach Spielphase, Seiten und die Wahl der Ansicht.
 import 'package:material_ui/material_ui.dart';
 
 import 'view_model/app_controller.dart';
@@ -19,6 +18,11 @@ import '../local/widgets/local.dart';
 import 'widgets/showcase.dart';
 import 'themes/theme.dart';
 import 'widgets/widgets.dart';
+import 'app_frame.dart';
+import 'confirm_dialog.dart';
+
+export 'app_frame.dart';
+export 'confirm_dialog.dart';
 
 class AryntaApp extends StatefulWidget {
   const AryntaApp(this.controller, {super.key});
@@ -102,13 +106,13 @@ class GameScreen extends StatelessWidget {
               children: [
                 // Der Platz bleibt immer an derselben Stelle, damit darunter nichts neu aufgebaut wird
                 controller.local == null && controller.status != ConnectionStatus.online
-                    ? _StatusBar(controller.status)
+                    ? StatusBar(controller.status)
                     : const SizedBox.shrink(),
                 Expanded(child: _isShowcase ? _showcase(context, padding) : _narrow(context, padding)),
               ],
             ),
             if (toast != null)
-              Positioned(left: 16, right: 16, bottom: padding.bottom > 16 ? padding.bottom : 16, child: _Toast(toast)),
+              Positioned(left: 16, right: 16, bottom: padding.bottom > 16 ? padding.bottom : 16, child: Toast(toast)),
           ],
         ),
       );
@@ -128,7 +132,7 @@ class GameScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           spacing: 20,
-          children: [..._body(context), _Footer(controller)],
+          children: [..._body(context), Footer(controller)],
         ),
       ),
     ),
@@ -201,7 +205,7 @@ class GameScreen extends StatelessWidget {
               ),
               child: Align(
                 alignment: Alignment.bottomCenter,
-                child: SizedBox(width: double.infinity, child: _Footer(controller)),
+                child: SizedBox(width: double.infinity, child: Footer(controller)),
               ),
             ),
           ),
@@ -224,137 +228,5 @@ class GameScreen extends StatelessWidget {
     if (room.buzzer case final buzzer?) return buzzerView(controller, room, buzzer);
     if (room.impostor case final impostor?) return impostorView(controller, room, impostor);
     return lobbyView(context, controller, room);
-  }
-}
-
-class _StatusBar extends StatelessWidget {
-  const _StatusBar(this.status);
-
-  final ConnectionStatus status;
-
-  @override
-  Widget build(BuildContext context) {
-    final p = context.palette;
-    return Semantics(
-      liveRegion: true,
-      child: Container(
-        width: double.infinity,
-        color: p.accent,
-        padding: EdgeInsets.fromLTRB(16, 11 + MediaQuery.paddingOf(context).top, 16, 11),
-        child: Text(
-          status == ConnectionStatus.waking
-              ? 'Der Server wird geweckt. Beim ersten Aufruf kann das bis zu einer Minute dauern.'
-              : 'Verbindung unterbrochen. Ich verbinde neu …',
-          textAlign: TextAlign.center,
-          style: TextStyle(color: p.onAccent, fontSize: 15),
-        ),
-      ),
-    );
-  }
-}
-
-class _Toast extends StatelessWidget {
-  const _Toast(this.text);
-
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    final p = context.palette;
-    return Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 448),
-        child: Semantics(
-          liveRegion: true,
-          child: Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            decoration: BoxDecoration(color: p.text, borderRadius: BorderRadius.circular(10)),
-            child: Text(
-              text,
-              style: TextStyle(color: p.bg, fontWeight: FontWeight.w700),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _Footer extends StatelessWidget {
-  const _Footer(this.controller);
-
-  final AppController controller;
-
-  @override
-  Widget build(BuildContext context) {
-    final p = context.palette;
-    Widget link(String label, VoidCallback onTap) => LinkText(label, onTap: onTap, color: p.muted, size: 15);
-    return Container(
-      margin: const EdgeInsets.only(top: 24),
-      padding: const EdgeInsets.only(top: 16),
-      decoration: BoxDecoration(
-        border: Border(top: BorderSide(color: p.line)),
-      ),
-      child: Wrap(
-        alignment: WrapAlignment.center,
-        spacing: 20,
-        runSpacing: 4,
-        children: [
-          link('Impressum', () => Navigator.of(context).pushNamed(impressumRoute)),
-          link('Datenschutz', () => Navigator.of(context).pushNamed(datenschutzRoute)),
-          link('Meine Daten löschen', controller.forgetDevice),
-        ],
-      ),
-    );
-  }
-}
-
-/// Ja/Nein-Abfrage im Stil der Seite.
-class ConfirmDialog extends StatelessWidget {
-  const ConfirmDialog({super.key, required this.question, required this.yesLabel});
-
-  final String question;
-  final String yesLabel;
-
-  @override
-  Widget build(BuildContext context) {
-    final p = context.palette;
-    return CallbackShortcuts(
-      bindings: {const SingleActivator(LogicalKeyboardKey.escape): () => Navigator.of(context).pop(false)},
-      child: Dialog(
-        backgroundColor: p.surface,
-        insetPadding: const EdgeInsets.all(16),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-          side: BorderSide(color: p.line, width: 2),
-        ),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 384),
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(20, 24, 20, 20),
-            child: Gap(
-              spacing: 20,
-              children: [
-                Text(question, style: display(26, height: 1.15, color: p.text)),
-                IntrinsicHeight(
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    spacing: 10,
-                    children: [
-                      // Bei Fragen, die etwas kaputtmachen können, steht der Fokus sicherheitshalber auf "Nein"
-                      Expanded(
-                        child: AppButton('Nein', autofocus: true, onPressed: () => Navigator.of(context).pop(false)),
-                      ),
-                      Expanded(child: AppButton.primary(yesLabel, onPressed: () => Navigator.of(context).pop(true))),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
   }
 }

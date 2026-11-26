@@ -17,8 +17,8 @@ lib/
 │   ├── repositories/         game_data.dart: Rollen, Wörter, Bildpfade
 │   └── services/             connection.dart (WebSocket), device/ und storage/
 ├── domain/                   Datenmodelle und Spielregeln, ohne Oberfläche
-│   ├── models/               models.dart: Nachrichten und Zustand, wie im Backend
-│   └── rules/                local_games.dart: Regeln des lokalen Modus
+│   ├── models/               eine Datei pro Spiel, dazu room, messages, game, json
+│   └── rules/                Regeln des lokalen Modus, eine Datei pro Spiel
 └── ui/
     ├── core/                 Was mehrere Bereiche brauchen
     │   ├── app.dart          Rahmen der App und Wahl der Ansicht
@@ -42,6 +42,12 @@ Bereichs und bietet die Aktionen an. Die Dateien unter `widgets/` zeigen nur an 
 beim Tippen das View-Model auf. Im Code innerhalb von `lib/` sind die Imports relativ,
 Tests und Skripte importieren über `package:arynta/…`.
 
+Jede Datei behandelt ein Thema. Wo ein Bereich aus mehreren Dateien besteht, gibt es eine
+Sammeldatei, die alle weiterreicht, zum Beispiel `domain/models/models.dart`,
+`domain/rules/local_games.dart`, `ui/core/widgets/widgets.dart` (für `basics/`),
+`shared.dart` (für `game_parts/`) und `showcase.dart` (für `showcase/`). Importiert wird
+die Sammeldatei. Neue Teile trägst du dort als `export` ein.
+
 ## Wie die Teile zusammenspielen
 
 `main.dart` baut einen `AppController` und übergibt ihm die Verbindung zum Backend. Der
@@ -57,7 +63,7 @@ Tippen eine Methode auf. Welche Ansicht gerade zu sehen ist, entscheidet
 
 Der lokale Modus läuft ohne Server. Ihn steuert ein eigener `LocalController`, den der
 `AppController` anlegt, sobald jemand auf „Lokal“ tippt. Die Regeln dafür stehen in
-`domain/rules/local_games.dart` und entsprechen denen im Backend.
+`domain/rules/` und entsprechen denen im Backend.
 
 ## data/, domain/ und die View-Models
 
@@ -65,10 +71,10 @@ Der lokale Modus läuft ohne Server. Ihn steuert ein eigener `LocalController`, 
 | --- | --- |
 | `ui/core/view_model/app_controller.dart` | Zustand der Online-Seite und alle Aktionen. Merkt sich Name und Raum im Gerät, damit man nach dem Neuladen wieder im Raum landet. |
 | `data/services/connection.dart` | Hält die WebSocket-Verbindung offen, schickt alle 25 Sekunden ein Ping und baut abgebrochene Verbindungen nach 1 bis 10 Sekunden neu auf. Weckt den schlafenden Render-Server über `/health`. |
-| `domain/models/models.dart` | Datenmodelle für die Nachrichten von und an den Server. Spiegelt `RoomView`, `GameType` und `Phase` aus dem Backend. |
+| `domain/models/` | Datenmodelle für die Nachrichten von und an den Server. Spiegelt `RoomView`, `GameType` und `Phase` aus dem Backend. |
 | `data/repositories/game_data.dart` | Lädt Rollen und Wörter aus `assets/game/`. Hier stehen auch die Bildpfade (siehe unten). |
-| `ui/local/view_model/local_controller.dart` | Lokaler Modus: Einrichtung, Handy weitergeben, Karte zeigen, Spielende. |
-| `domain/rules/local_games.dart` | Regeln des lokalen Modus, mit eigenen Tests. Entsprechen den Regeln im Backend. |
+| `ui/local/view_model/` | Lokaler Modus: `local_controller.dart` steuert den Ablauf, `local_setup.dart` hält die gespeicherte Einrichtung. |
+| `domain/rules/` | Regeln des lokalen Modus, eine Datei pro Spiel und `common.dart` für Zufall und Namen, mit eigenen Tests. Entsprechen den Regeln im Backend. |
 
 ## data/services/device und storage
 
@@ -85,16 +91,16 @@ die Adresszeile, das Teilen des Raumlinks und E-Mail-Links.
 
 | Datei | Inhalt |
 | --- | --- |
-| `core/app.dart` | Rahmen der App: Thema je nach Phase, Statuszeile, Meldungen, Rückfragen und die Wahl der Ansicht. |
+| `core/app.dart` | Rahmen der App: Thema je nach Phase und die Wahl der Ansicht. Daneben `app_frame.dart` (Statuszeile, Meldungen, Fußzeile) und `confirm_dialog.dart`. |
 | `core/themes/theme.dart` | Farben und Schriften. Dunkelrot für Start und Lobby, eigene Farben für Nacht und Tag bei Werwolf. |
-| `core/widgets/widgets.dart` | Allgemeine Bausteine: Knöpfe, Felder, Häkchen, Stepper, Überschriften, Aufklappbereiche. |
-| `core/widgets/shared.dart` | Bausteine, die online und lokal gleich aussehen, etwa Spieleinstellungen, Rollenkarte und Abstimmung. |
-| `core/widgets/showcase.dart` | Startseite, Lobby und lokale Einrichtung im Stil einer TV-Oberfläche (siehe unten). |
+| `core/widgets/basics/` | Allgemeine Bausteine: `buttons`, `inputs` (Feld, Häkchen, Stepper), `texts` (Überschriften) und `layout` (Kästen, Raster, Aufklappen). |
+| `core/widgets/game_parts/` | Bausteine, die online und lokal gleich aussehen: `game_options` (Einstellungen), `cards` (Rollen- und Wortkarte), `tabu_board`, `nobody_is_perfect_board`. |
+| `core/widgets/showcase/` | TV-Oberfläche von Start, Lobby und lokaler Einrichtung (siehe unten): `showcase_bar`, `game_hero`, `game_row`, `backdrop` und `showcase_layout`. |
 | `home/widgets/home.dart` | Startseite und die Ansicht beim Wiedereinstieg in einen Raum. |
 | `lobby/widgets/lobby.dart` | Lobby mit Raumcode, Spielauswahl und Einstellungen. |
-| `local/widgets/local.dart` | Alle Ansichten des lokalen Modus. |
+| `local/widgets/` | Ansichten des lokalen Modus. `local.dart` wählt die Ansicht, dazu `local_setup`, `local_cards`, `local_tabu` und `local_nobody_is_perfect`. |
 | `core/widgets/players.dart` | Mitspielerliste und Bereit-Knopf. |
-| `legal/widgets/legal.dart` | Impressum und Datenschutz. Der Text steht auch in `frontend/` und in `web/`, Änderungen also an allen Stellen machen. |
+| `legal/widgets/` | `impressum.dart` und `datenschutz.dart`, gemeinsamer Aufbau in `legal_layout.dart`. Der Text steht auch in `frontend/` und in `web/`, Änderungen also an allen Stellen machen. |
 | `games/widgets/` | Je eine Datei pro Spiel mit den Online-Ansichten während des Spiels. |
 
 ### Startseite im TV-Stil
@@ -172,10 +178,10 @@ aus `app/build/web` auf Port 5180, vorher also `flutter build web` aufrufen.
 
 | Was | Wo |
 | --- | --- |
-| Neue Aktion für ein Online-Spiel | Methode im `AppController`, Nachricht in `ClientMessage` in `models.dart`, Ansicht in `ui/games/widgets/` |
-| Neues Feld vom Server | `models.dart`, danach `tool/record_states.dart` laufen lassen und die Fixtures neu schreiben |
-| Neues Spiel | Eintrag in `GameType` in `models.dart`, Ansicht in `ui/games/widgets/`, Fall in `GameScreen._body()`, Farbe in `_tints` in `showcase.dart` |
-| Regeln im lokalen Modus | `local_games.dart` mit Tests in `test/domain/rules/local_games_test.dart`, Ansicht in `local.dart` |
-| Farben | `Palette` in `ui/core/themes/theme.dart`, Hintergrund der Startseite in `showcaseBackground` in `showcase.dart` |
+| Neue Aktion für ein Online-Spiel | Methode im `AppController`, Nachricht in `ClientMessage` in `domain/models/messages.dart`, Ansicht in `ui/games/widgets/` |
+| Neues Feld vom Server | Datei des Spiels in `domain/models/`, danach `tool/record_states.dart` laufen lassen und die Fixtures neu schreiben |
+| Neues Spiel | Eintrag in `GameType` in `domain/models/game.dart`, Ansicht in `ui/games/widgets/`, Fall in `GameScreen._body()`, Farbe in `gameTints` in `showcase/showcase_layout.dart` |
+| Regeln im lokalen Modus | Datei des Spiels in `domain/rules/` mit Tests in `test/domain/rules/local_games_test.dart`, Ansicht in `ui/local/widgets/` |
+| Farben | `Palette` in `ui/core/themes/theme.dart`, Hintergrund der Startseite in `showcaseBackground` in `showcase/showcase_layout.dart` |
 | Bilder | siehe Abschnitt „Bilder“ |
-| Texte von Impressum und Datenschutz | `legal.dart`, `web/impressum.html`, `web/datenschutz.html` und die Dateien in `frontend/` |
+| Texte von Impressum und Datenschutz | `impressum.dart` und `datenschutz.dart`, `web/impressum.html`, `web/datenschutz.html` und die Dateien in `frontend/` |
