@@ -60,14 +60,20 @@ class GameHero extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       spacing: 12,
                       children: [
+                        // Immer eine Zeile, lange Namen werden kleiner. So bleibt die Höhe beim Durchblättern gleich.
                         Semantics(
                           header: true,
-                          child: Text(
-                            title.toUpperCase(),
-                            style: display(titleSize, height: 1.05, color: p.accent, letterSpacing: titleSize * 0.12),
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              title.toUpperCase(),
+                              maxLines: 1,
+                              style: display(titleSize, height: 1.05, color: p.accent, letterSpacing: titleSize * 0.12),
+                            ),
                           ),
                         ),
-                        if (text != null) Text(text!, style: const TextStyle(fontSize: 17, color: Colors.white)),
+                        if (text != null) _TwoLines(text!),
                         if (meta != null) Text(meta!, style: TextStyle(fontSize: 15, color: p.muted)),
                         ?child,
                       ],
@@ -87,6 +93,23 @@ class GameHero extends StatelessWidget {
       },
     );
   }
+}
+
+/// Beschreibung, die immer mindestens zwei Zeilen Platz einnimmt, damit kurze Texte nichts nach oben ziehen.
+class _TwoLines extends StatelessWidget {
+  const _TwoLines(this.text);
+
+  final String text;
+
+  static const _style = TextStyle(fontSize: 17, color: Colors.white);
+
+  @override
+  Widget build(BuildContext context) => Stack(
+    children: [
+      const ExcludeSemantics(child: Text('\n', style: _style)),
+      Text(text, style: _style),
+    ],
+  );
 }
 
 class _HeroArt extends StatelessWidget {
