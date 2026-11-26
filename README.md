@@ -11,8 +11,8 @@ wird. Der läuft komplett im Browser.
 ├── backend/     Spring Boot 4 (Java 21), WebSocket unter /ws
 │   └── src/main/resources/games/   Rollen, Wörter, Tabu-Karten, Fragen (JSON)
 ├── frontend/    Vite + TypeScript, ohne Framework (ist online)
-├── app/         Dieselbe Oberfläche in Flutter (noch nicht online, siehe unten)
-├── assets/      Bilder (Werwolf-Karte)
+├── app/         Dieselbe Oberfläche in Flutter (noch nicht online, siehe app/README.md)
+├── assets/      Bilder: Werwolf-Karte, Startbild, Bilder für Impostor
 ├── render.yaml  Deployment des Backends auf Render (Free)
 └── devserver.bat  Startet den Frontend-Dev-Server unter Windows
 ```
@@ -66,11 +66,12 @@ Zum Testen mit mehreren Spielern reichen mehrere private Browserfenster.
 ## Flutter-Version (`app/`)
 
 Die Seite wird gerade nach Flutter übertragen. Online ist weiterhin `frontend/`. Bis zur
-Umstellung gehören Änderungen an der Oberfläche in beide Ordner.
+Umstellung gehören Änderungen an der Oberfläche in beide Ordner. Wie die App aufgebaut ist
+und wo du dort weiterbaust, steht in [app/README.md](app/README.md).
 
-Spieldaten und die Werwolf-Karte bleiben, wo sie sind. Ein Skript kopiert sie vor dem
+Spieldaten und Bilder bleiben, wo sie sind. Ein Skript kopiert sie vor dem
 Starten, Testen und Bauen nach `app/assets/game/` (steht in `.gitignore`). Nach einer
-Änderung an den JSON-Dateien also erneut aufrufen:
+Änderung an den JSON-Dateien oder Bildern also erneut aufrufen:
 
 ```bash
 cd app
@@ -99,7 +100,7 @@ Tests:
 flutter test
 ```
 
-`test/views_test.dart` arbeitet mit Server-Antworten aus `test/fixtures/states.json`.
+`test/ui/views_test.dart` arbeitet mit Server-Antworten aus `test/fixtures/states.json`.
 Ändert sich das Protokoll, erzeugst du sie bei laufendem Backend neu. Das Skript spielt
 dabei alle Spiele einmal durch:
 

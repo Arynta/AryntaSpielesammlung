@@ -1,13 +1,13 @@
 // Spielt mit mehreren Verbindungen alle Spiele gegen ein laufendes Backend durch. Prüft dabei, dass der
 // Server jede Nachricht annimmt und jede Antwort in die Datenmodelle passt, und schreibt typische
-// Ansichten nach test/fixtures/states.json (Grundlage für test/views_test.dart).
+// Ansichten nach test/fixtures/states.json (Grundlage für test/ui/views_test.dart).
 //
 // Backend starten, dann in app/: dart run tool/record_states.dart [ws://localhost:8080/ws]
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:arynta/logic/models.dart';
+import 'package:arynta/domain/models/models.dart';
 
 class Client {
   Client._(this.name, this._socket);

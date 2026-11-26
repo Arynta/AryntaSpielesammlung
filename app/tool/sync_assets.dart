@@ -9,6 +9,9 @@ const sources = [
   '../backend/src/main/resources/games/tabu-cards.json',
   '../backend/src/main/resources/games/nobody-is-perfect-questions.json',
   '../assets/images/Werwolf/Werwolf_werwolf1.png',
+  '../assets/images/Startseite/spieleabend.jpg',
+  '../assets/images/Impostor/impostor-karte.jpg',
+  '../assets/images/Impostor/impostor-gross.jpg',
 ];
 
 void main() {

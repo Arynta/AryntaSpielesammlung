@@ -1,10 +1,10 @@
 import 'package:material_ui/material_ui.dart';
 
-import 'logic/app_controller.dart';
-import 'logic/connection.dart';
-import 'logic/game_data.dart';
-import 'platform/storage.dart';
-import 'ui/app.dart';
+import 'ui/core/view_model/app_controller.dart';
+import 'data/services/connection.dart';
+import 'data/repositories/game_data.dart';
+import 'data/services/storage/storage.dart';
+import 'ui/core/app.dart';
 
 /// Adresse des Backends: --dart-define=BACKEND_URL=wss://…/ws. Lokal brauchst du nichts einzutragen.
 const _configuredUrl = String.fromEnvironment('BACKEND_URL');
