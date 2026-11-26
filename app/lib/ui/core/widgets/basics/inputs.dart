@@ -22,6 +22,7 @@ class AppField extends StatelessWidget {
     this.autofillHints,
     this.style,
     this.dense = false,
+    this.invalid = false,
   });
 
   final String? label;
@@ -37,6 +38,9 @@ class AppField extends StatelessWidget {
   final Iterable<String>? autofillHints;
   final TextStyle? style;
   final bool dense;
+
+  /// Rot umrandet, z. B. bei einem Raumcode, den es nicht gibt.
+  final bool invalid;
 
   @override
   Widget build(BuildContext context) {
@@ -66,8 +70,8 @@ class AppField extends StatelessWidget {
           hintText: hint,
           hintStyle: (style ?? const TextStyle(fontSize: 18)).copyWith(color: p.muted.withValues(alpha: 0.7)),
           contentPadding: EdgeInsets.symmetric(horizontal: dense ? 12 : 14, vertical: dense ? 10 : 15),
-          enabledBorder: border(p.line, 2),
-          focusedBorder: border(p.accent, 3),
+          enabledBorder: invalid ? border(dangerBorder, 3) : border(p.line, 2),
+          focusedBorder: border(invalid ? dangerBorder : p.accent, 3),
         ),
       ),
     );

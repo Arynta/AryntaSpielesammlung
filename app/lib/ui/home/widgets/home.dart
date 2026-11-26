@@ -52,16 +52,21 @@ List<Widget> homeView(BuildContext context, AppController controller) {
               spacing: 10,
               children: [
                 Expanded(
-                  child: AppField(
-                    label: texts.roomCode,
-                    controller: controller.codeInput,
-                    hint: 'K7QX',
-                    maxLength: 4,
-                    formatters: [_UpperCase()],
-                    capitalization: TextCapitalization.characters,
-                    style: display(26, color: p.text, letterSpacing: 6.5),
-                    dense: true,
-                    onSubmitted: online ? controller.join : null,
+                  child: Shake(
+                    trigger: controller.codeRejections,
+                    child: AppField(
+                      label: texts.roomCode,
+                      controller: controller.codeInput,
+                      invalid: controller.codeInvalid,
+                      onChanged: (_) => controller.codeChanged(),
+                      hint: 'K7QX',
+                      maxLength: 4,
+                      formatters: [_UpperCase()],
+                      capitalization: TextCapitalization.characters,
+                      style: display(26, color: p.text, letterSpacing: 6.5),
+                      dense: true,
+                      onSubmitted: online ? controller.join : null,
+                    ),
                   ),
                 ),
                 AppButton(texts.join, onPressed: online ? controller.join : null),

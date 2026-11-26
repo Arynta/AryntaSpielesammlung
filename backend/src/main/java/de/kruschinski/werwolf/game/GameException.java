@@ -17,6 +17,11 @@ public class GameException extends RuntimeException {
         this.text = text;
     }
 
+    /** Schlüssel aus i18n/messages*.properties, damit das Handy gezielt reagieren kann. */
+    public String key() {
+        return text.key();
+    }
+
     public String messageIn(Language language) {
         return text.in(language);
     }

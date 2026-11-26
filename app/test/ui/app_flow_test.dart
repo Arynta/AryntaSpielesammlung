@@ -38,6 +38,22 @@ void main() {
     expect(app.storage.values['werwolf.name'], '"Anna"');
     await tester.pump(const Duration(seconds: 5));
     expect(find.textContaining('Raumcode ein'), findsNothing);
+
+    // Den Raum gibt es nicht: Codefeld rot und wackelt, neue Eingabe nimmt das Rot wieder weg
+    AppField codeField() => tester.widget<AppField>(find.byType(AppField).last);
+    app.receive({'type': 'error', 'message': 'Diesen Raum gibt es nicht (mehr).', 'key': 'error.rooms.unknown'});
+    await tester.pump();
+    expect(codeField().invalid, isTrue);
+    expect(app.controller.codeRejections, 1);
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField).last, 'ABCD');
+    await tester.pump();
+    expect(codeField().invalid, isFalse);
+
+    // Andere Fehler lassen das Codefeld in Ruhe
+    app.receive({'type': 'error', 'message': 'Der Raum ist voll.', 'key': 'error.room.full'});
+    await tester.pump();
+    expect(codeField().invalid, isFalse);
   });
 
   testWidgets('Sprachumschalter: Flagge stellt auf Englisch um, die Wahl bleibt gespeichert', (tester) async {

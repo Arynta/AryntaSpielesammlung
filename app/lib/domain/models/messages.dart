@@ -15,7 +15,7 @@ sealed class ServerMessage {
     'state' => StateMessage(RoomView.fromJson(j['state'] as Json)),
     'left' => const LeftRoom(),
     'kicked' => const Kicked(),
-    'error' => ErrorMessage(j['message'] as String),
+    'error' => ErrorMessage(j['message'] as String, key: j['key'] as String?),
     'pong' => const Pong(),
     final type => throw FormatException('Unbekannte Nachricht: $type'),
   };
@@ -41,8 +41,11 @@ class Kicked extends ServerMessage {
 }
 
 class ErrorMessage extends ServerMessage {
-  const ErrorMessage(this.message);
+  const ErrorMessage(this.message, {this.key});
   final String message;
+
+  /// Schlüssel der Meldung im Server (i18n/messages.properties), z. B. error.rooms.unknown.
+  final String? key;
 }
 
 class Pong extends ServerMessage {

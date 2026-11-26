@@ -82,7 +82,7 @@ public class GameSocketHandler extends TextWebSocketHandler {
         try {
             handle(session, msg);
         } catch (GameException e) {
-            send(session, Map.of("type", "error", "message", e.messageIn(languageOf(session))));
+            send(session, Map.of("type", "error", "message", e.messageIn(languageOf(session)), "key", e.key()));
         } catch (Exception e) {
             log.warn("Fehler bei Nachricht vom Typ {}", msg.type(), e);
             sendUnexpectedError(session);

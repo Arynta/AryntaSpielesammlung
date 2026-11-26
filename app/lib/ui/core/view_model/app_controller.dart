@@ -75,6 +75,10 @@ class AppController extends ChangeNotifier {
   /// Gesetzt, solange man ohne Server mit einem Handy spielt.
   LocalController? local;
 
+  /// Beitreten mit einem Code, den es nicht gibt: Feld rot. [codeRejections] zählt hoch, damit es jedes Mal wackelt.
+  bool codeInvalid = false;
+  int codeRejections = 0;
+
   final nameInput = TextEditingController();
   final codeInput = TextEditingController();
 
@@ -167,7 +171,11 @@ class AppController extends ChangeNotifier {
         _forgetRoom();
         showToast(texts.toastKicked);
         return;
-      case ErrorMessage(:final message):
+      case ErrorMessage(:final message, :final key):
+        if (key == 'error.rooms.unknown' && !_waitingForRejoin) {
+          codeInvalid = true;
+          codeRejections++;
+        }
         // Raum gibt es nach einem Server-Neustart nicht mehr
         if (_waitingForRejoin) _forgetRoom();
         showToast(message);
@@ -225,6 +233,12 @@ class AppController extends ChangeNotifier {
       return;
     }
     _send(ClientMessage.join(code, nameInput.text, language.value));
+  }
+
+  void codeChanged() {
+    if (!codeInvalid) return;
+    codeInvalid = false;
+    _changed();
   }
 
   /// Enter im Namensfeld: beitreten, wenn schon ein Code dasteht, sonst Raum erstellen.
