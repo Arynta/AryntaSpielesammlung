@@ -134,6 +134,9 @@ bei Flutter Web die Bedienhilfen erst über den unsichtbaren Knopf der Seite ein
 4. Bei Render unter Environment `ALLOWED_ORIGINS` auf die Adresse des Frontends
    setzen (die steht nach dem ersten Lauf unter Settings → Pages) und neu deployen.
    Mehrere Adressen gehen kommagetrennt.
+5. Geo-Bingo ist in der Lobby vorerst mit „Bald verfügbar“ gesperrt
+   (`app.locked-games=GEO_BINGO`). Zum Freischalten bei Render unter Environment
+   `LOCKED_GAMES` mit leerem Wert anlegen und neu deployen.
 
 Der kostenlose Render-Server schläft nach 15 Minuten ohne Besucher ein. Wer als Erstes
 die Seite öffnet, sieht dann "Der Server wird geweckt" und wartet bis zu einer Minute.

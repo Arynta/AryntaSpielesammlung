@@ -1,5 +1,6 @@
 package de.kruschinski.werwolf.config;
 
+import de.kruschinski.werwolf.game.GameType;
 import de.kruschinski.werwolf.game.RoomRegistry;
 import de.kruschinski.werwolf.ws.GameSocketHandler;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,6 +11,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
+
+import java.util.Set;
 
 @Configuration
 @EnableWebSocket
@@ -28,9 +31,10 @@ public class AppConfig implements WebSocketConfigurer, WebMvcConfigurer {
         this.gameSocketHandler = gameSocketHandler;
     }
 
+    /** {@code app.locked-games}: Spiele, die in der Lobby noch gesperrt sind ("Bald verfügbar"). */
     @Bean
-    public static RoomRegistry roomRegistry() {
-        return new RoomRegistry();
+    public static RoomRegistry roomRegistry(@Value("${app.locked-games:}") Set<GameType> lockedGames) {
+        return new RoomRegistry(lockedGames);
     }
 
     @Override

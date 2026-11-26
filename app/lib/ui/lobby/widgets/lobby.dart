@@ -36,6 +36,10 @@ List<Widget> lobbyView(BuildContext context, AppController controller, RoomView 
       key: const ValueKey('picker'),
       games: games,
       selected: room.game,
+      locked: {
+        for (final g in room.games)
+          if (g.locked) g.type,
+      },
       onSelect: room.you.host ? controller.selectGame : null,
     ),
     Narrow(

@@ -39,11 +39,15 @@ class GameOption {
     : type = GameType.parse(j['type']),
       name = j['name'] as String,
       description = j['description'] as String,
-      minPlayers = j['minPlayers'] as int;
+      minPlayers = j['minPlayers'] as int,
+      locked = j['locked'] as bool;
   final GameType type;
   final String name;
   final String description;
   final int minPlayers;
+
+  /// Noch nicht wählbar („Bald verfügbar“).
+  final bool locked;
 }
 
 class PlayerLimit {

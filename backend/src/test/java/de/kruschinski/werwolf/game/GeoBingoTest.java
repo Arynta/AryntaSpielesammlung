@@ -6,6 +6,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -197,6 +198,19 @@ class GeoBingoTest {
         assertEquals(5, room.viewFor("p1").geoBingoSettings().minutes());
         assertThrows(GameException.class, () -> room.configureGeoBingo("p1", 4));
         assertThrows(GameException.class, () -> room.configureGeoBingo("p1", 31));
+    }
+
+    @Test
+    void gesperrtesSpielLaesstSichNichtWaehlen() {
+        Room room = new Room("TEST", clock, Set.of(GameType.GEO_BINGO));
+        room.addPlayer("Anna");
+
+        GameException error = assertThrows(GameException.class, () -> room.selectGame("p1", GameType.GEO_BINGO));
+        assertEquals("Geo-Bingo ist bald verfügbar.", error.getMessage());
+        assertEquals(GameType.IMPOSTOR, room.selectedGame());
+        RoomView.GameOption option = room.viewFor("p1").games().stream()
+                .filter(g -> g.type() == GameType.GEO_BINGO).findFirst().orElseThrow();
+        assertTrue(option.locked());
     }
 
     @Test

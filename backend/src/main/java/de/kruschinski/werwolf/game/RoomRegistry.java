@@ -6,6 +6,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.random.RandomGenerator;
 
@@ -24,14 +25,21 @@ public class RoomRegistry {
     private final Map<String, Room> rooms = new ConcurrentHashMap<>();
     private final Clock clock;
     private final RandomGenerator random;
+    /** Spiele, die noch nicht gewählt werden können ("Bald verfügbar"). */
+    private final Set<GameType> lockedGames;
 
-    public RoomRegistry() {
-        this(Clock.systemUTC(), new SecureRandom());
+    public RoomRegistry(Set<GameType> lockedGames) {
+        this(Clock.systemUTC(), new SecureRandom(), lockedGames);
     }
 
     public RoomRegistry(Clock clock, RandomGenerator random) {
+        this(clock, random, Set.of());
+    }
+
+    public RoomRegistry(Clock clock, RandomGenerator random, Set<GameType> lockedGames) {
         this.clock = clock;
         this.random = random;
+        this.lockedGames = Set.copyOf(lockedGames);
     }
 
     public RandomGenerator random() {
@@ -44,7 +52,7 @@ public class RoomRegistry {
         }
         for (int attempt = 0; attempt < 100; attempt++) {
             String code = randomCode();
-            Room room = new Room(code, clock);
+            Room room = new Room(code, clock, lockedGames);
             if (rooms.putIfAbsent(code, room) == null) {
                 return room;
             }

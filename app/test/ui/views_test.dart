@@ -1,4 +1,6 @@
 // Jede Ansicht, die der Server liefern kann, auf kleinen und großen Bildschirmen.
+import 'dart:convert';
+
 import 'package:arynta/domain/models/models.dart';
 import 'package:arynta/ui/games/widgets/buzzer.dart';
 import 'package:arynta/ui/core/widgets/shared.dart';
@@ -224,6 +226,19 @@ void main() {
     await tester.pump();
     expect(app.link.types, isNot(contains('claimGeoBingoField')));
     expect(app.controller.toast, 'Das Straßenbild ist noch nicht geladen.');
+  });
+
+  testWidgets('Gesperrtes Spiel zeigt „Bald verfügbar“ und lässt sich nicht wählen', (tester) async {
+    final app = await pumpApp(tester);
+    final state = jsonDecode(jsonEncode(fixtures['lobby_impostor_host'])) as Json;
+    for (final g in state['games'] as List) {
+      if (g['type'] == 'GEO_BINGO') g['locked'] = true;
+    }
+    app.show(state);
+    await tester.pumpAndSettle();
+    expect(find.text('Bald verfügbar'), findsOneWidget);
+    await tap(tester, find.text('Geo-Bingo'));
+    expect(app.link.types, isNot(contains('selectGame')));
   });
 
   testWidgets('Rückfrage: Nein bricht ab, Ja führt aus', (tester) async {

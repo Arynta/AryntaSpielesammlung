@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.random.RandomGenerator;
 
@@ -33,6 +34,8 @@ public class Room {
 
     private final String code;
     private final Clock clock;
+    /** Spiele, die man noch nicht wählen kann ("Bald verfügbar"). */
+    private final Set<GameType> lockedGames;
     private final Map<String, Player> players = new LinkedHashMap<>(); // Reihenfolge = Beitrittsreihenfolge
     private final List<String> usedWords = new ArrayList<>();
     private String hostId;
@@ -63,8 +66,13 @@ public class Room {
     private Instant lastActivity;
 
     public Room(String code, Clock clock) {
+        this(code, clock, Set.of());
+    }
+
+    public Room(String code, Clock clock, Set<GameType> lockedGames) {
         this.code = code;
         this.clock = clock;
+        this.lockedGames = Set.copyOf(lockedGames);
         this.lastActivity = clock.instant();
     }
 
@@ -209,6 +217,9 @@ public class Room {
     public synchronized void selectGame(String requesterId, GameType type) {
         requireHost(requesterId);
         requireLobby();
+        if (lockedGames.contains(type)) {
+            throw new GameException(lockedHint(type));
+        }
         if (type != selectedGame) {
             selectedGame = type;
             resetReady();
@@ -604,7 +615,7 @@ public class Room {
         return new RoomView(
                 code,
                 selectedGame,
-                RoomView.GameOption.all(),
+                RoomView.GameOption.all(lockedGames),
                 impostorSettings,
                 werwolfSettings,
                 tabuSettings,
@@ -631,6 +642,10 @@ public class Room {
 
     /** Warum noch nicht gestartet werden kann, oder {@code null}, wenn alles passt. */
     private String startBlocker() {
+        // Falls das voreingestellte Spiel selbst gesperrt ist
+        if (lockedGames.contains(selectedGame)) {
+            return lockedHint(selectedGame);
+        }
         boolean hostSitsOut = hostSitsOut();
         int playing = players.size() - (hostSitsOut ? 1 : 0);
         int missing = selectedGame.minPlayers() - playing;
@@ -671,6 +686,10 @@ public class Room {
             case BUZZER -> true;
             case TABU, NOBODY_IS_PERFECT, GEO_BINGO -> false;
         };
+    }
+
+    private static String lockedHint(GameType type) {
+        return type.displayName() + " ist bald verfügbar.";
     }
 
     private List<Player> playersExcept(String playerId) {

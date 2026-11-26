@@ -2,6 +2,7 @@ package de.kruschinski.werwolf.game;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Das, was ein bestimmter Spieler vom Raum sehen darf.
@@ -43,12 +44,12 @@ public record RoomView(
     public record You(String id, String name, boolean host, boolean ready) {
     }
 
-    /** Ein Spiel, das der Host auswählen kann. */
-    public record GameOption(GameType type, String name, String description, int minPlayers) {
+    /** Ein Spiel, das der Host auswählen kann. {@code locked}: noch nicht wählbar ("Bald verfügbar"). */
+    public record GameOption(GameType type, String name, String description, int minPlayers, boolean locked) {
 
-        static List<GameOption> all() {
+        static List<GameOption> all(Set<GameType> lockedGames) {
             return Arrays.stream(GameType.values())
-                    .map(t -> new GameOption(t, t.displayName(), t.description(), t.minPlayers()))
+                    .map(t -> new GameOption(t, t.displayName(), t.description(), t.minPlayers(), lockedGames.contains(t)))
                     .toList();
         }
     }

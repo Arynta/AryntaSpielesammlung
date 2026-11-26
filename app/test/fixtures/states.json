@@ -1,43 +1,49 @@
 {
  "lobby_impostor_host": {
-  "code": "4SQV",
+  "code": "AGAU",
   "game": "IMPOSTOR",
   "games": [
    {
     "type": "WERWOLF",
     "name": "Werwolf",
     "description": "Rollen werden geheim verteilt. Nachts jagen die Werwölfe, tagsüber sucht das Dorf sie.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "IMPOSTOR",
     "name": "Impostor",
     "description": "Alle kennen dasselbe geheime Wort, nur einer nicht. Findet ihn, bevor er sich durchmogelt.",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "TABU",
     "name": "Tabu",
     "description": "Erklärt eurem Team Begriffe, ohne die verbotenen Wörter zu sagen. Ein Aufpasser hat den Buzzer.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "NOBODY_IS_PERFECT",
     "name": "Nobody is Perfect",
     "description": "Zu kuriosen Fragen erfindet jeder eine glaubwürdige Antwort. Wer findet die echte, wer legt die anderen rein?",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "BUZZER",
     "name": "Buzzer",
     "description": "Kein Spiel, sondern ein Werkzeug fürs Quiz: Wer zuerst drückt, ist dran. Die Spielleitung sieht die Reihenfolge.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    },
    {
     "type": "GEO_BINGO",
     "name": "Geo-Bingo",
     "description": "Ihr lauft durch Straßenbilder derselben Stadt und sucht die Motive eurer Bingo-Karte. Die anderen bestätigen jeden Fund.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    }
   ],
   "impostorSettings": {
@@ -289,44 +295,50 @@
   "geoBingo": null
  },
  "lobby_impostor_guest": {
-  "code": "4SQV",
+  "code": "AGAU",
   "game": "IMPOSTOR",
   "games": [
    {
     "type": "WERWOLF",
     "name": "Werwolf",
     "description": "Rollen werden geheim verteilt. Nachts jagen die Werwölfe, tagsüber sucht das Dorf sie.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "IMPOSTOR",
     "name": "Impostor",
     "description": "Alle kennen dasselbe geheime Wort, nur einer nicht. Findet ihn, bevor er sich durchmogelt.",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "TABU",
     "name": "Tabu",
     "description": "Erklärt eurem Team Begriffe, ohne die verbotenen Wörter zu sagen. Ein Aufpasser hat den Buzzer.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "NOBODY_IS_PERFECT",
     "name": "Nobody is Perfect",
     "description": "Zu kuriosen Fragen erfindet jeder eine glaubwürdige Antwort. Wer findet die echte, wer legt die anderen rein?",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "BUZZER",
     "name": "Buzzer",
     "description": "Kein Spiel, sondern ein Werkzeug fürs Quiz: Wer zuerst drückt, ist dran. Die Spielleitung sieht die Reihenfolge.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    },
    {
     "type": "GEO_BINGO",
     "name": "Geo-Bingo",
     "description": "Ihr lauft durch Straßenbilder derselben Stadt und sucht die Motive eurer Bingo-Karte. Die anderen bestätigen jeden Fund.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    }
   ],
   "impostorSettings": {
@@ -578,44 +590,50 @@
   "geoBingo": null
  },
  "impostor_word_crew": {
-  "code": "4SQV",
+  "code": "AGAU",
   "game": "IMPOSTOR",
   "games": [
    {
     "type": "WERWOLF",
     "name": "Werwolf",
     "description": "Rollen werden geheim verteilt. Nachts jagen die Werwölfe, tagsüber sucht das Dorf sie.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "IMPOSTOR",
     "name": "Impostor",
     "description": "Alle kennen dasselbe geheime Wort, nur einer nicht. Findet ihn, bevor er sich durchmogelt.",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "TABU",
     "name": "Tabu",
     "description": "Erklärt eurem Team Begriffe, ohne die verbotenen Wörter zu sagen. Ein Aufpasser hat den Buzzer.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "NOBODY_IS_PERFECT",
     "name": "Nobody is Perfect",
     "description": "Zu kuriosen Fragen erfindet jeder eine glaubwürdige Antwort. Wer findet die echte, wer legt die anderen rein?",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "BUZZER",
     "name": "Buzzer",
     "description": "Kein Spiel, sondern ein Werkzeug fürs Quiz: Wer zuerst drückt, ist dran. Die Spielleitung sieht die Reihenfolge.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    },
    {
     "type": "GEO_BINGO",
     "name": "Geo-Bingo",
     "description": "Ihr lauft durch Straßenbilder derselben Stadt und sucht die Motive eurer Bingo-Karte. Die anderen bestätigen jeden Fund.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    }
   ],
   "impostorSettings": {
@@ -862,10 +880,10 @@
   "werwolf": null,
   "impostor": {
    "part": "CREW",
-   "word": "Schule",
-   "category": "Orte",
+   "word": "Hai",
+   "category": "Tiere",
    "fellowImpostors": [],
-   "startPlayerId": "p1",
+   "startPlayerId": "p3",
    "gameMasterId": null,
    "participantIds": [
     "p1",
@@ -884,44 +902,50 @@
   "geoBingo": null
  },
  "impostor_word_impostor": {
-  "code": "4SQV",
+  "code": "AGAU",
   "game": "IMPOSTOR",
   "games": [
    {
     "type": "WERWOLF",
     "name": "Werwolf",
     "description": "Rollen werden geheim verteilt. Nachts jagen die Werwölfe, tagsüber sucht das Dorf sie.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "IMPOSTOR",
     "name": "Impostor",
     "description": "Alle kennen dasselbe geheime Wort, nur einer nicht. Findet ihn, bevor er sich durchmogelt.",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "TABU",
     "name": "Tabu",
     "description": "Erklärt eurem Team Begriffe, ohne die verbotenen Wörter zu sagen. Ein Aufpasser hat den Buzzer.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "NOBODY_IS_PERFECT",
     "name": "Nobody is Perfect",
     "description": "Zu kuriosen Fragen erfindet jeder eine glaubwürdige Antwort. Wer findet die echte, wer legt die anderen rein?",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "BUZZER",
     "name": "Buzzer",
     "description": "Kein Spiel, sondern ein Werkzeug fürs Quiz: Wer zuerst drückt, ist dran. Die Spielleitung sieht die Reihenfolge.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    },
    {
     "type": "GEO_BINGO",
     "name": "Geo-Bingo",
     "description": "Ihr lauft durch Straßenbilder derselben Stadt und sucht die Motive eurer Bingo-Karte. Die anderen bestätigen jeden Fund.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    }
   ],
   "impostorSettings": {
@@ -1160,8 +1184,8 @@
   "canStart": false,
   "startHint": null,
   "you": {
-   "id": "p5",
-   "name": "Elif",
+   "id": "p2",
+   "name": "Ben",
    "host": false,
    "ready": false
   },
@@ -1169,9 +1193,9 @@
   "impostor": {
    "part": "IMPOSTOR",
    "word": null,
-   "category": "Orte",
+   "category": "Tiere",
    "fellowImpostors": [],
-   "startPlayerId": "p1",
+   "startPlayerId": "p3",
    "gameMasterId": null,
    "participantIds": [
     "p1",
@@ -1190,44 +1214,50 @@
   "geoBingo": null
  },
  "impostor_voting": {
-  "code": "4SQV",
+  "code": "AGAU",
   "game": "IMPOSTOR",
   "games": [
    {
     "type": "WERWOLF",
     "name": "Werwolf",
     "description": "Rollen werden geheim verteilt. Nachts jagen die Werwölfe, tagsüber sucht das Dorf sie.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "IMPOSTOR",
     "name": "Impostor",
     "description": "Alle kennen dasselbe geheime Wort, nur einer nicht. Findet ihn, bevor er sich durchmogelt.",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "TABU",
     "name": "Tabu",
     "description": "Erklärt eurem Team Begriffe, ohne die verbotenen Wörter zu sagen. Ein Aufpasser hat den Buzzer.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "NOBODY_IS_PERFECT",
     "name": "Nobody is Perfect",
     "description": "Zu kuriosen Fragen erfindet jeder eine glaubwürdige Antwort. Wer findet die echte, wer legt die anderen rein?",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "BUZZER",
     "name": "Buzzer",
     "description": "Kein Spiel, sondern ein Werkzeug fürs Quiz: Wer zuerst drückt, ist dran. Die Spielleitung sieht die Reihenfolge.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    },
    {
     "type": "GEO_BINGO",
     "name": "Geo-Bingo",
     "description": "Ihr lauft durch Straßenbilder derselben Stadt und sucht die Motive eurer Bingo-Karte. Die anderen bestätigen jeden Fund.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    }
   ],
   "impostorSettings": {
@@ -1474,10 +1504,10 @@
   "werwolf": null,
   "impostor": {
    "part": "CREW",
-   "word": "Schule",
-   "category": "Orte",
+   "word": "Hai",
+   "category": "Tiere",
    "fellowImpostors": [],
-   "startPlayerId": "p1",
+   "startPlayerId": "p3",
    "gameMasterId": null,
    "participantIds": [
     "p1",
@@ -1489,7 +1519,7 @@
    "votedIds": [
     "p1"
    ],
-   "yourVote": "p5",
+   "yourVote": "p2",
    "result": null
   },
   "tabu": null,
@@ -1498,44 +1528,50 @@
   "geoBingo": null
  },
  "impostor_result_host": {
-  "code": "4SQV",
+  "code": "AGAU",
   "game": "IMPOSTOR",
   "games": [
    {
     "type": "WERWOLF",
     "name": "Werwolf",
     "description": "Rollen werden geheim verteilt. Nachts jagen die Werwölfe, tagsüber sucht das Dorf sie.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "IMPOSTOR",
     "name": "Impostor",
     "description": "Alle kennen dasselbe geheime Wort, nur einer nicht. Findet ihn, bevor er sich durchmogelt.",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "TABU",
     "name": "Tabu",
     "description": "Erklärt eurem Team Begriffe, ohne die verbotenen Wörter zu sagen. Ein Aufpasser hat den Buzzer.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "NOBODY_IS_PERFECT",
     "name": "Nobody is Perfect",
     "description": "Zu kuriosen Fragen erfindet jeder eine glaubwürdige Antwort. Wer findet die echte, wer legt die anderen rein?",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "BUZZER",
     "name": "Buzzer",
     "description": "Kein Spiel, sondern ein Werkzeug fürs Quiz: Wer zuerst drückt, ist dran. Die Spielleitung sieht die Reihenfolge.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    },
    {
     "type": "GEO_BINGO",
     "name": "Geo-Bingo",
     "description": "Ihr lauft durch Straßenbilder derselben Stadt und sucht die Motive eurer Bingo-Karte. Die anderen bestätigen jeden Fund.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    }
   ],
   "impostorSettings": {
@@ -1782,10 +1818,10 @@
   "werwolf": null,
   "impostor": {
    "part": "CREW",
-   "word": "Schule",
-   "category": "Orte",
+   "word": "Hai",
+   "category": "Tiere",
    "fellowImpostors": [],
-   "startPlayerId": "p1",
+   "startPlayerId": "p3",
    "gameMasterId": null,
    "participantIds": [
     "p1",
@@ -1801,32 +1837,27 @@
     "p4",
     "p5"
    ],
-   "yourVote": "p5",
+   "yourVote": "p2",
    "result": {
     "impostorIds": [
-     "p5"
+     "p2"
     ],
     "impostorNames": [
-     "Elif"
+     "Ben"
     ],
-    "word": "Schule",
-    "category": "Orte",
+    "word": "Hai",
+    "category": "Tiere",
     "impostorCaught": true,
     "votes": [
      {
-      "playerId": "p5",
-      "name": "Elif",
+      "playerId": "p2",
+      "name": "Ben",
       "votes": 4
      },
      {
       "playerId": "p1",
       "name": "Anna",
       "votes": 1
-     },
-     {
-      "playerId": "p2",
-      "name": "Ben",
-      "votes": 0
      },
      {
       "playerId": "p3",
@@ -1836,6 +1867,11 @@
      {
       "playerId": "p4",
       "name": "Dana",
+      "votes": 0
+     },
+     {
+      "playerId": "p5",
+      "name": "Elif",
       "votes": 0
      }
     ]
@@ -1847,44 +1883,50 @@
   "geoBingo": null
  },
  "impostor_result_guest": {
-  "code": "4SQV",
+  "code": "AGAU",
   "game": "IMPOSTOR",
   "games": [
    {
     "type": "WERWOLF",
     "name": "Werwolf",
     "description": "Rollen werden geheim verteilt. Nachts jagen die Werwölfe, tagsüber sucht das Dorf sie.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "IMPOSTOR",
     "name": "Impostor",
     "description": "Alle kennen dasselbe geheime Wort, nur einer nicht. Findet ihn, bevor er sich durchmogelt.",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "TABU",
     "name": "Tabu",
     "description": "Erklärt eurem Team Begriffe, ohne die verbotenen Wörter zu sagen. Ein Aufpasser hat den Buzzer.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "NOBODY_IS_PERFECT",
     "name": "Nobody is Perfect",
     "description": "Zu kuriosen Fragen erfindet jeder eine glaubwürdige Antwort. Wer findet die echte, wer legt die anderen rein?",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "BUZZER",
     "name": "Buzzer",
     "description": "Kein Spiel, sondern ein Werkzeug fürs Quiz: Wer zuerst drückt, ist dran. Die Spielleitung sieht die Reihenfolge.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    },
    {
     "type": "GEO_BINGO",
     "name": "Geo-Bingo",
     "description": "Ihr lauft durch Straßenbilder derselben Stadt und sucht die Motive eurer Bingo-Karte. Die anderen bestätigen jeden Fund.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    }
   ],
   "impostorSettings": {
@@ -2130,11 +2172,11 @@
   },
   "werwolf": null,
   "impostor": {
-   "part": "CREW",
-   "word": "Schule",
-   "category": "Orte",
+   "part": "IMPOSTOR",
+   "word": null,
+   "category": "Tiere",
    "fellowImpostors": [],
-   "startPlayerId": "p1",
+   "startPlayerId": "p3",
    "gameMasterId": null,
    "participantIds": [
     "p1",
@@ -2150,32 +2192,27 @@
     "p4",
     "p5"
    ],
-   "yourVote": "p5",
+   "yourVote": "p1",
    "result": {
     "impostorIds": [
-     "p5"
+     "p2"
     ],
     "impostorNames": [
-     "Elif"
+     "Ben"
     ],
-    "word": "Schule",
-    "category": "Orte",
+    "word": "Hai",
+    "category": "Tiere",
     "impostorCaught": true,
     "votes": [
      {
-      "playerId": "p5",
-      "name": "Elif",
+      "playerId": "p2",
+      "name": "Ben",
       "votes": 4
      },
      {
       "playerId": "p1",
       "name": "Anna",
       "votes": 1
-     },
-     {
-      "playerId": "p2",
-      "name": "Ben",
-      "votes": 0
      },
      {
       "playerId": "p3",
@@ -2185,6 +2222,11 @@
      {
       "playerId": "p4",
       "name": "Dana",
+      "votes": 0
+     },
+     {
+      "playerId": "p5",
+      "name": "Elif",
       "votes": 0
      }
     ]
@@ -2196,44 +2238,50 @@
   "geoBingo": null
  },
  "lobby_impostor_custom_word": {
-  "code": "4SQV",
+  "code": "AGAU",
   "game": "IMPOSTOR",
   "games": [
    {
     "type": "WERWOLF",
     "name": "Werwolf",
     "description": "Rollen werden geheim verteilt. Nachts jagen die Werwölfe, tagsüber sucht das Dorf sie.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "IMPOSTOR",
     "name": "Impostor",
     "description": "Alle kennen dasselbe geheime Wort, nur einer nicht. Findet ihn, bevor er sich durchmogelt.",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "TABU",
     "name": "Tabu",
     "description": "Erklärt eurem Team Begriffe, ohne die verbotenen Wörter zu sagen. Ein Aufpasser hat den Buzzer.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "NOBODY_IS_PERFECT",
     "name": "Nobody is Perfect",
     "description": "Zu kuriosen Fragen erfindet jeder eine glaubwürdige Antwort. Wer findet die echte, wer legt die anderen rein?",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "BUZZER",
     "name": "Buzzer",
     "description": "Kein Spiel, sondern ein Werkzeug fürs Quiz: Wer zuerst drückt, ist dran. Die Spielleitung sieht die Reihenfolge.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    },
    {
     "type": "GEO_BINGO",
     "name": "Geo-Bingo",
     "description": "Ihr lauft durch Straßenbilder derselben Stadt und sucht die Motive eurer Bingo-Karte. Die anderen bestätigen jeden Fund.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    }
   ],
   "impostorSettings": {
@@ -2485,44 +2533,50 @@
   "geoBingo": null
  },
  "impostor_game_master": {
-  "code": "4SQV",
+  "code": "AGAU",
   "game": "IMPOSTOR",
   "games": [
    {
     "type": "WERWOLF",
     "name": "Werwolf",
     "description": "Rollen werden geheim verteilt. Nachts jagen die Werwölfe, tagsüber sucht das Dorf sie.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "IMPOSTOR",
     "name": "Impostor",
     "description": "Alle kennen dasselbe geheime Wort, nur einer nicht. Findet ihn, bevor er sich durchmogelt.",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "TABU",
     "name": "Tabu",
     "description": "Erklärt eurem Team Begriffe, ohne die verbotenen Wörter zu sagen. Ein Aufpasser hat den Buzzer.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "NOBODY_IS_PERFECT",
     "name": "Nobody is Perfect",
     "description": "Zu kuriosen Fragen erfindet jeder eine glaubwürdige Antwort. Wer findet die echte, wer legt die anderen rein?",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "BUZZER",
     "name": "Buzzer",
     "description": "Kein Spiel, sondern ein Werkzeug fürs Quiz: Wer zuerst drückt, ist dran. Die Spielleitung sieht die Reihenfolge.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    },
    {
     "type": "GEO_BINGO",
     "name": "Geo-Bingo",
     "description": "Ihr lauft durch Straßenbilder derselben Stadt und sucht die Motive eurer Bingo-Karte. Die anderen bestätigen jeden Fund.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    }
   ],
   "impostorSettings": {
@@ -2772,7 +2826,7 @@
    "word": "Leuchtturm",
    "category": null,
    "fellowImpostors": [],
-   "startPlayerId": "p5",
+   "startPlayerId": "p4",
    "gameMasterId": "p1",
    "participantIds": [
     "p2",
@@ -2790,44 +2844,50 @@
   "geoBingo": null
  },
  "impostor_voting_game_master": {
-  "code": "4SQV",
+  "code": "AGAU",
   "game": "IMPOSTOR",
   "games": [
    {
     "type": "WERWOLF",
     "name": "Werwolf",
     "description": "Rollen werden geheim verteilt. Nachts jagen die Werwölfe, tagsüber sucht das Dorf sie.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "IMPOSTOR",
     "name": "Impostor",
     "description": "Alle kennen dasselbe geheime Wort, nur einer nicht. Findet ihn, bevor er sich durchmogelt.",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "TABU",
     "name": "Tabu",
     "description": "Erklärt eurem Team Begriffe, ohne die verbotenen Wörter zu sagen. Ein Aufpasser hat den Buzzer.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "NOBODY_IS_PERFECT",
     "name": "Nobody is Perfect",
     "description": "Zu kuriosen Fragen erfindet jeder eine glaubwürdige Antwort. Wer findet die echte, wer legt die anderen rein?",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "BUZZER",
     "name": "Buzzer",
     "description": "Kein Spiel, sondern ein Werkzeug fürs Quiz: Wer zuerst drückt, ist dran. Die Spielleitung sieht die Reihenfolge.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    },
    {
     "type": "GEO_BINGO",
     "name": "Geo-Bingo",
     "description": "Ihr lauft durch Straßenbilder derselben Stadt und sucht die Motive eurer Bingo-Karte. Die anderen bestätigen jeden Fund.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    }
   ],
   "impostorSettings": {
@@ -3077,7 +3137,7 @@
    "word": "Leuchtturm",
    "category": null,
    "fellowImpostors": [],
-   "startPlayerId": "p5",
+   "startPlayerId": "p4",
    "gameMasterId": "p1",
    "participantIds": [
     "p2",
@@ -3095,44 +3155,50 @@
   "geoBingo": null
  },
  "lobby_werwolf_host": {
-  "code": "4SQV",
+  "code": "AGAU",
   "game": "WERWOLF",
   "games": [
    {
     "type": "WERWOLF",
     "name": "Werwolf",
     "description": "Rollen werden geheim verteilt. Nachts jagen die Werwölfe, tagsüber sucht das Dorf sie.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "IMPOSTOR",
     "name": "Impostor",
     "description": "Alle kennen dasselbe geheime Wort, nur einer nicht. Findet ihn, bevor er sich durchmogelt.",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "TABU",
     "name": "Tabu",
     "description": "Erklärt eurem Team Begriffe, ohne die verbotenen Wörter zu sagen. Ein Aufpasser hat den Buzzer.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "NOBODY_IS_PERFECT",
     "name": "Nobody is Perfect",
     "description": "Zu kuriosen Fragen erfindet jeder eine glaubwürdige Antwort. Wer findet die echte, wer legt die anderen rein?",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "BUZZER",
     "name": "Buzzer",
     "description": "Kein Spiel, sondern ein Werkzeug fürs Quiz: Wer zuerst drückt, ist dran. Die Spielleitung sieht die Reihenfolge.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    },
    {
     "type": "GEO_BINGO",
     "name": "Geo-Bingo",
     "description": "Ihr lauft durch Straßenbilder derselben Stadt und sucht die Motive eurer Bingo-Karte. Die anderen bestätigen jeden Fund.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    }
   ],
   "impostorSettings": {
@@ -3385,44 +3451,50 @@
   "geoBingo": null
  },
  "lobby_werwolf_guest": {
-  "code": "4SQV",
+  "code": "AGAU",
   "game": "WERWOLF",
   "games": [
    {
     "type": "WERWOLF",
     "name": "Werwolf",
     "description": "Rollen werden geheim verteilt. Nachts jagen die Werwölfe, tagsüber sucht das Dorf sie.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "IMPOSTOR",
     "name": "Impostor",
     "description": "Alle kennen dasselbe geheime Wort, nur einer nicht. Findet ihn, bevor er sich durchmogelt.",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "TABU",
     "name": "Tabu",
     "description": "Erklärt eurem Team Begriffe, ohne die verbotenen Wörter zu sagen. Ein Aufpasser hat den Buzzer.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "NOBODY_IS_PERFECT",
     "name": "Nobody is Perfect",
     "description": "Zu kuriosen Fragen erfindet jeder eine glaubwürdige Antwort. Wer findet die echte, wer legt die anderen rein?",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "BUZZER",
     "name": "Buzzer",
     "description": "Kein Spiel, sondern ein Werkzeug fürs Quiz: Wer zuerst drückt, ist dran. Die Spielleitung sieht die Reihenfolge.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    },
    {
     "type": "GEO_BINGO",
     "name": "Geo-Bingo",
     "description": "Ihr lauft durch Straßenbilder derselben Stadt und sucht die Motive eurer Bingo-Karte. Die anderen bestätigen jeden Fund.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    }
   ],
   "impostorSettings": {
@@ -3675,44 +3747,50 @@
   "geoBingo": null
  },
  "werwolf_night_game_master": {
-  "code": "4SQV",
+  "code": "AGAU",
   "game": "WERWOLF",
   "games": [
    {
     "type": "WERWOLF",
     "name": "Werwolf",
     "description": "Rollen werden geheim verteilt. Nachts jagen die Werwölfe, tagsüber sucht das Dorf sie.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "IMPOSTOR",
     "name": "Impostor",
     "description": "Alle kennen dasselbe geheime Wort, nur einer nicht. Findet ihn, bevor er sich durchmogelt.",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "TABU",
     "name": "Tabu",
     "description": "Erklärt eurem Team Begriffe, ohne die verbotenen Wörter zu sagen. Ein Aufpasser hat den Buzzer.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "NOBODY_IS_PERFECT",
     "name": "Nobody is Perfect",
     "description": "Zu kuriosen Fragen erfindet jeder eine glaubwürdige Antwort. Wer findet die echte, wer legt die anderen rein?",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "BUZZER",
     "name": "Buzzer",
     "description": "Kein Spiel, sondern ein Werkzeug fürs Quiz: Wer zuerst drückt, ist dran. Die Spielleitung sieht die Reihenfolge.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    },
    {
     "type": "GEO_BINGO",
     "name": "Geo-Bingo",
     "description": "Ihr lauft durch Straßenbilder derselben Stadt und sucht die Motive eurer Bingo-Karte. Die anderen bestätigen jeden Fund.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    }
   ],
   "impostorSettings": {
@@ -3963,7 +4041,7 @@
    "knownWolves": [],
    "leftoverRoles": [
     "Dieb",
-    "Werwolf"
+    "Dorfbewohner"
    ],
    "overview": [
     {
@@ -3981,11 +4059,11 @@
      "playerId": "p3",
      "playerName": "Cem",
      "role": {
-      "id": "DORFBEWOHNER",
-      "name": "Dorfbewohner",
-      "team": "DORF",
-      "teamName": "Das Dorf",
-      "description": "Du hast keine besonderen Fähigkeiten. Entlarve die Werwölfe durch Logik und Diskussion."
+      "id": "WERWOLF",
+      "name": "Werwolf",
+      "team": "WOELFE",
+      "teamName": "Die Werwölfe",
+      "description": "Du wachst nachts auf und tötest gemeinsam mit den anderen Wölfen einen Dorfbewohner."
      }
     },
     {
@@ -4019,44 +4097,50 @@
   "geoBingo": null
  },
  "werwolf_night_player": {
-  "code": "4SQV",
+  "code": "AGAU",
   "game": "WERWOLF",
   "games": [
    {
     "type": "WERWOLF",
     "name": "Werwolf",
     "description": "Rollen werden geheim verteilt. Nachts jagen die Werwölfe, tagsüber sucht das Dorf sie.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "IMPOSTOR",
     "name": "Impostor",
     "description": "Alle kennen dasselbe geheime Wort, nur einer nicht. Findet ihn, bevor er sich durchmogelt.",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "TABU",
     "name": "Tabu",
     "description": "Erklärt eurem Team Begriffe, ohne die verbotenen Wörter zu sagen. Ein Aufpasser hat den Buzzer.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "NOBODY_IS_PERFECT",
     "name": "Nobody is Perfect",
     "description": "Zu kuriosen Fragen erfindet jeder eine glaubwürdige Antwort. Wer findet die echte, wer legt die anderen rein?",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "BUZZER",
     "name": "Buzzer",
     "description": "Kein Spiel, sondern ein Werkzeug fürs Quiz: Wer zuerst drückt, ist dran. Die Spielleitung sieht die Reihenfolge.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    },
    {
     "type": "GEO_BINGO",
     "name": "Geo-Bingo",
     "description": "Ihr lauft durch Straßenbilder derselben Stadt und sucht die Motive eurer Bingo-Karte. Die anderen bestätigen jeden Fund.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    }
   ],
   "impostorSettings": {
@@ -4321,44 +4405,50 @@
   "geoBingo": null
  },
  "werwolf_day_game_master": {
-  "code": "4SQV",
+  "code": "AGAU",
   "game": "WERWOLF",
   "games": [
    {
     "type": "WERWOLF",
     "name": "Werwolf",
     "description": "Rollen werden geheim verteilt. Nachts jagen die Werwölfe, tagsüber sucht das Dorf sie.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "IMPOSTOR",
     "name": "Impostor",
     "description": "Alle kennen dasselbe geheime Wort, nur einer nicht. Findet ihn, bevor er sich durchmogelt.",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "TABU",
     "name": "Tabu",
     "description": "Erklärt eurem Team Begriffe, ohne die verbotenen Wörter zu sagen. Ein Aufpasser hat den Buzzer.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "NOBODY_IS_PERFECT",
     "name": "Nobody is Perfect",
     "description": "Zu kuriosen Fragen erfindet jeder eine glaubwürdige Antwort. Wer findet die echte, wer legt die anderen rein?",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "BUZZER",
     "name": "Buzzer",
     "description": "Kein Spiel, sondern ein Werkzeug fürs Quiz: Wer zuerst drückt, ist dran. Die Spielleitung sieht die Reihenfolge.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    },
    {
     "type": "GEO_BINGO",
     "name": "Geo-Bingo",
     "description": "Ihr lauft durch Straßenbilder derselben Stadt und sucht die Motive eurer Bingo-Karte. Die anderen bestätigen jeden Fund.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    }
   ],
   "impostorSettings": {
@@ -4609,7 +4699,7 @@
    "knownWolves": [],
    "leftoverRoles": [
     "Dieb",
-    "Werwolf"
+    "Dorfbewohner"
    ],
    "overview": [
     {
@@ -4627,11 +4717,11 @@
      "playerId": "p3",
      "playerName": "Cem",
      "role": {
-      "id": "DORFBEWOHNER",
-      "name": "Dorfbewohner",
-      "team": "DORF",
-      "teamName": "Das Dorf",
-      "description": "Du hast keine besonderen Fähigkeiten. Entlarve die Werwölfe durch Logik und Diskussion."
+      "id": "WERWOLF",
+      "name": "Werwolf",
+      "team": "WOELFE",
+      "teamName": "Die Werwölfe",
+      "description": "Du wachst nachts auf und tötest gemeinsam mit den anderen Wölfen einen Dorfbewohner."
      }
     },
     {
@@ -4665,44 +4755,50 @@
   "geoBingo": null
  },
  "werwolf_day_player": {
-  "code": "4SQV",
+  "code": "AGAU",
   "game": "WERWOLF",
   "games": [
    {
     "type": "WERWOLF",
     "name": "Werwolf",
     "description": "Rollen werden geheim verteilt. Nachts jagen die Werwölfe, tagsüber sucht das Dorf sie.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "IMPOSTOR",
     "name": "Impostor",
     "description": "Alle kennen dasselbe geheime Wort, nur einer nicht. Findet ihn, bevor er sich durchmogelt.",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "TABU",
     "name": "Tabu",
     "description": "Erklärt eurem Team Begriffe, ohne die verbotenen Wörter zu sagen. Ein Aufpasser hat den Buzzer.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "NOBODY_IS_PERFECT",
     "name": "Nobody is Perfect",
     "description": "Zu kuriosen Fragen erfindet jeder eine glaubwürdige Antwort. Wer findet die echte, wer legt die anderen rein?",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "BUZZER",
     "name": "Buzzer",
     "description": "Kein Spiel, sondern ein Werkzeug fürs Quiz: Wer zuerst drückt, ist dran. Die Spielleitung sieht die Reihenfolge.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    },
    {
     "type": "GEO_BINGO",
     "name": "Geo-Bingo",
     "description": "Ihr lauft durch Straßenbilder derselben Stadt und sucht die Motive eurer Bingo-Karte. Die anderen bestätigen jeden Fund.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    }
   ],
   "impostorSettings": {
@@ -4967,44 +5063,50 @@
   "geoBingo": null
  },
  "werwolf_night_wolf": {
-  "code": "4SQV",
+  "code": "AGAU",
   "game": "WERWOLF",
   "games": [
    {
     "type": "WERWOLF",
     "name": "Werwolf",
     "description": "Rollen werden geheim verteilt. Nachts jagen die Werwölfe, tagsüber sucht das Dorf sie.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "IMPOSTOR",
     "name": "Impostor",
     "description": "Alle kennen dasselbe geheime Wort, nur einer nicht. Findet ihn, bevor er sich durchmogelt.",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "TABU",
     "name": "Tabu",
     "description": "Erklärt eurem Team Begriffe, ohne die verbotenen Wörter zu sagen. Ein Aufpasser hat den Buzzer.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "NOBODY_IS_PERFECT",
     "name": "Nobody is Perfect",
     "description": "Zu kuriosen Fragen erfindet jeder eine glaubwürdige Antwort. Wer findet die echte, wer legt die anderen rein?",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "BUZZER",
     "name": "Buzzer",
     "description": "Kein Spiel, sondern ein Werkzeug fürs Quiz: Wer zuerst drückt, ist dran. Die Spielleitung sieht die Reihenfolge.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    },
    {
     "type": "GEO_BINGO",
     "name": "Geo-Bingo",
     "description": "Ihr lauft durch Straßenbilder derselben Stadt und sucht die Motive eurer Bingo-Karte. Die anderen bestätigen jeden Fund.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    }
   ],
   "impostorSettings": {
@@ -5243,8 +5345,8 @@
   "canStart": false,
   "startHint": null,
   "you": {
-   "id": "p2",
-   "name": "Ben",
+   "id": "p5",
+   "name": "Elif",
    "host": false,
    "ready": false
   },
@@ -5268,44 +5370,50 @@
   "geoBingo": null
  },
  "lobby_tabu_teams_host": {
-  "code": "4SQV",
+  "code": "AGAU",
   "game": "TABU",
   "games": [
    {
     "type": "WERWOLF",
     "name": "Werwolf",
     "description": "Rollen werden geheim verteilt. Nachts jagen die Werwölfe, tagsüber sucht das Dorf sie.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "IMPOSTOR",
     "name": "Impostor",
     "description": "Alle kennen dasselbe geheime Wort, nur einer nicht. Findet ihn, bevor er sich durchmogelt.",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "TABU",
     "name": "Tabu",
     "description": "Erklärt eurem Team Begriffe, ohne die verbotenen Wörter zu sagen. Ein Aufpasser hat den Buzzer.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "NOBODY_IS_PERFECT",
     "name": "Nobody is Perfect",
     "description": "Zu kuriosen Fragen erfindet jeder eine glaubwürdige Antwort. Wer findet die echte, wer legt die anderen rein?",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "BUZZER",
     "name": "Buzzer",
     "description": "Kein Spiel, sondern ein Werkzeug fürs Quiz: Wer zuerst drückt, ist dran. Die Spielleitung sieht die Reihenfolge.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    },
    {
     "type": "GEO_BINGO",
     "name": "Geo-Bingo",
     "description": "Ihr lauft durch Straßenbilder derselben Stadt und sucht die Motive eurer Bingo-Karte. Die anderen bestätigen jeden Fund.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    }
   ],
   "impostorSettings": {
@@ -5561,44 +5669,50 @@
   "geoBingo": null
  },
  "lobby_tabu_teams_guest": {
-  "code": "4SQV",
+  "code": "AGAU",
   "game": "TABU",
   "games": [
    {
     "type": "WERWOLF",
     "name": "Werwolf",
     "description": "Rollen werden geheim verteilt. Nachts jagen die Werwölfe, tagsüber sucht das Dorf sie.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "IMPOSTOR",
     "name": "Impostor",
     "description": "Alle kennen dasselbe geheime Wort, nur einer nicht. Findet ihn, bevor er sich durchmogelt.",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "TABU",
     "name": "Tabu",
     "description": "Erklärt eurem Team Begriffe, ohne die verbotenen Wörter zu sagen. Ein Aufpasser hat den Buzzer.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "NOBODY_IS_PERFECT",
     "name": "Nobody is Perfect",
     "description": "Zu kuriosen Fragen erfindet jeder eine glaubwürdige Antwort. Wer findet die echte, wer legt die anderen rein?",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "BUZZER",
     "name": "Buzzer",
     "description": "Kein Spiel, sondern ein Werkzeug fürs Quiz: Wer zuerst drückt, ist dran. Die Spielleitung sieht die Reihenfolge.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    },
    {
     "type": "GEO_BINGO",
     "name": "Geo-Bingo",
     "description": "Ihr lauft durch Straßenbilder derselben Stadt und sucht die Motive eurer Bingo-Karte. Die anderen bestätigen jeden Fund.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    }
   ],
   "impostorSettings": {
@@ -5854,44 +5968,50 @@
   "geoBingo": null
  },
  "tabu_ready_explainer": {
-  "code": "4SQV",
+  "code": "AGAU",
   "game": "TABU",
   "games": [
    {
     "type": "WERWOLF",
     "name": "Werwolf",
     "description": "Rollen werden geheim verteilt. Nachts jagen die Werwölfe, tagsüber sucht das Dorf sie.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "IMPOSTOR",
     "name": "Impostor",
     "description": "Alle kennen dasselbe geheime Wort, nur einer nicht. Findet ihn, bevor er sich durchmogelt.",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "TABU",
     "name": "Tabu",
     "description": "Erklärt eurem Team Begriffe, ohne die verbotenen Wörter zu sagen. Ein Aufpasser hat den Buzzer.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "NOBODY_IS_PERFECT",
     "name": "Nobody is Perfect",
     "description": "Zu kuriosen Fragen erfindet jeder eine glaubwürdige Antwort. Wer findet die echte, wer legt die anderen rein?",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "BUZZER",
     "name": "Buzzer",
     "description": "Kein Spiel, sondern ein Werkzeug fürs Quiz: Wer zuerst drückt, ist dran. Die Spielleitung sieht die Reihenfolge.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    },
    {
     "type": "GEO_BINGO",
     "name": "Geo-Bingo",
     "description": "Ihr lauft durch Straßenbilder derselben Stadt und sucht die Motive eurer Bingo-Karte. Die anderen bestätigen jeden Fund.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    }
   ],
   "impostorSettings": {
@@ -6182,44 +6302,50 @@
   "geoBingo": null
  },
  "tabu_ready_watcher": {
-  "code": "4SQV",
+  "code": "AGAU",
   "game": "TABU",
   "games": [
    {
     "type": "WERWOLF",
     "name": "Werwolf",
     "description": "Rollen werden geheim verteilt. Nachts jagen die Werwölfe, tagsüber sucht das Dorf sie.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "IMPOSTOR",
     "name": "Impostor",
     "description": "Alle kennen dasselbe geheime Wort, nur einer nicht. Findet ihn, bevor er sich durchmogelt.",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "TABU",
     "name": "Tabu",
     "description": "Erklärt eurem Team Begriffe, ohne die verbotenen Wörter zu sagen. Ein Aufpasser hat den Buzzer.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "NOBODY_IS_PERFECT",
     "name": "Nobody is Perfect",
     "description": "Zu kuriosen Fragen erfindet jeder eine glaubwürdige Antwort. Wer findet die echte, wer legt die anderen rein?",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "BUZZER",
     "name": "Buzzer",
     "description": "Kein Spiel, sondern ein Werkzeug fürs Quiz: Wer zuerst drückt, ist dran. Die Spielleitung sieht die Reihenfolge.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    },
    {
     "type": "GEO_BINGO",
     "name": "Geo-Bingo",
     "description": "Ihr lauft durch Straßenbilder derselben Stadt und sucht die Motive eurer Bingo-Karte. Die anderen bestätigen jeden Fund.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    }
   ],
   "impostorSettings": {
@@ -6510,44 +6636,50 @@
   "geoBingo": null
  },
  "tabu_ready_other": {
-  "code": "4SQV",
+  "code": "AGAU",
   "game": "TABU",
   "games": [
    {
     "type": "WERWOLF",
     "name": "Werwolf",
     "description": "Rollen werden geheim verteilt. Nachts jagen die Werwölfe, tagsüber sucht das Dorf sie.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "IMPOSTOR",
     "name": "Impostor",
     "description": "Alle kennen dasselbe geheime Wort, nur einer nicht. Findet ihn, bevor er sich durchmogelt.",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "TABU",
     "name": "Tabu",
     "description": "Erklärt eurem Team Begriffe, ohne die verbotenen Wörter zu sagen. Ein Aufpasser hat den Buzzer.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "NOBODY_IS_PERFECT",
     "name": "Nobody is Perfect",
     "description": "Zu kuriosen Fragen erfindet jeder eine glaubwürdige Antwort. Wer findet die echte, wer legt die anderen rein?",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "BUZZER",
     "name": "Buzzer",
     "description": "Kein Spiel, sondern ein Werkzeug fürs Quiz: Wer zuerst drückt, ist dran. Die Spielleitung sieht die Reihenfolge.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    },
    {
     "type": "GEO_BINGO",
     "name": "Geo-Bingo",
     "description": "Ihr lauft durch Straßenbilder derselben Stadt und sucht die Motive eurer Bingo-Karte. Die anderen bestätigen jeden Fund.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    }
   ],
   "impostorSettings": {
@@ -6838,44 +6970,50 @@
   "geoBingo": null
  },
  "tabu_turn_explainer": {
-  "code": "4SQV",
+  "code": "AGAU",
   "game": "TABU",
   "games": [
    {
     "type": "WERWOLF",
     "name": "Werwolf",
     "description": "Rollen werden geheim verteilt. Nachts jagen die Werwölfe, tagsüber sucht das Dorf sie.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "IMPOSTOR",
     "name": "Impostor",
     "description": "Alle kennen dasselbe geheime Wort, nur einer nicht. Findet ihn, bevor er sich durchmogelt.",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "TABU",
     "name": "Tabu",
     "description": "Erklärt eurem Team Begriffe, ohne die verbotenen Wörter zu sagen. Ein Aufpasser hat den Buzzer.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "NOBODY_IS_PERFECT",
     "name": "Nobody is Perfect",
     "description": "Zu kuriosen Fragen erfindet jeder eine glaubwürdige Antwort. Wer findet die echte, wer legt die anderen rein?",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "BUZZER",
     "name": "Buzzer",
     "description": "Kein Spiel, sondern ein Werkzeug fürs Quiz: Wer zuerst drückt, ist dran. Die Spielleitung sieht die Reihenfolge.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    },
    {
     "type": "GEO_BINGO",
     "name": "Geo-Bingo",
     "description": "Ihr lauft durch Straßenbilder derselben Stadt und sucht die Motive eurer Bingo-Karte. Die anderen bestätigen jeden Fund.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    }
   ],
   "impostorSettings": {
@@ -7153,32 +7291,32 @@
    "explainerId": "p1",
    "watcherId": "p2",
    "yourTeam": 0,
-   "remainingMs": 179980,
+   "remainingMs": 179979,
    "turnSeconds": 180,
    "targetScore": 10,
    "card": {
-    "word": "Klettern",
+    "word": "Waschmaschine",
     "forbidden": [
-     "Wand",
-     "Seil",
-     "hoch",
-     "Berg",
-     "Halle"
+     "Wäsche",
+     "waschen",
+     "Trommel",
+     "Kleidung",
+     "schleudern"
     ]
    },
    "turnResults": [
     {
-     "word": "Elefant",
+     "word": "Hausaufgaben",
      "outcome": "CORRECT",
      "scoringTeam": 0
     },
     {
-     "word": "Fußball",
+     "word": "Trompete",
      "outcome": "SKIPPED",
      "scoringTeam": null
     },
     {
-     "word": "Picknick",
+     "word": "Käse",
      "outcome": "BUZZED",
      "scoringTeam": null
     }
@@ -7191,44 +7329,50 @@
   "geoBingo": null
  },
  "tabu_turn_watcher": {
-  "code": "4SQV",
+  "code": "AGAU",
   "game": "TABU",
   "games": [
    {
     "type": "WERWOLF",
     "name": "Werwolf",
     "description": "Rollen werden geheim verteilt. Nachts jagen die Werwölfe, tagsüber sucht das Dorf sie.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "IMPOSTOR",
     "name": "Impostor",
     "description": "Alle kennen dasselbe geheime Wort, nur einer nicht. Findet ihn, bevor er sich durchmogelt.",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "TABU",
     "name": "Tabu",
     "description": "Erklärt eurem Team Begriffe, ohne die verbotenen Wörter zu sagen. Ein Aufpasser hat den Buzzer.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "NOBODY_IS_PERFECT",
     "name": "Nobody is Perfect",
     "description": "Zu kuriosen Fragen erfindet jeder eine glaubwürdige Antwort. Wer findet die echte, wer legt die anderen rein?",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "BUZZER",
     "name": "Buzzer",
     "description": "Kein Spiel, sondern ein Werkzeug fürs Quiz: Wer zuerst drückt, ist dran. Die Spielleitung sieht die Reihenfolge.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    },
    {
     "type": "GEO_BINGO",
     "name": "Geo-Bingo",
     "description": "Ihr lauft durch Straßenbilder derselben Stadt und sucht die Motive eurer Bingo-Karte. Die anderen bestätigen jeden Fund.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    }
   ],
   "impostorSettings": {
@@ -7506,32 +7650,32 @@
    "explainerId": "p1",
    "watcherId": "p2",
    "yourTeam": 1,
-   "remainingMs": 179980,
+   "remainingMs": 179979,
    "turnSeconds": 180,
    "targetScore": 10,
    "card": {
-    "word": "Klettern",
+    "word": "Waschmaschine",
     "forbidden": [
-     "Wand",
-     "Seil",
-     "hoch",
-     "Berg",
-     "Halle"
+     "Wäsche",
+     "waschen",
+     "Trommel",
+     "Kleidung",
+     "schleudern"
     ]
    },
    "turnResults": [
     {
-     "word": "Elefant",
+     "word": "Hausaufgaben",
      "outcome": "CORRECT",
      "scoringTeam": 0
     },
     {
-     "word": "Fußball",
+     "word": "Trompete",
      "outcome": "SKIPPED",
      "scoringTeam": null
     },
     {
-     "word": "Picknick",
+     "word": "Käse",
      "outcome": "BUZZED",
      "scoringTeam": null
     }
@@ -7544,44 +7688,50 @@
   "geoBingo": null
  },
  "tabu_turn_guesser": {
-  "code": "4SQV",
+  "code": "AGAU",
   "game": "TABU",
   "games": [
    {
     "type": "WERWOLF",
     "name": "Werwolf",
     "description": "Rollen werden geheim verteilt. Nachts jagen die Werwölfe, tagsüber sucht das Dorf sie.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "IMPOSTOR",
     "name": "Impostor",
     "description": "Alle kennen dasselbe geheime Wort, nur einer nicht. Findet ihn, bevor er sich durchmogelt.",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "TABU",
     "name": "Tabu",
     "description": "Erklärt eurem Team Begriffe, ohne die verbotenen Wörter zu sagen. Ein Aufpasser hat den Buzzer.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "NOBODY_IS_PERFECT",
     "name": "Nobody is Perfect",
     "description": "Zu kuriosen Fragen erfindet jeder eine glaubwürdige Antwort. Wer findet die echte, wer legt die anderen rein?",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "BUZZER",
     "name": "Buzzer",
     "description": "Kein Spiel, sondern ein Werkzeug fürs Quiz: Wer zuerst drückt, ist dran. Die Spielleitung sieht die Reihenfolge.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    },
    {
     "type": "GEO_BINGO",
     "name": "Geo-Bingo",
     "description": "Ihr lauft durch Straßenbilder derselben Stadt und sucht die Motive eurer Bingo-Karte. Die anderen bestätigen jeden Fund.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    }
   ],
   "impostorSettings": {
@@ -7865,17 +8015,17 @@
    "card": null,
    "turnResults": [
     {
-     "word": "Elefant",
+     "word": "Hausaufgaben",
      "outcome": "CORRECT",
      "scoringTeam": 0
     },
     {
-     "word": "Fußball",
+     "word": "Trompete",
      "outcome": "SKIPPED",
      "scoringTeam": null
     },
     {
-     "word": "Picknick",
+     "word": "Käse",
      "outcome": "BUZZED",
      "scoringTeam": null
     }
@@ -7888,44 +8038,50 @@
   "geoBingo": null
  },
  "tabu_turn_other": {
-  "code": "4SQV",
+  "code": "AGAU",
   "game": "TABU",
   "games": [
    {
     "type": "WERWOLF",
     "name": "Werwolf",
     "description": "Rollen werden geheim verteilt. Nachts jagen die Werwölfe, tagsüber sucht das Dorf sie.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "IMPOSTOR",
     "name": "Impostor",
     "description": "Alle kennen dasselbe geheime Wort, nur einer nicht. Findet ihn, bevor er sich durchmogelt.",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "TABU",
     "name": "Tabu",
     "description": "Erklärt eurem Team Begriffe, ohne die verbotenen Wörter zu sagen. Ein Aufpasser hat den Buzzer.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "NOBODY_IS_PERFECT",
     "name": "Nobody is Perfect",
     "description": "Zu kuriosen Fragen erfindet jeder eine glaubwürdige Antwort. Wer findet die echte, wer legt die anderen rein?",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "BUZZER",
     "name": "Buzzer",
     "description": "Kein Spiel, sondern ein Werkzeug fürs Quiz: Wer zuerst drückt, ist dran. Die Spielleitung sieht die Reihenfolge.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    },
    {
     "type": "GEO_BINGO",
     "name": "Geo-Bingo",
     "description": "Ihr lauft durch Straßenbilder derselben Stadt und sucht die Motive eurer Bingo-Karte. Die anderen bestätigen jeden Fund.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    }
   ],
   "impostorSettings": {
@@ -8203,23 +8359,23 @@
    "explainerId": "p1",
    "watcherId": "p2",
    "yourTeam": 1,
-   "remainingMs": 179979,
+   "remainingMs": 179978,
    "turnSeconds": 180,
    "targetScore": 10,
    "card": null,
    "turnResults": [
     {
-     "word": "Elefant",
+     "word": "Hausaufgaben",
      "outcome": "CORRECT",
      "scoringTeam": 0
     },
     {
-     "word": "Fußball",
+     "word": "Trompete",
      "outcome": "SKIPPED",
      "scoringTeam": null
     },
     {
-     "word": "Picknick",
+     "word": "Käse",
      "outcome": "BUZZED",
      "scoringTeam": null
     }
@@ -8232,44 +8388,50 @@
   "geoBingo": null
  },
  "tabu_over_host": {
-  "code": "4SQV",
+  "code": "AGAU",
   "game": "TABU",
   "games": [
    {
     "type": "WERWOLF",
     "name": "Werwolf",
     "description": "Rollen werden geheim verteilt. Nachts jagen die Werwölfe, tagsüber sucht das Dorf sie.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "IMPOSTOR",
     "name": "Impostor",
     "description": "Alle kennen dasselbe geheime Wort, nur einer nicht. Findet ihn, bevor er sich durchmogelt.",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "TABU",
     "name": "Tabu",
     "description": "Erklärt eurem Team Begriffe, ohne die verbotenen Wörter zu sagen. Ein Aufpasser hat den Buzzer.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "NOBODY_IS_PERFECT",
     "name": "Nobody is Perfect",
     "description": "Zu kuriosen Fragen erfindet jeder eine glaubwürdige Antwort. Wer findet die echte, wer legt die anderen rein?",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "BUZZER",
     "name": "Buzzer",
     "description": "Kein Spiel, sondern ein Werkzeug fürs Quiz: Wer zuerst drückt, ist dran. Die Spielleitung sieht die Reihenfolge.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    },
    {
     "type": "GEO_BINGO",
     "name": "Geo-Bingo",
     "description": "Ihr lauft durch Straßenbilder derselben Stadt und sucht die Motive eurer Bingo-Karte. Die anderen bestätigen jeden Fund.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    }
   ],
   "impostorSettings": {
@@ -8554,62 +8716,62 @@
    "turnResults": [],
    "lastTurn": [
     {
-     "word": "Elefant",
+     "word": "Hausaufgaben",
      "outcome": "CORRECT",
      "scoringTeam": 0
     },
     {
-     "word": "Fußball",
+     "word": "Trompete",
      "outcome": "SKIPPED",
      "scoringTeam": null
     },
     {
-     "word": "Picknick",
+     "word": "Käse",
      "outcome": "BUZZED",
      "scoringTeam": null
     },
     {
-     "word": "Klettern",
+     "word": "Waschmaschine",
      "outcome": "CORRECT",
      "scoringTeam": 0
     },
     {
-     "word": "Straßenbahn",
+     "word": "Gletscher",
      "outcome": "CORRECT",
      "scoringTeam": 0
     },
     {
-     "word": "Mütze",
+     "word": "Kaktus",
      "outcome": "CORRECT",
      "scoringTeam": 0
     },
     {
-     "word": "Skifahren",
+     "word": "Schokolade",
      "outcome": "CORRECT",
      "scoringTeam": 0
     },
     {
-     "word": "Kirche",
+     "word": "Schmetterling",
      "outcome": "CORRECT",
      "scoringTeam": 0
     },
     {
-     "word": "Golf",
+     "word": "Flughafen",
      "outcome": "CORRECT",
      "scoringTeam": 0
     },
     {
-     "word": "Handschuhe",
+     "word": "Silvester",
      "outcome": "CORRECT",
      "scoringTeam": 0
     },
     {
-     "word": "Schnecke",
+     "word": "Feuerwehr",
      "outcome": "CORRECT",
      "scoringTeam": 0
     },
     {
-     "word": "Sonnenuntergang",
+     "word": "Wasserfall",
      "outcome": "CORRECT",
      "scoringTeam": 0
     }
@@ -8621,44 +8783,50 @@
   "geoBingo": null
  },
  "tabu_over_guest": {
-  "code": "4SQV",
+  "code": "AGAU",
   "game": "TABU",
   "games": [
    {
     "type": "WERWOLF",
     "name": "Werwolf",
     "description": "Rollen werden geheim verteilt. Nachts jagen die Werwölfe, tagsüber sucht das Dorf sie.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "IMPOSTOR",
     "name": "Impostor",
     "description": "Alle kennen dasselbe geheime Wort, nur einer nicht. Findet ihn, bevor er sich durchmogelt.",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "TABU",
     "name": "Tabu",
     "description": "Erklärt eurem Team Begriffe, ohne die verbotenen Wörter zu sagen. Ein Aufpasser hat den Buzzer.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "NOBODY_IS_PERFECT",
     "name": "Nobody is Perfect",
     "description": "Zu kuriosen Fragen erfindet jeder eine glaubwürdige Antwort. Wer findet die echte, wer legt die anderen rein?",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "BUZZER",
     "name": "Buzzer",
     "description": "Kein Spiel, sondern ein Werkzeug fürs Quiz: Wer zuerst drückt, ist dran. Die Spielleitung sieht die Reihenfolge.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    },
    {
     "type": "GEO_BINGO",
     "name": "Geo-Bingo",
     "description": "Ihr lauft durch Straßenbilder derselben Stadt und sucht die Motive eurer Bingo-Karte. Die anderen bestätigen jeden Fund.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    }
   ],
   "impostorSettings": {
@@ -8943,62 +9111,62 @@
    "turnResults": [],
    "lastTurn": [
     {
-     "word": "Elefant",
+     "word": "Hausaufgaben",
      "outcome": "CORRECT",
      "scoringTeam": 0
     },
     {
-     "word": "Fußball",
+     "word": "Trompete",
      "outcome": "SKIPPED",
      "scoringTeam": null
     },
     {
-     "word": "Picknick",
+     "word": "Käse",
      "outcome": "BUZZED",
      "scoringTeam": null
     },
     {
-     "word": "Klettern",
+     "word": "Waschmaschine",
      "outcome": "CORRECT",
      "scoringTeam": 0
     },
     {
-     "word": "Straßenbahn",
+     "word": "Gletscher",
      "outcome": "CORRECT",
      "scoringTeam": 0
     },
     {
-     "word": "Mütze",
+     "word": "Kaktus",
      "outcome": "CORRECT",
      "scoringTeam": 0
     },
     {
-     "word": "Skifahren",
+     "word": "Schokolade",
      "outcome": "CORRECT",
      "scoringTeam": 0
     },
     {
-     "word": "Kirche",
+     "word": "Schmetterling",
      "outcome": "CORRECT",
      "scoringTeam": 0
     },
     {
-     "word": "Golf",
+     "word": "Flughafen",
      "outcome": "CORRECT",
      "scoringTeam": 0
     },
     {
-     "word": "Handschuhe",
+     "word": "Silvester",
      "outcome": "CORRECT",
      "scoringTeam": 0
     },
     {
-     "word": "Schnecke",
+     "word": "Feuerwehr",
      "outcome": "CORRECT",
      "scoringTeam": 0
     },
     {
-     "word": "Sonnenuntergang",
+     "word": "Wasserfall",
      "outcome": "CORRECT",
      "scoringTeam": 0
     }
@@ -9010,44 +9178,50 @@
   "geoBingo": null
  },
  "lobby_nobody_host": {
-  "code": "4SQV",
+  "code": "AGAU",
   "game": "NOBODY_IS_PERFECT",
   "games": [
    {
     "type": "WERWOLF",
     "name": "Werwolf",
     "description": "Rollen werden geheim verteilt. Nachts jagen die Werwölfe, tagsüber sucht das Dorf sie.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "IMPOSTOR",
     "name": "Impostor",
     "description": "Alle kennen dasselbe geheime Wort, nur einer nicht. Findet ihn, bevor er sich durchmogelt.",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "TABU",
     "name": "Tabu",
     "description": "Erklärt eurem Team Begriffe, ohne die verbotenen Wörter zu sagen. Ein Aufpasser hat den Buzzer.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "NOBODY_IS_PERFECT",
     "name": "Nobody is Perfect",
     "description": "Zu kuriosen Fragen erfindet jeder eine glaubwürdige Antwort. Wer findet die echte, wer legt die anderen rein?",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "BUZZER",
     "name": "Buzzer",
     "description": "Kein Spiel, sondern ein Werkzeug fürs Quiz: Wer zuerst drückt, ist dran. Die Spielleitung sieht die Reihenfolge.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    },
    {
     "type": "GEO_BINGO",
     "name": "Geo-Bingo",
     "description": "Ihr lauft durch Straßenbilder derselben Stadt und sucht die Motive eurer Bingo-Karte. Die anderen bestätigen jeden Fund.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    }
   ],
   "impostorSettings": {
@@ -9306,44 +9480,50 @@
   "geoBingo": null
  },
  "lobby_nobody_guest": {
-  "code": "4SQV",
+  "code": "AGAU",
   "game": "NOBODY_IS_PERFECT",
   "games": [
    {
     "type": "WERWOLF",
     "name": "Werwolf",
     "description": "Rollen werden geheim verteilt. Nachts jagen die Werwölfe, tagsüber sucht das Dorf sie.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "IMPOSTOR",
     "name": "Impostor",
     "description": "Alle kennen dasselbe geheime Wort, nur einer nicht. Findet ihn, bevor er sich durchmogelt.",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "TABU",
     "name": "Tabu",
     "description": "Erklärt eurem Team Begriffe, ohne die verbotenen Wörter zu sagen. Ein Aufpasser hat den Buzzer.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "NOBODY_IS_PERFECT",
     "name": "Nobody is Perfect",
     "description": "Zu kuriosen Fragen erfindet jeder eine glaubwürdige Antwort. Wer findet die echte, wer legt die anderen rein?",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "BUZZER",
     "name": "Buzzer",
     "description": "Kein Spiel, sondern ein Werkzeug fürs Quiz: Wer zuerst drückt, ist dran. Die Spielleitung sieht die Reihenfolge.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    },
    {
     "type": "GEO_BINGO",
     "name": "Geo-Bingo",
     "description": "Ihr lauft durch Straßenbilder derselben Stadt und sucht die Motive eurer Bingo-Karte. Die anderen bestätigen jeden Fund.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    }
   ],
   "impostorSettings": {
@@ -9602,44 +9782,50 @@
   "geoBingo": null
  },
  "nobody_writing_submitted": {
-  "code": "4SQV",
+  "code": "AGAU",
   "game": "NOBODY_IS_PERFECT",
   "games": [
    {
     "type": "WERWOLF",
     "name": "Werwolf",
     "description": "Rollen werden geheim verteilt. Nachts jagen die Werwölfe, tagsüber sucht das Dorf sie.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "IMPOSTOR",
     "name": "Impostor",
     "description": "Alle kennen dasselbe geheime Wort, nur einer nicht. Findet ihn, bevor er sich durchmogelt.",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "TABU",
     "name": "Tabu",
     "description": "Erklärt eurem Team Begriffe, ohne die verbotenen Wörter zu sagen. Ein Aufpasser hat den Buzzer.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "NOBODY_IS_PERFECT",
     "name": "Nobody is Perfect",
     "description": "Zu kuriosen Fragen erfindet jeder eine glaubwürdige Antwort. Wer findet die echte, wer legt die anderen rein?",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "BUZZER",
     "name": "Buzzer",
     "description": "Kein Spiel, sondern ein Werkzeug fürs Quiz: Wer zuerst drückt, ist dran. Die Spielleitung sieht die Reihenfolge.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    },
    {
     "type": "GEO_BINGO",
     "name": "Geo-Bingo",
     "description": "Ihr lauft durch Straßenbilder derselben Stadt und sucht die Motive eurer Bingo-Karte. Die anderen bestätigen jeden Fund.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    }
   ],
   "impostorSettings": {
@@ -9896,7 +10082,7 @@
   "nobodyIsPerfect": {
    "questionNumber": 1,
    "questionCount": 3,
-   "question": "Wie nennt man den Punkt auf dem i?",
+   "question": "Was ist ein Wolpertinger?",
    "answer": null,
    "participantIds": [
     "p1",
@@ -9946,44 +10132,50 @@
   "geoBingo": null
  },
  "nobody_writing_host": {
-  "code": "4SQV",
+  "code": "AGAU",
   "game": "NOBODY_IS_PERFECT",
   "games": [
    {
     "type": "WERWOLF",
     "name": "Werwolf",
     "description": "Rollen werden geheim verteilt. Nachts jagen die Werwölfe, tagsüber sucht das Dorf sie.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "IMPOSTOR",
     "name": "Impostor",
     "description": "Alle kennen dasselbe geheime Wort, nur einer nicht. Findet ihn, bevor er sich durchmogelt.",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "TABU",
     "name": "Tabu",
     "description": "Erklärt eurem Team Begriffe, ohne die verbotenen Wörter zu sagen. Ein Aufpasser hat den Buzzer.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "NOBODY_IS_PERFECT",
     "name": "Nobody is Perfect",
     "description": "Zu kuriosen Fragen erfindet jeder eine glaubwürdige Antwort. Wer findet die echte, wer legt die anderen rein?",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "BUZZER",
     "name": "Buzzer",
     "description": "Kein Spiel, sondern ein Werkzeug fürs Quiz: Wer zuerst drückt, ist dran. Die Spielleitung sieht die Reihenfolge.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    },
    {
     "type": "GEO_BINGO",
     "name": "Geo-Bingo",
     "description": "Ihr lauft durch Straßenbilder derselben Stadt und sucht die Motive eurer Bingo-Karte. Die anderen bestätigen jeden Fund.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    }
   ],
   "impostorSettings": {
@@ -10240,7 +10432,7 @@
   "nobodyIsPerfect": {
    "questionNumber": 1,
    "questionCount": 3,
-   "question": "Wie nennt man den Punkt auf dem i?",
+   "question": "Was ist ein Wolpertinger?",
    "answer": null,
    "participantIds": [
     "p1",
@@ -10290,44 +10482,50 @@
   "geoBingo": null
  },
  "nobody_guessing": {
-  "code": "4SQV",
+  "code": "AGAU",
   "game": "NOBODY_IS_PERFECT",
   "games": [
    {
     "type": "WERWOLF",
     "name": "Werwolf",
     "description": "Rollen werden geheim verteilt. Nachts jagen die Werwölfe, tagsüber sucht das Dorf sie.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "IMPOSTOR",
     "name": "Impostor",
     "description": "Alle kennen dasselbe geheime Wort, nur einer nicht. Findet ihn, bevor er sich durchmogelt.",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "TABU",
     "name": "Tabu",
     "description": "Erklärt eurem Team Begriffe, ohne die verbotenen Wörter zu sagen. Ein Aufpasser hat den Buzzer.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "NOBODY_IS_PERFECT",
     "name": "Nobody is Perfect",
     "description": "Zu kuriosen Fragen erfindet jeder eine glaubwürdige Antwort. Wer findet die echte, wer legt die anderen rein?",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "BUZZER",
     "name": "Buzzer",
     "description": "Kein Spiel, sondern ein Werkzeug fürs Quiz: Wer zuerst drückt, ist dran. Die Spielleitung sieht die Reihenfolge.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    },
    {
     "type": "GEO_BINGO",
     "name": "Geo-Bingo",
     "description": "Ihr lauft durch Straßenbilder derselben Stadt und sucht die Motive eurer Bingo-Karte. Die anderen bestätigen jeden Fund.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    }
   ],
   "impostorSettings": {
@@ -10584,7 +10782,7 @@
   "nobodyIsPerfect": {
    "questionNumber": 1,
    "questionCount": 3,
-   "question": "Wie nennt man den Punkt auf dem i?",
+   "question": "Was ist ein Wolpertinger?",
    "answer": null,
    "participantIds": [
     "p1",
@@ -10616,22 +10814,22 @@
     },
     {
      "id": "D",
-     "text": "Erfunden von Cem 1"
+     "text": "Erfunden von Ben 1"
     },
     {
      "id": "E",
-     "text": "Tüttel"
+     "text": "Ein bayerisches Fabelwesen aus Teilen verschiedener Tiere"
     },
     {
      "id": "F",
-     "text": "Erfunden von Ben 1"
+     "text": "Erfunden von Cem 1"
     }
    ],
    "yourChoiceId": "C",
    "guessedIds": [
     "p1"
    ],
-   "yourGuess": "F",
+   "yourGuess": "D",
    "reveal": [],
    "scores": [
     {
@@ -10665,44 +10863,50 @@
   "geoBingo": null
  },
  "nobody_reveal_host": {
-  "code": "4SQV",
+  "code": "AGAU",
   "game": "NOBODY_IS_PERFECT",
   "games": [
    {
     "type": "WERWOLF",
     "name": "Werwolf",
     "description": "Rollen werden geheim verteilt. Nachts jagen die Werwölfe, tagsüber sucht das Dorf sie.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "IMPOSTOR",
     "name": "Impostor",
     "description": "Alle kennen dasselbe geheime Wort, nur einer nicht. Findet ihn, bevor er sich durchmogelt.",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "TABU",
     "name": "Tabu",
     "description": "Erklärt eurem Team Begriffe, ohne die verbotenen Wörter zu sagen. Ein Aufpasser hat den Buzzer.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "NOBODY_IS_PERFECT",
     "name": "Nobody is Perfect",
     "description": "Zu kuriosen Fragen erfindet jeder eine glaubwürdige Antwort. Wer findet die echte, wer legt die anderen rein?",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "BUZZER",
     "name": "Buzzer",
     "description": "Kein Spiel, sondern ein Werkzeug fürs Quiz: Wer zuerst drückt, ist dran. Die Spielleitung sieht die Reihenfolge.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    },
    {
     "type": "GEO_BINGO",
     "name": "Geo-Bingo",
     "description": "Ihr lauft durch Straßenbilder derselben Stadt und sucht die Motive eurer Bingo-Karte. Die anderen bestätigen jeden Fund.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    }
   ],
   "impostorSettings": {
@@ -10959,8 +11163,8 @@
   "nobodyIsPerfect": {
    "questionNumber": 1,
    "questionCount": 3,
-   "question": "Wie nennt man den Punkt auf dem i?",
-   "answer": "Tüttel",
+   "question": "Was ist ein Wolpertinger?",
+   "answer": "Ein bayerisches Fabelwesen aus Teilen verschiedener Tiere",
    "participantIds": [
     "p1",
     "p2",
@@ -10991,15 +11195,15 @@
     },
     {
      "id": "D",
-     "text": "Erfunden von Cem 1"
+     "text": "Erfunden von Ben 1"
     },
     {
      "id": "E",
-     "text": "Tüttel"
+     "text": "Ein bayerisches Fabelwesen aus Teilen verschiedener Tiere"
     },
     {
      "id": "F",
-     "text": "Erfunden von Ben 1"
+     "text": "Erfunden von Cem 1"
     }
    ],
    "yourChoiceId": "C",
@@ -11010,7 +11214,7 @@
     "p4",
     "p5"
    ],
-   "yourGuess": "F",
+   "yourGuess": "D",
    "reveal": [
     {
      "id": "A",
@@ -11041,26 +11245,26 @@
     },
     {
      "id": "D",
-     "text": "Erfunden von Cem 1",
-     "correct": false,
-     "authorId": "p3",
-     "guesserIds": []
-    },
-    {
-     "id": "E",
-     "text": "Tüttel",
-     "correct": true,
-     "authorId": null,
-     "guesserIds": []
-    },
-    {
-     "id": "F",
      "text": "Erfunden von Ben 1",
      "correct": false,
      "authorId": "p2",
      "guesserIds": [
       "p1"
      ]
+    },
+    {
+     "id": "E",
+     "text": "Ein bayerisches Fabelwesen aus Teilen verschiedener Tiere",
+     "correct": true,
+     "authorId": null,
+     "guesserIds": []
+    },
+    {
+     "id": "F",
+     "text": "Erfunden von Cem 1",
+     "correct": false,
+     "authorId": "p3",
+     "guesserIds": []
     }
    ],
    "scores": [
@@ -11095,44 +11299,50 @@
   "geoBingo": null
  },
  "nobody_reveal_guest": {
-  "code": "4SQV",
+  "code": "AGAU",
   "game": "NOBODY_IS_PERFECT",
   "games": [
    {
     "type": "WERWOLF",
     "name": "Werwolf",
     "description": "Rollen werden geheim verteilt. Nachts jagen die Werwölfe, tagsüber sucht das Dorf sie.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "IMPOSTOR",
     "name": "Impostor",
     "description": "Alle kennen dasselbe geheime Wort, nur einer nicht. Findet ihn, bevor er sich durchmogelt.",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "TABU",
     "name": "Tabu",
     "description": "Erklärt eurem Team Begriffe, ohne die verbotenen Wörter zu sagen. Ein Aufpasser hat den Buzzer.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "NOBODY_IS_PERFECT",
     "name": "Nobody is Perfect",
     "description": "Zu kuriosen Fragen erfindet jeder eine glaubwürdige Antwort. Wer findet die echte, wer legt die anderen rein?",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "BUZZER",
     "name": "Buzzer",
     "description": "Kein Spiel, sondern ein Werkzeug fürs Quiz: Wer zuerst drückt, ist dran. Die Spielleitung sieht die Reihenfolge.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    },
    {
     "type": "GEO_BINGO",
     "name": "Geo-Bingo",
     "description": "Ihr lauft durch Straßenbilder derselben Stadt und sucht die Motive eurer Bingo-Karte. Die anderen bestätigen jeden Fund.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    }
   ],
   "impostorSettings": {
@@ -11389,8 +11599,8 @@
   "nobodyIsPerfect": {
    "questionNumber": 1,
    "questionCount": 3,
-   "question": "Wie nennt man den Punkt auf dem i?",
-   "answer": "Tüttel",
+   "question": "Was ist ein Wolpertinger?",
+   "answer": "Ein bayerisches Fabelwesen aus Teilen verschiedener Tiere",
    "participantIds": [
     "p1",
     "p2",
@@ -11421,18 +11631,18 @@
     },
     {
      "id": "D",
-     "text": "Erfunden von Cem 1"
+     "text": "Erfunden von Ben 1"
     },
     {
      "id": "E",
-     "text": "Tüttel"
+     "text": "Ein bayerisches Fabelwesen aus Teilen verschiedener Tiere"
     },
     {
      "id": "F",
-     "text": "Erfunden von Ben 1"
+     "text": "Erfunden von Cem 1"
     }
    ],
-   "yourChoiceId": "F",
+   "yourChoiceId": "D",
    "guessedIds": [
     "p1",
     "p2",
@@ -11471,26 +11681,26 @@
     },
     {
      "id": "D",
-     "text": "Erfunden von Cem 1",
-     "correct": false,
-     "authorId": "p3",
-     "guesserIds": []
-    },
-    {
-     "id": "E",
-     "text": "Tüttel",
-     "correct": true,
-     "authorId": null,
-     "guesserIds": []
-    },
-    {
-     "id": "F",
      "text": "Erfunden von Ben 1",
      "correct": false,
      "authorId": "p2",
      "guesserIds": [
       "p1"
      ]
+    },
+    {
+     "id": "E",
+     "text": "Ein bayerisches Fabelwesen aus Teilen verschiedener Tiere",
+     "correct": true,
+     "authorId": null,
+     "guesserIds": []
+    },
+    {
+     "id": "F",
+     "text": "Erfunden von Cem 1",
+     "correct": false,
+     "authorId": "p3",
+     "guesserIds": []
     }
    ],
    "scores": [
@@ -11525,44 +11735,50 @@
   "geoBingo": null
  },
  "nobody_over_host": {
-  "code": "4SQV",
+  "code": "AGAU",
   "game": "NOBODY_IS_PERFECT",
   "games": [
    {
     "type": "WERWOLF",
     "name": "Werwolf",
     "description": "Rollen werden geheim verteilt. Nachts jagen die Werwölfe, tagsüber sucht das Dorf sie.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "IMPOSTOR",
     "name": "Impostor",
     "description": "Alle kennen dasselbe geheime Wort, nur einer nicht. Findet ihn, bevor er sich durchmogelt.",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "TABU",
     "name": "Tabu",
     "description": "Erklärt eurem Team Begriffe, ohne die verbotenen Wörter zu sagen. Ein Aufpasser hat den Buzzer.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "NOBODY_IS_PERFECT",
     "name": "Nobody is Perfect",
     "description": "Zu kuriosen Fragen erfindet jeder eine glaubwürdige Antwort. Wer findet die echte, wer legt die anderen rein?",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "BUZZER",
     "name": "Buzzer",
     "description": "Kein Spiel, sondern ein Werkzeug fürs Quiz: Wer zuerst drückt, ist dran. Die Spielleitung sieht die Reihenfolge.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    },
    {
     "type": "GEO_BINGO",
     "name": "Geo-Bingo",
     "description": "Ihr lauft durch Straßenbilder derselben Stadt und sucht die Motive eurer Bingo-Karte. Die anderen bestätigen jeden Fund.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    }
   ],
   "impostorSettings": {
@@ -11819,8 +12035,8 @@
   "nobodyIsPerfect": {
    "questionNumber": 3,
    "questionCount": 3,
-   "question": "Was ist ein Lackaffe?",
-   "answer": "Ein eitler, aufgeputzter Mann",
+   "question": "Was ist eine Kemenate?",
+   "answer": "Ein beheizbarer Wohnraum auf einer Burg, oft für die Frauen",
    "participantIds": [
     "p1",
     "p2",
@@ -11843,19 +12059,19 @@
     },
     {
      "id": "B",
-     "text": "Erfunden von Elif 3"
+     "text": "Erfunden von Ben 3"
     },
     {
      "id": "C",
-     "text": "Ein eitler, aufgeputzter Mann"
-    },
-    {
-     "id": "D",
      "text": "Erfunden von Dana 3"
     },
     {
+     "id": "D",
+     "text": "Erfunden von Elif 3"
+    },
+    {
      "id": "E",
-     "text": "Erfunden von Ben 3"
+     "text": "Ein beheizbarer Wohnraum auf einer Burg, oft für die Frauen"
     },
     {
      "id": "F",
@@ -11870,7 +12086,7 @@
     "p4",
     "p5"
    ],
-   "yourGuess": "E",
+   "yourGuess": "B",
    "reveal": [
     {
      "id": "A",
@@ -11885,35 +12101,34 @@
     },
     {
      "id": "B",
-     "text": "Erfunden von Elif 3",
+     "text": "Erfunden von Ben 3",
      "correct": false,
-     "authorId": "p5",
+     "authorId": "p2",
      "guesserIds": [
+      "p1",
       "p3"
      ]
     },
     {
      "id": "C",
-     "text": "Ein eitler, aufgeputzter Mann",
-     "correct": true,
-     "authorId": null,
-     "guesserIds": []
-    },
-    {
-     "id": "D",
      "text": "Erfunden von Dana 3",
      "correct": false,
      "authorId": "p4",
      "guesserIds": []
     },
     {
-     "id": "E",
-     "text": "Erfunden von Ben 3",
+     "id": "D",
+     "text": "Erfunden von Elif 3",
      "correct": false,
-     "authorId": "p2",
-     "guesserIds": [
-      "p1"
-     ]
+     "authorId": "p5",
+     "guesserIds": []
+    },
+    {
+     "id": "E",
+     "text": "Ein beheizbarer Wohnraum auf einer Burg, oft für die Frauen",
+     "correct": true,
+     "authorId": null,
+     "guesserIds": []
     },
     {
      "id": "F",
@@ -11931,8 +12146,8 @@
     },
     {
      "playerId": "p2",
-     "score": 3,
-     "gained": 1
+     "score": 4,
+     "gained": 2
     },
     {
      "playerId": "p3",
@@ -11946,8 +12161,8 @@
     },
     {
      "playerId": "p5",
-     "score": 4,
-     "gained": 1
+     "score": 3,
+     "gained": 0
     }
    ]
   },
@@ -11955,44 +12170,50 @@
   "geoBingo": null
  },
  "nobody_over_guest": {
-  "code": "4SQV",
+  "code": "AGAU",
   "game": "NOBODY_IS_PERFECT",
   "games": [
    {
     "type": "WERWOLF",
     "name": "Werwolf",
     "description": "Rollen werden geheim verteilt. Nachts jagen die Werwölfe, tagsüber sucht das Dorf sie.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "IMPOSTOR",
     "name": "Impostor",
     "description": "Alle kennen dasselbe geheime Wort, nur einer nicht. Findet ihn, bevor er sich durchmogelt.",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "TABU",
     "name": "Tabu",
     "description": "Erklärt eurem Team Begriffe, ohne die verbotenen Wörter zu sagen. Ein Aufpasser hat den Buzzer.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "NOBODY_IS_PERFECT",
     "name": "Nobody is Perfect",
     "description": "Zu kuriosen Fragen erfindet jeder eine glaubwürdige Antwort. Wer findet die echte, wer legt die anderen rein?",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "BUZZER",
     "name": "Buzzer",
     "description": "Kein Spiel, sondern ein Werkzeug fürs Quiz: Wer zuerst drückt, ist dran. Die Spielleitung sieht die Reihenfolge.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    },
    {
     "type": "GEO_BINGO",
     "name": "Geo-Bingo",
     "description": "Ihr lauft durch Straßenbilder derselben Stadt und sucht die Motive eurer Bingo-Karte. Die anderen bestätigen jeden Fund.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    }
   ],
   "impostorSettings": {
@@ -12249,8 +12470,8 @@
   "nobodyIsPerfect": {
    "questionNumber": 3,
    "questionCount": 3,
-   "question": "Was ist ein Lackaffe?",
-   "answer": "Ein eitler, aufgeputzter Mann",
+   "question": "Was ist eine Kemenate?",
+   "answer": "Ein beheizbarer Wohnraum auf einer Burg, oft für die Frauen",
    "participantIds": [
     "p1",
     "p2",
@@ -12273,26 +12494,26 @@
     },
     {
      "id": "B",
-     "text": "Erfunden von Elif 3"
+     "text": "Erfunden von Ben 3"
     },
     {
      "id": "C",
-     "text": "Ein eitler, aufgeputzter Mann"
-    },
-    {
-     "id": "D",
      "text": "Erfunden von Dana 3"
     },
     {
+     "id": "D",
+     "text": "Erfunden von Elif 3"
+    },
+    {
      "id": "E",
-     "text": "Erfunden von Ben 3"
+     "text": "Ein beheizbarer Wohnraum auf einer Burg, oft für die Frauen"
     },
     {
      "id": "F",
      "text": "Erfunden von Anna 3"
     }
    ],
-   "yourChoiceId": "E",
+   "yourChoiceId": "B",
    "guessedIds": [
     "p1",
     "p2",
@@ -12315,35 +12536,34 @@
     },
     {
      "id": "B",
-     "text": "Erfunden von Elif 3",
+     "text": "Erfunden von Ben 3",
      "correct": false,
-     "authorId": "p5",
+     "authorId": "p2",
      "guesserIds": [
+      "p1",
       "p3"
      ]
     },
     {
      "id": "C",
-     "text": "Ein eitler, aufgeputzter Mann",
-     "correct": true,
-     "authorId": null,
-     "guesserIds": []
-    },
-    {
-     "id": "D",
      "text": "Erfunden von Dana 3",
      "correct": false,
      "authorId": "p4",
      "guesserIds": []
     },
     {
-     "id": "E",
-     "text": "Erfunden von Ben 3",
+     "id": "D",
+     "text": "Erfunden von Elif 3",
      "correct": false,
-     "authorId": "p2",
-     "guesserIds": [
-      "p1"
-     ]
+     "authorId": "p5",
+     "guesserIds": []
+    },
+    {
+     "id": "E",
+     "text": "Ein beheizbarer Wohnraum auf einer Burg, oft für die Frauen",
+     "correct": true,
+     "authorId": null,
+     "guesserIds": []
     },
     {
      "id": "F",
@@ -12361,8 +12581,8 @@
     },
     {
      "playerId": "p2",
-     "score": 3,
-     "gained": 1
+     "score": 4,
+     "gained": 2
     },
     {
      "playerId": "p3",
@@ -12376,8 +12596,8 @@
     },
     {
      "playerId": "p5",
-     "score": 4,
-     "gained": 1
+     "score": 3,
+     "gained": 0
     }
    ]
   },
@@ -12385,44 +12605,50 @@
   "geoBingo": null
  },
  "lobby_buzzer_host": {
-  "code": "4SQV",
+  "code": "AGAU",
   "game": "BUZZER",
   "games": [
    {
     "type": "WERWOLF",
     "name": "Werwolf",
     "description": "Rollen werden geheim verteilt. Nachts jagen die Werwölfe, tagsüber sucht das Dorf sie.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "IMPOSTOR",
     "name": "Impostor",
     "description": "Alle kennen dasselbe geheime Wort, nur einer nicht. Findet ihn, bevor er sich durchmogelt.",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "TABU",
     "name": "Tabu",
     "description": "Erklärt eurem Team Begriffe, ohne die verbotenen Wörter zu sagen. Ein Aufpasser hat den Buzzer.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "NOBODY_IS_PERFECT",
     "name": "Nobody is Perfect",
     "description": "Zu kuriosen Fragen erfindet jeder eine glaubwürdige Antwort. Wer findet die echte, wer legt die anderen rein?",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "BUZZER",
     "name": "Buzzer",
     "description": "Kein Spiel, sondern ein Werkzeug fürs Quiz: Wer zuerst drückt, ist dran. Die Spielleitung sieht die Reihenfolge.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    },
    {
     "type": "GEO_BINGO",
     "name": "Geo-Bingo",
     "description": "Ihr lauft durch Straßenbilder derselben Stadt und sucht die Motive eurer Bingo-Karte. Die anderen bestätigen jeden Fund.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    }
   ],
   "impostorSettings": {
@@ -12681,44 +12907,50 @@
   "geoBingo": null
  },
  "lobby_buzzer_guest": {
-  "code": "4SQV",
+  "code": "AGAU",
   "game": "BUZZER",
   "games": [
    {
     "type": "WERWOLF",
     "name": "Werwolf",
     "description": "Rollen werden geheim verteilt. Nachts jagen die Werwölfe, tagsüber sucht das Dorf sie.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "IMPOSTOR",
     "name": "Impostor",
     "description": "Alle kennen dasselbe geheime Wort, nur einer nicht. Findet ihn, bevor er sich durchmogelt.",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "TABU",
     "name": "Tabu",
     "description": "Erklärt eurem Team Begriffe, ohne die verbotenen Wörter zu sagen. Ein Aufpasser hat den Buzzer.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "NOBODY_IS_PERFECT",
     "name": "Nobody is Perfect",
     "description": "Zu kuriosen Fragen erfindet jeder eine glaubwürdige Antwort. Wer findet die echte, wer legt die anderen rein?",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "BUZZER",
     "name": "Buzzer",
     "description": "Kein Spiel, sondern ein Werkzeug fürs Quiz: Wer zuerst drückt, ist dran. Die Spielleitung sieht die Reihenfolge.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    },
    {
     "type": "GEO_BINGO",
     "name": "Geo-Bingo",
     "description": "Ihr lauft durch Straßenbilder derselben Stadt und sucht die Motive eurer Bingo-Karte. Die anderen bestätigen jeden Fund.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    }
   ],
   "impostorSettings": {
@@ -12977,44 +13209,50 @@
   "geoBingo": null
  },
  "buzzer_host_empty": {
-  "code": "4SQV",
+  "code": "AGAU",
   "game": "BUZZER",
   "games": [
    {
     "type": "WERWOLF",
     "name": "Werwolf",
     "description": "Rollen werden geheim verteilt. Nachts jagen die Werwölfe, tagsüber sucht das Dorf sie.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "IMPOSTOR",
     "name": "Impostor",
     "description": "Alle kennen dasselbe geheime Wort, nur einer nicht. Findet ihn, bevor er sich durchmogelt.",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "TABU",
     "name": "Tabu",
     "description": "Erklärt eurem Team Begriffe, ohne die verbotenen Wörter zu sagen. Ein Aufpasser hat den Buzzer.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "NOBODY_IS_PERFECT",
     "name": "Nobody is Perfect",
     "description": "Zu kuriosen Fragen erfindet jeder eine glaubwürdige Antwort. Wer findet die echte, wer legt die anderen rein?",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "BUZZER",
     "name": "Buzzer",
     "description": "Kein Spiel, sondern ein Werkzeug fürs Quiz: Wer zuerst drückt, ist dran. Die Spielleitung sieht die Reihenfolge.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    },
    {
     "type": "GEO_BINGO",
     "name": "Geo-Bingo",
     "description": "Ihr lauft durch Straßenbilder derselben Stadt und sucht die Motive eurer Bingo-Karte. Die anderen bestätigen jeden Fund.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    }
   ],
   "impostorSettings": {
@@ -13278,44 +13516,50 @@
   "geoBingo": null
  },
  "buzzer_player_open": {
-  "code": "4SQV",
+  "code": "AGAU",
   "game": "BUZZER",
   "games": [
    {
     "type": "WERWOLF",
     "name": "Werwolf",
     "description": "Rollen werden geheim verteilt. Nachts jagen die Werwölfe, tagsüber sucht das Dorf sie.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "IMPOSTOR",
     "name": "Impostor",
     "description": "Alle kennen dasselbe geheime Wort, nur einer nicht. Findet ihn, bevor er sich durchmogelt.",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "TABU",
     "name": "Tabu",
     "description": "Erklärt eurem Team Begriffe, ohne die verbotenen Wörter zu sagen. Ein Aufpasser hat den Buzzer.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "NOBODY_IS_PERFECT",
     "name": "Nobody is Perfect",
     "description": "Zu kuriosen Fragen erfindet jeder eine glaubwürdige Antwort. Wer findet die echte, wer legt die anderen rein?",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "BUZZER",
     "name": "Buzzer",
     "description": "Kein Spiel, sondern ein Werkzeug fürs Quiz: Wer zuerst drückt, ist dran. Die Spielleitung sieht die Reihenfolge.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    },
    {
     "type": "GEO_BINGO",
     "name": "Geo-Bingo",
     "description": "Ihr lauft durch Straßenbilder derselben Stadt und sucht die Motive eurer Bingo-Karte. Die anderen bestätigen jeden Fund.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    }
   ],
   "impostorSettings": {
@@ -13579,44 +13823,50 @@
   "geoBingo": null
  },
  "buzzer_host_pressed": {
-  "code": "4SQV",
+  "code": "AGAU",
   "game": "BUZZER",
   "games": [
    {
     "type": "WERWOLF",
     "name": "Werwolf",
     "description": "Rollen werden geheim verteilt. Nachts jagen die Werwölfe, tagsüber sucht das Dorf sie.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "IMPOSTOR",
     "name": "Impostor",
     "description": "Alle kennen dasselbe geheime Wort, nur einer nicht. Findet ihn, bevor er sich durchmogelt.",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "TABU",
     "name": "Tabu",
     "description": "Erklärt eurem Team Begriffe, ohne die verbotenen Wörter zu sagen. Ein Aufpasser hat den Buzzer.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "NOBODY_IS_PERFECT",
     "name": "Nobody is Perfect",
     "description": "Zu kuriosen Fragen erfindet jeder eine glaubwürdige Antwort. Wer findet die echte, wer legt die anderen rein?",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "BUZZER",
     "name": "Buzzer",
     "description": "Kein Spiel, sondern ein Werkzeug fürs Quiz: Wer zuerst drückt, ist dran. Die Spielleitung sieht die Reihenfolge.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    },
    {
     "type": "GEO_BINGO",
     "name": "Geo-Bingo",
     "description": "Ihr lauft durch Straßenbilder derselben Stadt und sucht die Motive eurer Bingo-Karte. Die anderen bestätigen jeden Fund.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    }
   ],
   "impostorSettings": {
@@ -13882,7 +14132,7 @@
     {
      "playerId": "p3",
      "rank": 2,
-     "offsetMs": 3
+     "offsetMs": 2
     }
    ],
    "yourRank": null,
@@ -13891,44 +14141,50 @@
   "geoBingo": null
  },
  "buzzer_player_first": {
-  "code": "4SQV",
+  "code": "AGAU",
   "game": "BUZZER",
   "games": [
    {
     "type": "WERWOLF",
     "name": "Werwolf",
     "description": "Rollen werden geheim verteilt. Nachts jagen die Werwölfe, tagsüber sucht das Dorf sie.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "IMPOSTOR",
     "name": "Impostor",
     "description": "Alle kennen dasselbe geheime Wort, nur einer nicht. Findet ihn, bevor er sich durchmogelt.",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "TABU",
     "name": "Tabu",
     "description": "Erklärt eurem Team Begriffe, ohne die verbotenen Wörter zu sagen. Ein Aufpasser hat den Buzzer.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "NOBODY_IS_PERFECT",
     "name": "Nobody is Perfect",
     "description": "Zu kuriosen Fragen erfindet jeder eine glaubwürdige Antwort. Wer findet die echte, wer legt die anderen rein?",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "BUZZER",
     "name": "Buzzer",
     "description": "Kein Spiel, sondern ein Werkzeug fürs Quiz: Wer zuerst drückt, ist dran. Die Spielleitung sieht die Reihenfolge.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    },
    {
     "type": "GEO_BINGO",
     "name": "Geo-Bingo",
     "description": "Ihr lauft durch Straßenbilder derselben Stadt und sucht die Motive eurer Bingo-Karte. Die anderen bestätigen jeden Fund.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    }
   ],
   "impostorSettings": {
@@ -14192,44 +14448,50 @@
   "geoBingo": null
  },
  "buzzer_player_second": {
-  "code": "4SQV",
+  "code": "AGAU",
   "game": "BUZZER",
   "games": [
    {
     "type": "WERWOLF",
     "name": "Werwolf",
     "description": "Rollen werden geheim verteilt. Nachts jagen die Werwölfe, tagsüber sucht das Dorf sie.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "IMPOSTOR",
     "name": "Impostor",
     "description": "Alle kennen dasselbe geheime Wort, nur einer nicht. Findet ihn, bevor er sich durchmogelt.",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "TABU",
     "name": "Tabu",
     "description": "Erklärt eurem Team Begriffe, ohne die verbotenen Wörter zu sagen. Ein Aufpasser hat den Buzzer.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "NOBODY_IS_PERFECT",
     "name": "Nobody is Perfect",
     "description": "Zu kuriosen Fragen erfindet jeder eine glaubwürdige Antwort. Wer findet die echte, wer legt die anderen rein?",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "BUZZER",
     "name": "Buzzer",
     "description": "Kein Spiel, sondern ein Werkzeug fürs Quiz: Wer zuerst drückt, ist dran. Die Spielleitung sieht die Reihenfolge.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    },
    {
     "type": "GEO_BINGO",
     "name": "Geo-Bingo",
     "description": "Ihr lauft durch Straßenbilder derselben Stadt und sucht die Motive eurer Bingo-Karte. Die anderen bestätigen jeden Fund.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    }
   ],
   "impostorSettings": {
@@ -14493,44 +14755,50 @@
   "geoBingo": null
  },
  "lobby_geo_bingo_host": {
-  "code": "4SQV",
+  "code": "AGAU",
   "game": "GEO_BINGO",
   "games": [
    {
     "type": "WERWOLF",
     "name": "Werwolf",
     "description": "Rollen werden geheim verteilt. Nachts jagen die Werwölfe, tagsüber sucht das Dorf sie.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "IMPOSTOR",
     "name": "Impostor",
     "description": "Alle kennen dasselbe geheime Wort, nur einer nicht. Findet ihn, bevor er sich durchmogelt.",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "TABU",
     "name": "Tabu",
     "description": "Erklärt eurem Team Begriffe, ohne die verbotenen Wörter zu sagen. Ein Aufpasser hat den Buzzer.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "NOBODY_IS_PERFECT",
     "name": "Nobody is Perfect",
     "description": "Zu kuriosen Fragen erfindet jeder eine glaubwürdige Antwort. Wer findet die echte, wer legt die anderen rein?",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "BUZZER",
     "name": "Buzzer",
     "description": "Kein Spiel, sondern ein Werkzeug fürs Quiz: Wer zuerst drückt, ist dran. Die Spielleitung sieht die Reihenfolge.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    },
    {
     "type": "GEO_BINGO",
     "name": "Geo-Bingo",
     "description": "Ihr lauft durch Straßenbilder derselben Stadt und sucht die Motive eurer Bingo-Karte. Die anderen bestätigen jeden Fund.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    }
   ],
   "impostorSettings": {
@@ -14789,44 +15057,50 @@
   "geoBingo": null
  },
  "lobby_geo_bingo_guest": {
-  "code": "4SQV",
+  "code": "AGAU",
   "game": "GEO_BINGO",
   "games": [
    {
     "type": "WERWOLF",
     "name": "Werwolf",
     "description": "Rollen werden geheim verteilt. Nachts jagen die Werwölfe, tagsüber sucht das Dorf sie.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "IMPOSTOR",
     "name": "Impostor",
     "description": "Alle kennen dasselbe geheime Wort, nur einer nicht. Findet ihn, bevor er sich durchmogelt.",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "TABU",
     "name": "Tabu",
     "description": "Erklärt eurem Team Begriffe, ohne die verbotenen Wörter zu sagen. Ein Aufpasser hat den Buzzer.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "NOBODY_IS_PERFECT",
     "name": "Nobody is Perfect",
     "description": "Zu kuriosen Fragen erfindet jeder eine glaubwürdige Antwort. Wer findet die echte, wer legt die anderen rein?",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "BUZZER",
     "name": "Buzzer",
     "description": "Kein Spiel, sondern ein Werkzeug fürs Quiz: Wer zuerst drückt, ist dran. Die Spielleitung sieht die Reihenfolge.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    },
    {
     "type": "GEO_BINGO",
     "name": "Geo-Bingo",
     "description": "Ihr lauft durch Straßenbilder derselben Stadt und sucht die Motive eurer Bingo-Karte. Die anderen bestätigen jeden Fund.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    }
   ],
   "impostorSettings": {
@@ -15085,44 +15359,50 @@
   "geoBingo": null
  },
  "geo_bingo_start": {
-  "code": "4SQV",
+  "code": "AGAU",
   "game": "GEO_BINGO",
   "games": [
    {
     "type": "WERWOLF",
     "name": "Werwolf",
     "description": "Rollen werden geheim verteilt. Nachts jagen die Werwölfe, tagsüber sucht das Dorf sie.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "IMPOSTOR",
     "name": "Impostor",
     "description": "Alle kennen dasselbe geheime Wort, nur einer nicht. Findet ihn, bevor er sich durchmogelt.",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "TABU",
     "name": "Tabu",
     "description": "Erklärt eurem Team Begriffe, ohne die verbotenen Wörter zu sagen. Ein Aufpasser hat den Buzzer.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "NOBODY_IS_PERFECT",
     "name": "Nobody is Perfect",
     "description": "Zu kuriosen Fragen erfindet jeder eine glaubwürdige Antwort. Wer findet die echte, wer legt die anderen rein?",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "BUZZER",
     "name": "Buzzer",
     "description": "Kein Spiel, sondern ein Werkzeug fürs Quiz: Wer zuerst drückt, ist dran. Die Spielleitung sieht die Reihenfolge.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    },
    {
     "type": "GEO_BINGO",
     "name": "Geo-Bingo",
     "description": "Ihr lauft durch Straßenbilder derselben Stadt und sucht die Motive eurer Bingo-Karte. Die anderen bestätigen jeden Fund.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    }
   ],
   "impostorSettings": {
@@ -15383,17 +15663,17 @@
    "lat": 50.8467,
    "lng": 4.3525,
    "board": [
-    "Ampel",
-    "Hund",
-    "Kirche",
+    "Brunnen",
+    "Bus",
+    "Blumenkasten",
     "Motorroller",
-    "Statue",
-    "Straßenbahn",
-    "Torbogen",
-    "Fahrradständer",
-    "Blumenkasten"
+    "Taxi",
+    "Graffiti",
+    "Markise",
+    "Balkon",
+    "Fensterläden"
    ],
-   "remainingMs": 899994,
+   "remainingMs": 899993,
    "scores": [
     {
      "playerId": "p1",
@@ -15423,44 +15703,50 @@
   }
  },
  "geo_bingo_claimer": {
-  "code": "4SQV",
+  "code": "AGAU",
   "game": "GEO_BINGO",
   "games": [
    {
     "type": "WERWOLF",
     "name": "Werwolf",
     "description": "Rollen werden geheim verteilt. Nachts jagen die Werwölfe, tagsüber sucht das Dorf sie.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "IMPOSTOR",
     "name": "Impostor",
     "description": "Alle kennen dasselbe geheime Wort, nur einer nicht. Findet ihn, bevor er sich durchmogelt.",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "TABU",
     "name": "Tabu",
     "description": "Erklärt eurem Team Begriffe, ohne die verbotenen Wörter zu sagen. Ein Aufpasser hat den Buzzer.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "NOBODY_IS_PERFECT",
     "name": "Nobody is Perfect",
     "description": "Zu kuriosen Fragen erfindet jeder eine glaubwürdige Antwort. Wer findet die echte, wer legt die anderen rein?",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "BUZZER",
     "name": "Buzzer",
     "description": "Kein Spiel, sondern ein Werkzeug fürs Quiz: Wer zuerst drückt, ist dran. Die Spielleitung sieht die Reihenfolge.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    },
    {
     "type": "GEO_BINGO",
     "name": "Geo-Bingo",
     "description": "Ihr lauft durch Straßenbilder derselben Stadt und sucht die Motive eurer Bingo-Karte. Die anderen bestätigen jeden Fund.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    }
   ],
   "impostorSettings": {
@@ -15721,17 +16007,17 @@
    "lat": 50.8467,
    "lng": 4.3525,
    "board": [
-    "Ampel",
-    "Hund",
-    "Kirche",
+    "Brunnen",
+    "Bus",
+    "Blumenkasten",
     "Motorroller",
-    "Statue",
-    "Straßenbahn",
-    "Torbogen",
-    "Fahrradständer",
-    "Blumenkasten"
+    "Taxi",
+    "Graffiti",
+    "Markise",
+    "Balkon",
+    "Fensterläden"
    ],
-   "remainingMs": 899955,
+   "remainingMs": 899965,
    "scores": [
     {
      "playerId": "p1",
@@ -15782,44 +16068,50 @@
   }
  },
  "geo_bingo_vote": {
-  "code": "4SQV",
+  "code": "AGAU",
   "game": "GEO_BINGO",
   "games": [
    {
     "type": "WERWOLF",
     "name": "Werwolf",
     "description": "Rollen werden geheim verteilt. Nachts jagen die Werwölfe, tagsüber sucht das Dorf sie.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "IMPOSTOR",
     "name": "Impostor",
     "description": "Alle kennen dasselbe geheime Wort, nur einer nicht. Findet ihn, bevor er sich durchmogelt.",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "TABU",
     "name": "Tabu",
     "description": "Erklärt eurem Team Begriffe, ohne die verbotenen Wörter zu sagen. Ein Aufpasser hat den Buzzer.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "NOBODY_IS_PERFECT",
     "name": "Nobody is Perfect",
     "description": "Zu kuriosen Fragen erfindet jeder eine glaubwürdige Antwort. Wer findet die echte, wer legt die anderen rein?",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "BUZZER",
     "name": "Buzzer",
     "description": "Kein Spiel, sondern ein Werkzeug fürs Quiz: Wer zuerst drückt, ist dran. Die Spielleitung sieht die Reihenfolge.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    },
    {
     "type": "GEO_BINGO",
     "name": "Geo-Bingo",
     "description": "Ihr lauft durch Straßenbilder derselben Stadt und sucht die Motive eurer Bingo-Karte. Die anderen bestätigen jeden Fund.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    }
   ],
   "impostorSettings": {
@@ -16080,17 +16372,17 @@
    "lat": 50.8467,
    "lng": 4.3525,
    "board": [
-    "Ampel",
-    "Hund",
-    "Kirche",
+    "Brunnen",
+    "Bus",
+    "Blumenkasten",
     "Motorroller",
-    "Statue",
-    "Straßenbahn",
-    "Torbogen",
-    "Fahrradständer",
-    "Blumenkasten"
+    "Taxi",
+    "Graffiti",
+    "Markise",
+    "Balkon",
+    "Fensterläden"
    ],
-   "remainingMs": 899955,
+   "remainingMs": 899966,
    "scores": [
     {
      "playerId": "p1",
@@ -16141,44 +16433,50 @@
   }
  },
  "geo_bingo_over_host": {
-  "code": "4SQV",
+  "code": "AGAU",
   "game": "GEO_BINGO",
   "games": [
    {
     "type": "WERWOLF",
     "name": "Werwolf",
     "description": "Rollen werden geheim verteilt. Nachts jagen die Werwölfe, tagsüber sucht das Dorf sie.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "IMPOSTOR",
     "name": "Impostor",
     "description": "Alle kennen dasselbe geheime Wort, nur einer nicht. Findet ihn, bevor er sich durchmogelt.",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "TABU",
     "name": "Tabu",
     "description": "Erklärt eurem Team Begriffe, ohne die verbotenen Wörter zu sagen. Ein Aufpasser hat den Buzzer.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "NOBODY_IS_PERFECT",
     "name": "Nobody is Perfect",
     "description": "Zu kuriosen Fragen erfindet jeder eine glaubwürdige Antwort. Wer findet die echte, wer legt die anderen rein?",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "BUZZER",
     "name": "Buzzer",
     "description": "Kein Spiel, sondern ein Werkzeug fürs Quiz: Wer zuerst drückt, ist dran. Die Spielleitung sieht die Reihenfolge.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    },
    {
     "type": "GEO_BINGO",
     "name": "Geo-Bingo",
     "description": "Ihr lauft durch Straßenbilder derselben Stadt und sucht die Motive eurer Bingo-Karte. Die anderen bestätigen jeden Fund.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    }
   ],
   "impostorSettings": {
@@ -16439,17 +16737,17 @@
    "lat": 50.8467,
    "lng": 4.3525,
    "board": [
-    "Ampel",
-    "Hund",
-    "Kirche",
+    "Brunnen",
+    "Bus",
+    "Blumenkasten",
     "Motorroller",
-    "Statue",
-    "Straßenbahn",
-    "Torbogen",
-    "Fahrradständer",
-    "Blumenkasten"
+    "Taxi",
+    "Graffiti",
+    "Markise",
+    "Balkon",
+    "Fensterläden"
    ],
-   "remainingMs": 899922,
+   "remainingMs": 899937,
    "scores": [
     {
      "playerId": "p1",
@@ -16505,44 +16803,50 @@
   }
  },
  "geo_bingo_over_guest": {
-  "code": "4SQV",
+  "code": "AGAU",
   "game": "GEO_BINGO",
   "games": [
    {
     "type": "WERWOLF",
     "name": "Werwolf",
     "description": "Rollen werden geheim verteilt. Nachts jagen die Werwölfe, tagsüber sucht das Dorf sie.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "IMPOSTOR",
     "name": "Impostor",
     "description": "Alle kennen dasselbe geheime Wort, nur einer nicht. Findet ihn, bevor er sich durchmogelt.",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "TABU",
     "name": "Tabu",
     "description": "Erklärt eurem Team Begriffe, ohne die verbotenen Wörter zu sagen. Ein Aufpasser hat den Buzzer.",
-    "minPlayers": 4
+    "minPlayers": 4,
+    "locked": false
    },
    {
     "type": "NOBODY_IS_PERFECT",
     "name": "Nobody is Perfect",
     "description": "Zu kuriosen Fragen erfindet jeder eine glaubwürdige Antwort. Wer findet die echte, wer legt die anderen rein?",
-    "minPlayers": 3
+    "minPlayers": 3,
+    "locked": false
    },
    {
     "type": "BUZZER",
     "name": "Buzzer",
     "description": "Kein Spiel, sondern ein Werkzeug fürs Quiz: Wer zuerst drückt, ist dran. Die Spielleitung sieht die Reihenfolge.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    },
    {
     "type": "GEO_BINGO",
     "name": "Geo-Bingo",
     "description": "Ihr lauft durch Straßenbilder derselben Stadt und sucht die Motive eurer Bingo-Karte. Die anderen bestätigen jeden Fund.",
-    "minPlayers": 2
+    "minPlayers": 2,
+    "locked": false
    }
   ],
   "impostorSettings": {
@@ -16803,17 +17107,17 @@
    "lat": 50.8467,
    "lng": 4.3525,
    "board": [
-    "Ampel",
-    "Hund",
-    "Kirche",
+    "Brunnen",
+    "Bus",
+    "Blumenkasten",
     "Motorroller",
-    "Statue",
-    "Straßenbahn",
-    "Torbogen",
-    "Fahrradständer",
-    "Blumenkasten"
+    "Taxi",
+    "Graffiti",
+    "Markise",
+    "Balkon",
+    "Fensterläden"
    ],
-   "remainingMs": 899922,
+   "remainingMs": 899936,
    "scores": [
     {
      "playerId": "p1",
