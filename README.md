@@ -1,26 +1,39 @@
-# Werwolf
+# Arynta Spielesammlung
 
 Kleine Webseite für Spieleabende: Jeder öffnet sie auf dem Handy, tritt mit einem
-vierstelligen Code einem Raum bei, und der Server verteilt die Rollen. Gesprochen
-wird ganz normal am Tisch.
+vierstelligen Code einem Raum bei, und die Spielleitung wählt ein Spiel aus. Der Server
+verteilt Rollen, Wörter und Karten. Gesprochen wird ganz normal am Tisch.
+
+Wer keinen Server braucht, spielt im lokalen Modus: ein Handy, das reihum weitergegeben
+wird. Der läuft komplett im Browser.
 
 ```
-werwolf/
-├── backend/    Spring Boot 4 (Java 21), WebSocket unter /ws
-├── frontend/   Vite + TypeScript, ohne Framework
-└── render.yaml Deployment des Backends auf Render (Free)
+├── backend/     Spring Boot 4 (Java 21), WebSocket unter /ws
+│   └── src/main/resources/games/   Rollen, Wörter, Tabu-Karten, Fragen (JSON)
+├── frontend/    Vite + TypeScript, ohne Framework
+├── assets/      Bilder (Werwolf-Karte)
+├── render.yaml  Deployment des Backends auf Render (Free)
+└── devserver.bat  Startet den Frontend-Dev-Server unter Windows
 ```
 
-## Was schon geht
+## Spiele
 
-- Raum erstellen, Code oder Link teilen, beitreten
+| Spiel | ab Spielern | Worum es geht |
+| --- | --- | --- |
+| Werwolf | 4 | Rollen werden geheim verteilt, die Spielleitung schaltet zwischen Nacht und Tag um. Anzahl der Werwölfe und Sonderrollen sind einstellbar. |
+| Impostor | 3 | Alle kennen dasselbe Wort, nur der Impostor nicht. Danach wird abgestimmt. |
+| Tabu | 4 | Zwei Teams, Begriffe erklären ohne die verbotenen Wörter, mit Zeitlimit und Buzzer. |
+| Nobody is Perfect | 3 | Jeder erfindet eine Antwort auf eine kuriose Frage, dann wird die echte gesucht. |
+| Buzzer | 2 | Werkzeug fürs Quiz: Wer zuerst drückt, ist dran. |
+
+Was für alle Spiele gilt:
+
 - Wer den Raum erstellt, ist Spielleitung. Geht sie in der Lobby, übernimmt der Nächste.
-- Ab 4 Spielern starten. Pro angefangene 4 Spieler ein Werwolf, eine Seherin, der Rest Dorfbewohner
-- Jeder sieht nur seine eigene Rolle (Karte gedrückt halten). Werwölfe sehen, wer noch Werwolf ist.
-- Die Spielleitung schaltet zwischen Nacht und Tag um, das Design wechselt mit
-- Seite neu laden oder Handy sperren: man landet wieder im selben Raum
-- Wer die Verbindung verliert, wird als "offline" angezeigt
-- Räume ohne Aktivität werden nach 6 Stunden gelöscht
+- Die Spielleitung kann in der Lobby Spieler entfernen und ein Spielerlimit setzen (höchstens 20).
+- Jeder sieht nur seine eigenen geheimen Infos.
+- Seite neu laden oder Handy sperren: man landet wieder im selben Raum.
+- Wer die Verbindung verliert, wird als "offline" angezeigt.
+- Räume ohne Aktivität werden nach 6 Stunden gelöscht.
 
 ## Lokal starten
 
@@ -39,6 +52,8 @@ npm install
 npm run dev
 ```
 
+Unter Windows erledigt `.\devserver.bat` im Projektordner beide Frontend-Schritte.
+
 Dann http://localhost:5173 öffnen. `npm run dev` startet mit `--host`, damit du die
 Seite auch vom Handy im selben WLAN aufrufen kannst (Adresse steht im Terminal).
 Dafür musst du in `frontend/.env.local` die IP deines Rechners eintragen,
@@ -52,14 +67,16 @@ Zum Testen mit mehreren Spielern reichen mehrere private Browserfenster.
 1. Projekt auf GitHub pushen.
 2. **Backend auf Render:** render.com → New → Blueprint → Repo wählen. Render baut das
    Dockerfile in `backend/`. Danach hast du eine Adresse wie
-   `https://werwolf-backend.onrender.com`.
-3. **Frontend auf Cloudflare Pages** (oder Vercel/Netlify, geht genauso):
-   - Root directory: `frontend`
-   - Build command: `npm run build`
-   - Output directory: `dist`
-   - Umgebungsvariable: `VITE_BACKEND_URL=wss://werwolf-backend.onrender.com/ws`
+   `https://arynta-spielesammlung.onrender.com`. Neue Versionen deployt Render erst,
+   wenn die Tests auf GitHub grün sind.
+3. **Frontend auf GitHub Pages:** Unter Settings → Pages als Quelle "GitHub Actions"
+   wählen. Unter Settings → Secrets and variables → Actions → Variables die Variable
+   `VITE_BACKEND_URL` anlegen, z. B. `wss://arynta-spielesammlung.onrender.com/ws`.
+   Der Workflow `.github/workflows/pages.yml` baut und veröffentlicht das Frontend bei
+   jedem Push auf `main`, der das Frontend, die Spieldaten oder die Bilder ändert.
 4. Bei Render unter Environment `ALLOWED_ORIGINS` auf die Adresse des Frontends
-   setzen, z. B. `https://werwolf.pages.dev`, und neu deployen.
+   setzen (die steht nach dem ersten Lauf unter Settings → Pages) und neu deployen.
+   Mehrere Adressen gehen kommagetrennt.
 
 Der kostenlose Render-Server schläft nach 15 Minuten ohne Besucher ein. Wer als Erstes
 die Seite öffnet, sieht dann "Der Server wird geweckt" und wartet bis zu einer Minute.
@@ -70,25 +87,34 @@ nicht, weil die Handys die Verbindung aktiv halten.
 
 | Was | Wo |
 | --- | --- |
-| Neue Rollen (Hexe, Jäger, Amor …) | `Role.java`, `RoleDistribution.java`, im Frontend `types.ts` |
-| Abstimmung, Opfer, Siegbedingung | `Room.nextPhase()` und neue Methoden in `Room`, neue Nachrichtentypen in `GameSocketHandler` |
-| Nachrichten zwischen Handy und Server | `ClientMessage.java` und `types.ts` (beide Seiten gleich halten) |
+| Rollen, Impostor-Wörter, Tabu-Karten, Fragen | JSON-Dateien in `backend/src/main/resources/games/`. Das Frontend liest dieselben Dateien (`gameData.ts`), es gibt also nur eine Liste. |
+| Regeln der Werwolf-Verteilung | `RoleDistribution.java`, `WerwolfRoles.java` |
+| Ablauf eines Spiels | die Klasse des Spiels, z. B. `TabuGame.java`, und die passenden Methoden in `Room` |
+| Nachrichten zwischen Handy und Server | `ClientMessage.java`, `GameSocketHandler.handle()` und `types.ts` (beide Seiten gleich halten) |
+| Lokaler Modus | `localGames.ts` (Regeln, mit Tests) und `localMode.ts` (Ansicht) |
 | Aussehen | `frontend/src/style.css`, die Farben hängen an `body[data-phase=…]` |
 
-Eine neue Aktion einbauen, z. B. eine Abstimmung:
+Ein neues Spiel einbauen:
 
-1. In `Room` eine Methode `vote(String voterId, String targetId)` schreiben und testen
-   (`RoomTest.java` zeigt, wie).
-2. In `GameSocketHandler.handle()` einen Fall `case "vote" ->` ergänzen.
-3. `ClientMessage` um das Feld `targetId` erweitern, in `types.ts` den Typ
-   `{ type: "vote"; targetId: string }` ergänzen.
-4. Im Frontend einen Knopf mit `data-action` einbauen und in `act()` die Nachricht senden.
+1. In `GameType` einen Eintrag mit Name, Mindestzahl an Spielern und Beschreibung anlegen.
+2. Eine Klasse schreiben, die `Game` implementiert, und sie in `Game` bei `permits`
+   ergänzen. In `Room.start()` den neuen Fall einbauen.
+3. Für jede Aktion eine Methode in `Room` schreiben und testen (`TabuTest.java` oder
+   `BuzzerTest.java` zeigen, wie), dann in `GameSocketHandler.handle()` einen Fall
+   `case "…" ->` ergänzen. Neue Felder kommen in `ClientMessage` und in `types.ts`.
+4. Die Ansicht pro Spieler in `RoomView` und `Room.viewFor()` ergänzen.
+5. Im Frontend eine Datei wie `onlineBuzzer.ts` anlegen, Knöpfe mit `data-action`
+   einbauen und in `act()` in `main.ts` die Nachricht senden.
 
-Die Ansicht, die jeder Spieler bekommt, baut `Room.viewFor()`. Alles Geheime gehört
-dort hinein und nur in das Feld `you`, damit es nie bei anderen Spielern landet.
+`Room.viewFor()` baut die Ansicht für jeden Spieler einzeln. Alles Geheime gehört nur
+in die Teile, die für genau diesen Spieler gebaut werden (das Feld `you` und das
+`viewFor(playerId)` des jeweiligen Spiels), damit es nie bei anderen Spielern landet.
 
 ## Tests
 
 ```bash
 cd backend && mvn test
+cd frontend && npm test
 ```
+
+Beide laufen auch auf GitHub bei jedem Push (`.github/workflows/tests.yml`).
