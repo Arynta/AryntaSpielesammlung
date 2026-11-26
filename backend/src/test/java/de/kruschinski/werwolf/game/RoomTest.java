@@ -1,5 +1,8 @@
 package de.kruschinski.werwolf.game;
 
+import de.kruschinski.werwolf.i18n.Language;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.api.Test;
 
 import java.time.Clock;
@@ -429,13 +432,19 @@ class RoomTest {
         assertEquals("Noch 1 Spieler (ohne Spielleitung), dann kann es losgehen.", room.viewFor("p1").startHint());
     }
 
-    @Test
-    void rollendateiIstVollstaendig() {
-        assertEquals(19, WerwolfRoles.specialRoles().size());
-        for (Role role : WerwolfRoles.specialRoles()) {
+    @ParameterizedTest
+    @EnumSource(Language.class)
+    void rollendateiIstVollstaendig(Language language) {
+        assertEquals(19, WerwolfRoles.specialRoles(language).size());
+        assertEquals(WerwolfRoles.specialRoles().stream().map(Role::id).toList(),
+                WerwolfRoles.specialRoles(language).stream().map(Role::id).toList());
+        for (Role role : WerwolfRoles.specialRoles(language)) {
             assertFalse(role.name().isBlank());
             assertFalse(role.description().isBlank());
-            assertNotEquals(role.team(), WerwolfRoles.teamName(role.team()), "Team " + role.team() + " fehlt");
+            assertEquals(WerwolfRoles.byId(role.id()).team(), role.team());
+            assertEquals(WerwolfRoles.byId(role.id()).wolfPack(), role.wolfPack(), role.id());
+            assertEquals(WerwolfRoles.byId(role.id()).seesWolfPack(), role.seesWolfPack(), role.id());
+            assertNotEquals(role.team(), WerwolfRoles.teamName(role.team(), language), "Team " + role.team() + " fehlt");
         }
     }
 

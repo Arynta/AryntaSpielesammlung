@@ -6,6 +6,8 @@ import de.kruschinski.werwolf.game.GeoBingoGame;
 import de.kruschinski.werwolf.game.Player;
 import de.kruschinski.werwolf.game.Room;
 import de.kruschinski.werwolf.game.RoomRegistry;
+import de.kruschinski.werwolf.i18n.Language;
+import de.kruschinski.werwolf.i18n.Text;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,6 +52,8 @@ public class GameSocketHandler extends TextWebSocketHandler {
     private final Map<String, Seat> seatsBySession = new ConcurrentHashMap<>();
     /** "RAUM:spielerId" → aktuelle Session dieses Spielers. */
     private final Map<String, WebSocketSession> sessionsBySeat = new ConcurrentHashMap<>();
+    /** Session-ID → Sprache des Handys, für Fehlermeldungen auch ohne Raum. */
+    private final Map<String, Language> languagesBySession = new ConcurrentHashMap<>();
 
     public GameSocketHandler(RoomRegistry rooms, JsonMapper json, TaskScheduler scheduler) {
         this.rooms = rooms;
@@ -72,10 +76,13 @@ public class GameSocketHandler extends TextWebSocketHandler {
             return;
         }
 
+        if (msg.language() != null) {
+            languagesBySession.put(session.getId(), Language.parse(msg.language()));
+        }
         try {
             handle(session, msg);
         } catch (GameException e) {
-            send(session, Map.of("type", "error", "message", e.getMessage()));
+            send(session, Map.of("type", "error", "message", e.messageIn(languageOf(session))));
         } catch (Exception e) {
             log.warn("Fehler bei Nachricht vom Typ {}", msg.type(), e);
             sendUnexpectedError(session);
@@ -94,7 +101,7 @@ public class GameSocketHandler extends TextWebSocketHandler {
     }
 
     private void sendUnexpectedError(WebSocketSession session) {
-        send(session, Map.of("type", "error", "message", "Da ist etwas schiefgelaufen."));
+        send(session, Map.of("type", "error", "message", Text.of("error.unexpected").in(languageOf(session))));
     }
 
     private void handle(WebSocketSession session, ClientMessage msg) {
@@ -106,6 +113,7 @@ public class GameSocketHandler extends TextWebSocketHandler {
                 Room room = rooms.createRoom();
                 try {
                     Player player = room.addPlayer(msg.name());
+                    room.setLanguage(player.id(), languageOf(session));
                     sitDown(session, room, player);
                 } catch (GameException e) {
                     rooms.removeIfEmpty(room);
@@ -115,14 +123,17 @@ public class GameSocketHandler extends TextWebSocketHandler {
 
             case "join" -> {
                 Room room = rooms.require(msg.code());
-                sitDown(session, room, room.addPlayer(msg.name()));
+                Player player = room.addPlayer(msg.name());
+                room.setLanguage(player.id(), languageOf(session));
+                sitDown(session, room, player);
             }
 
             case "rejoin" -> {
                 Room room = rooms.require(msg.code());
                 Player player = room.findBySecret(msg.secret())
-                        .orElseThrow(() -> new GameException("Du bist nicht (mehr) in diesem Raum."));
+                        .orElseThrow(() -> new GameException("error.room.notInRoom"));
                 room.setConnected(player.id(), true);
+                room.setLanguage(player.id(), languageOf(session));
                 sitDown(session, room, player);
             }
 
@@ -134,6 +145,13 @@ public class GameSocketHandler extends TextWebSocketHandler {
                 send(session, Map.of("type", "left"));
                 rooms.removeIfEmpty(room);
                 broadcast(room);
+            }
+
+            case "setLanguage" -> {
+                // Auf der Startseite gibt es noch keinen Raum, dann reicht die gemerkte Sprache
+                if (seatsBySession.containsKey(session.getId())) {
+                    withRoom(session, (room, playerId) -> room.setLanguage(playerId, languageOf(session)));
+                }
             }
 
             case "selectGame" -> {
@@ -148,7 +166,7 @@ public class GameSocketHandler extends TextWebSocketHandler {
                     (room, playerId) -> room.setImpostorCategories(playerId, msg.categories()));
             case "setImpostorOptions" -> {
                 if (msg.impostorCount() == null) {
-                    throw new GameException("Bitte gib die Anzahl der Impostor an.");
+                    throw new GameException("error.impostor.countMissing");
                 }
                 withRoom(session, (room, playerId) -> room.setImpostorOptions(
                         playerId, msg.impostorCount(), Boolean.TRUE.equals(msg.randomStartPlayer())));
@@ -157,14 +175,14 @@ public class GameSocketHandler extends TextWebSocketHandler {
                     playerId, msg.werewolfCount(), msg.roles(), Boolean.TRUE.equals(msg.hostIsGameMaster())));
             case "configureTabu" -> {
                 if (msg.turnSeconds() == null || msg.teamCount() == null || msg.targetScore() == null) {
-                    throw new GameException("Bitte gib alle Einstellungen für Tabu an.");
+                    throw new GameException("error.tabu.settingsMissing");
                 }
                 withRoom(session, (room, playerId) -> room.configureTabu(playerId, msg.turnSeconds(),
                         Boolean.TRUE.equals(msg.autoTeams()), msg.teamCount(), msg.targetScore()));
             }
             case "chooseTeam" -> {
                 if (msg.team() == null) {
-                    throw new GameException("Bitte wähle ein Team.");
+                    throw new GameException("error.tabu.teamMissing");
                 }
                 withRoom(session, (room, playerId) -> room.chooseTeam(playerId, msg.targetId(), msg.team()));
             }
@@ -177,7 +195,7 @@ public class GameSocketHandler extends TextWebSocketHandler {
             case "buzz" -> withRoom(session, Room::buzz);
             case "configureNobodyIsPerfect" -> {
                 if (msg.questionCount() == null) {
-                    throw new GameException("Bitte gib an, wie viele Fragen es geben soll.");
+                    throw new GameException("error.nip.countMissing");
                 }
                 withRoom(session, (room, playerId) -> room.configureNobodyIsPerfect(playerId, msg.questionCount()));
             }
@@ -191,13 +209,13 @@ public class GameSocketHandler extends TextWebSocketHandler {
             case "releaseBuzzer" -> withRoom(session, Room::releaseBuzzer);
             case "configureGeoBingo" -> {
                 if (msg.minutes() == null) {
-                    throw new GameException("Bitte gib die Spielzeit an.");
+                    throw new GameException("error.geoBingo.minutesMissing");
                 }
                 withRoom(session, (room, playerId) -> room.configureGeoBingo(playerId, msg.minutes()));
             }
             case "claimGeoBingoField" -> {
                 if (msg.field() == null || msg.x() == null || msg.y() == null || msg.zoom() == null) {
-                    throw new GameException("Bitte melde ein Feld mit der Ansicht, auf der man es sieht.");
+                    throw new GameException("error.geoBingo.claimMissing");
                 }
                 GeoBingoGame.Spot spot = new GeoBingoGame.Spot(msg.imageId(), msg.x(), msg.y(), msg.zoom());
                 withRoom(session, (room, playerId) -> {
@@ -207,13 +225,13 @@ public class GameSocketHandler extends TextWebSocketHandler {
             }
             case "voteGeoBingo" -> {
                 if (msg.accept() == null) {
-                    throw new GameException("Bitte stimme mit Ja oder Nein.");
+                    throw new GameException("error.geoBingo.voteMissing");
                 }
                 withRoom(session, (room, playerId) -> room.voteGeoBingo(playerId, msg.claimId(), msg.accept()));
             }
             case "setPlayerLimit" -> {
                 if (msg.playerLimit() == null) {
-                    throw new GameException("Bitte gib ein Spielerlimit an.");
+                    throw new GameException("error.room.playerLimitMissing");
                 }
                 withRoom(session, (room, playerId) -> room.setPlayerLimit(playerId, msg.playerLimit()));
             }
@@ -235,7 +253,7 @@ public class GameSocketHandler extends TextWebSocketHandler {
             });
             case "backToLobby" -> withRoom(session, Room::backToLobby);
 
-            default -> throw new GameException("Unbekannte Aktion: " + type);
+            default -> throw new GameException("error.unknownAction", type);
         }
     }
 
@@ -244,6 +262,7 @@ public class GameSocketHandler extends TextWebSocketHandler {
     @Override
     public void afterConnectionClosed(@NonNull WebSocketSession session, @NonNull CloseStatus status) {
         sessions.remove(session.getId());
+        languagesBySession.remove(session.getId());
         Seat seat = seatsBySession.remove(session.getId());
         if (seat == null) {
             return;
@@ -286,7 +305,7 @@ public class GameSocketHandler extends TextWebSocketHandler {
         try {
             return GameType.valueOf(raw == null ? "" : raw.strip().toUpperCase());
         } catch (IllegalArgumentException e) {
-            throw new GameException("Dieses Spiel gibt es nicht.");
+            throw new GameException("error.unknownGame");
         }
     }
 
@@ -299,6 +318,10 @@ public class GameSocketHandler extends TextWebSocketHandler {
         Room room = rooms.require(seat.roomCode());
         action.apply(room, seat.playerId());
         broadcast(room);
+    }
+
+    private Language languageOf(WebSocketSession session) {
+        return languagesBySession.getOrDefault(session.getId(), Language.DE);
     }
 
     private void sitDown(WebSocketSession session, Room room, Player player) {
@@ -351,7 +374,7 @@ public class GameSocketHandler extends TextWebSocketHandler {
     private Seat requireSeat(WebSocketSession session) {
         Seat seat = seatsBySession.get(session.getId());
         if (seat == null) {
-            throw new GameException("Du bist in keinem Raum.");
+            throw new GameException("error.noRoom");
         }
         return seat;
     }

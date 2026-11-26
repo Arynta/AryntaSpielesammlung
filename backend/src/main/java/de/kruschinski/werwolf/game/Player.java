@@ -1,5 +1,7 @@
 package de.kruschinski.werwolf.game;
 
+import de.kruschinski.werwolf.i18n.Language;
+
 /**
  * Ein Spieler in einem Raum.
  *
@@ -15,6 +17,7 @@ public class Player {
     private boolean alive = true;
     private boolean connected = true;
     private boolean ready;
+    private Language language = Language.DE;
 
     Player(String id, String secret, String name) {
         this.id = id;
@@ -56,5 +59,14 @@ public class Player {
 
     void setReady(boolean ready) {
         this.ready = ready;
+    }
+
+    /** Sprache seines Handys: für seine Ansicht und, wenn er Host ist, für die Spielinhalte. */
+    public Language language() {
+        return language;
+    }
+
+    void setLanguage(Language language) {
+        this.language = language;
     }
 }

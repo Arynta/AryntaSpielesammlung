@@ -1,0 +1,30 @@
+{
+  "teams": [
+    { "id": "DORF", "name": "The Village" },
+    { "id": "WOELFE", "name": "The Werewolves" },
+    { "id": "NEUTRAL", "name": "Lone Players" }
+  ],
+  "roles": [
+    { "id": "DORFBEWOHNER", "name": "Villager", "team": "DORF", "description": "You have no special powers. Unmask the werewolves through logic and discussion." },
+    { "id": "SEHERIN", "name": "Seer", "team": "DORF", "description": "Every night you may learn the true identity of one player." },
+    { "id": "HEXE", "name": "Witch", "team": "DORF", "description": "You have a healing potion that can save a wolf victim and a poison potion that kills a player." },
+    { "id": "JAEGER", "name": "Hunter", "team": "DORF", "description": "When you die, you may immediately fire one last shot and take any player with you." },
+    { "id": "AMOR", "name": "Cupid", "team": "DORF", "description": "On the first night you choose two lovers. If one of them dies, the other dies of a broken heart right away." },
+    { "id": "LEIBWAECHTER", "name": "Bodyguard", "team": "DORF", "description": "Every night you protect one player from the wolf attack, but never the same player two nights in a row." },
+    { "id": "KLEINES_MAEDCHEN", "name": "Little Girl", "team": "DORF", "description": "At night you may secretly peek to watch the werewolves." },
+    { "id": "ALTER_MANN", "name": "Elder", "team": "DORF", "description": "You survive one extra werewolf attack. But if the village kills you, the village loses its special powers." },
+    { "id": "BAERENFUEHRER", "name": "Bear Tamer", "team": "DORF", "description": "You have a bear. If it growls, at least one werewolf is sitting right next to you." },
+    { "id": "RABE", "name": "Raven", "team": "DORF", "description": "Every night you mark one player with raven feathers. They get extra votes against them the next day." },
+    { "id": "SUENDENBOCK", "name": "Scapegoat", "team": "DORF", "description": "If the day vote ends in a tie, you are always the one who dies." },
+    { "id": "DIEB", "name": "Thief", "team": "DORF", "description": "At the start of the game you may swap your card for one of the two leftover cards." },
+    { "id": "WERWOLF", "name": "Werewolf", "team": "WOELFE", "wolfPack": true, "description": "You wake up at night and kill a villager together with the other wolves." },
+    { "id": "URWOLF", "name": "Alpha Wolf", "team": "WOELFE", "wolfPack": true, "description": "Once per game you may turn a victim into a werewolf instead of eating them." },
+    { "id": "GROSSER_BOESER_WOLF", "name": "Big Bad Wolf", "team": "WOELFE", "wolfPack": true, "description": "As long as no werewolf has died, you may eat a second victim every night." },
+    { "id": "WOLFSHUND", "name": "Wolfhound", "team": "WOELFE", "description": "On the first night you decide whether you are an ordinary villager or a werewolf." },
+    { "id": "WILDES_KIND", "name": "Wild Child", "team": "WOELFE", "description": "You choose a role model. If they die, you become a werewolf." },
+    { "id": "GUENSTLING", "name": "Minion", "team": "WOELFE", "seesWolfPack": true, "description": "You know the werewolves and help them win. They do not know you, and the Seer sees you as human." },
+    { "id": "WEISSER_WERWOLF", "name": "White Werewolf", "team": "NEUTRAL", "wolfPack": true, "description": "You wake up with the wolves, but every second night you may kill one extra victim, even a wolf. You only win if you are the last one alive." },
+    { "id": "FLOETENSPIELER", "name": "Piper", "team": "NEUTRAL", "description": "At night you enchant players. Once all living players are enchanted, you win alone." },
+    { "id": "ENGEL", "name": "Angel", "team": "NEUTRAL", "description": "If the village lynches you in the very first round, you win at once. Otherwise you become an ordinary villager." }
+  ]
+}

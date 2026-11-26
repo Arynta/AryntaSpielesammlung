@@ -1,6 +1,7 @@
 package de.kruschinski.werwolf.game;
 
 import de.kruschinski.werwolf.game.ImpostorWords.SecretWord;
+import de.kruschinski.werwolf.i18n.Text;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,7 +41,7 @@ public final class ImpostorGame implements Game {
      */
     ImpostorGame(List<Player> participants, String gameMasterId, SecretWord secret, ImpostorOptions options,
                  int round, RandomGenerator random) {
-        String problem = options.problem(participants.size());
+        Text problem = options.problem(participants.size());
         if (problem != null) {
             throw new GameException(problem);
         }
@@ -94,7 +95,7 @@ public final class ImpostorGame implements Game {
 
     void startVoting() {
         if (phase != Phase.WORD) {
-            throw new GameException("Die Abstimmung hat schon begonnen.");
+            throw new GameException("error.impostor.votingStarted");
         }
         phase = Phase.VOTING;
         closeVotingIfComplete();
@@ -103,16 +104,16 @@ public final class ImpostorGame implements Game {
     /** Eine Stimme abgeben oder ändern. Sind alle verbundenen Mitspieler fertig, folgt die Auflösung. */
     void vote(String voterId, String targetId) {
         if (phase != Phase.VOTING) {
-            throw new GameException("Gerade wird nicht abgestimmt.");
+            throw new GameException("error.impostor.noVoting");
         }
         if (!isParticipant(voterId)) {
-            throw new GameException("Du spielst in dieser Runde nicht mit.");
+            throw new GameException("error.notInRound");
         }
         if (voterId.equals(targetId)) {
-            throw new GameException("Du kannst nicht für dich selbst stimmen.");
+            throw new GameException("error.impostor.selfVote");
         }
         if (!isParticipant(targetId)) {
-            throw new GameException("Diesen Spieler gibt es in dieser Runde nicht.");
+            throw new GameException("error.impostor.unknownTarget");
         }
         targetByVoterId.put(voterId, targetId);
         closeVotingIfComplete();

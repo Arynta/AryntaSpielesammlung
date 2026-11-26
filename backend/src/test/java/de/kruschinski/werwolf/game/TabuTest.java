@@ -1,6 +1,9 @@
 
 package de.kruschinski.werwolf.game;
 
+import de.kruschinski.werwolf.i18n.Language;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
@@ -319,9 +322,10 @@ class TabuTest {
 
     // ---- Karten --------------------------------------------------------
 
-    @Test
-    void kartenSindVollstaendig() {
-        List<TabuCards.Card> cards = TabuCards.all();
+    @ParameterizedTest
+    @EnumSource(Language.class)
+    void kartenSindVollstaendig(Language language) {
+        List<TabuCards.Card> cards = TabuCards.all(language);
         assertTrue(cards.size() >= 150);
         assertEquals(cards.size(), cards.stream().map(TabuCards.Card::word).distinct().count(), "Keine doppelten Begriffe");
         for (TabuCards.Card card : cards) {

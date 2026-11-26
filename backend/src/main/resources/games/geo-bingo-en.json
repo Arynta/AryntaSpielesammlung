@@ -1,0 +1,35 @@
+{
+  "motifs": [
+    "Fountain", "Church", "Bicycle", "Stairs", "Park bench", "Clock", "Flag", "Tree", "Balcony", "Traffic light",
+    "Bus stop", "Statue", "Bridge", "Postbox", "Zebra crossing", "Taxi", "Scooter", "Awning",
+    "Street lamp", "Café tables", "Graffiti", "Dog", "Palm tree", "Construction crane", "Archway", "Column", "Dome",
+    "River or sea", "Bus", "Tram", "Billboard", "Rubbish bin", "Window box", "Cobblestones",
+    "Bike rack", "Shutters", "Tower", "Building site", "Stop sign", "Delivery van"
+  ],
+  "places": [
+    { "name": "Berlin, Alexanderplatz", "lat": 52.5219, "lng": 13.4132 },
+    { "name": "Hamburg, Rathausmarkt", "lat": 53.5505, "lng": 9.9926 },
+    { "name": "Munich, Marienplatz", "lat": 48.1374, "lng": 11.5755 },
+    { "name": "Cologne, Domplatte", "lat": 50.9413, "lng": 6.9583 },
+    { "name": "Dresden, Neumarkt", "lat": 51.0519, "lng": 13.7415 },
+    { "name": "Vienna, Stephansplatz", "lat": 48.2085, "lng": 16.3725 },
+    { "name": "Zurich, Old Town", "lat": 47.3717, "lng": 8.5423 },
+    { "name": "Amsterdam, Dam Square", "lat": 52.3731, "lng": 4.8926 },
+    { "name": "Brussels, Grand-Place", "lat": 50.8467, "lng": 4.3525 },
+    { "name": "Paris, Le Marais", "lat": 48.8575, "lng": 2.3592 },
+    { "name": "London, Covent Garden", "lat": 51.5117, "lng": -0.1240 },
+    { "name": "Edinburgh, Royal Mile", "lat": 55.9500, "lng": -3.1883 },
+    { "name": "Dublin, Temple Bar", "lat": 53.3454, "lng": -6.2644 },
+    { "name": "Copenhagen, Nyhavn", "lat": 55.6798, "lng": 12.5907 },
+    { "name": "Stockholm, Gamla Stan", "lat": 59.3251, "lng": 18.0711 },
+    { "name": "Prague, Old Town Square", "lat": 50.0875, "lng": 14.4213 },
+    { "name": "Kraków, Main Square", "lat": 50.0617, "lng": 19.9373 },
+    { "name": "Budapest, Vörösmarty tér", "lat": 47.4969, "lng": 19.0510 },
+    { "name": "Rome, Piazza Navona", "lat": 41.8992, "lng": 12.4731 },
+    { "name": "Florence, Piazza della Signoria", "lat": 43.7696, "lng": 11.2558 },
+    { "name": "Barcelona, Barri Gòtic", "lat": 41.3833, "lng": 2.1777 },
+    { "name": "Lisbon, Baixa", "lat": 38.7104, "lng": -9.1376 },
+    { "name": "New York, Times Square", "lat": 40.7580, "lng": -73.9855 },
+    { "name": "San Francisco, Union Square", "lat": 37.7880, "lng": -122.4075 }
+  ]
+}

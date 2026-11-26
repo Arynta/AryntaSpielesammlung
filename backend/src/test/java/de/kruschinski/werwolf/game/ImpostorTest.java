@@ -1,5 +1,8 @@
 package de.kruschinski.werwolf.game;
 
+import de.kruschinski.werwolf.i18n.Language;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.api.Test;
 
 import java.time.Clock;
@@ -332,14 +335,15 @@ class ImpostorTest {
     @Test
     void anfangsSindAlleKategorienGewaehlt() {
         RoomView.ImpostorSettings settings = lobby("A").viewFor("p1").impostorSettings();
-        assertEquals(ImpostorWords.categoryNames(), settings.selectedCategories());
-        assertEquals(ImpostorWords.categoryNames(), settings.allCategories());
+        assertEquals(ImpostorWords.categoryIds(), settings.selectedCategories());
+        assertEquals(ImpostorWords.categoryIds(), settings.allCategories());
+        assertEquals(ImpostorWords.categoryNames(Language.DE), settings.categoryNames());
     }
 
     @Test
     void wortKommtNurAusGewaehltenKategorien() {
         Room room = lobby("A", "B", "C");
-        room.setImpostorCategories("p1", List.of("Tiere"));
+        room.setImpostorCategories("p1", List.of("animals"));
         for (int round = 1; round <= 5; round++) {
             allReady(room);
             if (round == 1) {
@@ -361,7 +365,7 @@ class ImpostorTest {
     @Test
     void unbekannteKategorieWirdAbgelehnt() {
         Room room = lobby("A");
-        assertThrows(GameException.class, () -> room.setImpostorCategories("p1", List.of("Tiere", "Quatsch")));
+        assertThrows(GameException.class, () -> room.setImpostorCategories("p1", List.of("animals", "Quatsch")));
     }
 
     @Test
@@ -374,10 +378,10 @@ class ImpostorTest {
     void kategorienAendernSetztBereitZurueck() {
         Room room = lobby("A", "B", "C");
         allReady(room);
-        room.setImpostorCategories("p1", List.of("Orte", "Tiere"));
+        room.setImpostorCategories("p1", List.of("places", "animals"));
         room.players().forEach(p -> assertFalse(p.ready()));
         // Reihenfolge wie in der Wortliste, egal wie sie geschickt wurde
-        assertEquals(List.of("Tiere", "Orte"), room.viewFor("p1").impostorSettings().selectedCategories());
+        assertEquals(List.of("animals", "places"), room.viewFor("p1").impostorSettings().selectedCategories());
     }
 
     private static void finishVoting(Room room) {
@@ -472,10 +476,12 @@ class ImpostorTest {
         assertEquals(2, result.impostorNames().size());
     }
 
-    @Test
-    void wortlisteHatKeineDoppelten() {
-        List<String> words = ImpostorWords.allWords().stream().map(ImpostorWords.SecretWord::word).toList();
+    @ParameterizedTest
+    @EnumSource(Language.class)
+    void wortlisteHatKeineDoppelten(Language language) {
+        List<String> words = ImpostorWords.allWords(language).stream().map(ImpostorWords.SecretWord::word).toList();
         assertEquals(words.size(), Set.copyOf(words).size());
         assertTrue(words.size() >= 100);
+        assertEquals(ImpostorWords.categoryIds().size(), ImpostorWords.categoryNames(language).size());
     }
 }

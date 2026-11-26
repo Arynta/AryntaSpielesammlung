@@ -6,9 +6,10 @@ import java.util.List;
  * Nachricht vom Handy an den Server. Je nach {@code type} sind nur manche Felder gefüllt.
  *
  * <ul>
- *   <li>{@code create}: name</li>
- *   <li>{@code join}: code, name</li>
- *   <li>{@code rejoin}: code, secret (nach Neuladen der Seite)</li>
+ *   <li>{@code create}: name, language</li>
+ *   <li>{@code join}: code, name, language</li>
+ *   <li>{@code rejoin}: code, secret, language (nach Neuladen der Seite)</li>
+ *   <li>{@code setLanguage}: language ("de" oder "en", geht auch ohne Raum)</li>
  *   <li>{@code selectGame}: game (z. B. "IMPOSTOR")</li>
  *   <li>{@code setReady}: ready</li>
  *   <li>{@code configureImpostor}: impostorSeesCategory, customWord (leer = Wortliste)</li>
@@ -66,6 +67,7 @@ public record ClientMessage(
         Double y,
         Double zoom,
         String claimId,
-        Boolean accept
+        Boolean accept,
+        String language
 ) {
 }

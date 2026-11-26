@@ -11,7 +11,7 @@ public record NobodyIsPerfectOptions(int questionCount) {
 
     public NobodyIsPerfectOptions {
         if (questionCount < MIN_QUESTIONS || questionCount > MAX_QUESTIONS) {
-            throw new GameException("Es kann " + MIN_QUESTIONS + " bis " + MAX_QUESTIONS + " Fragen geben.");
+            throw new GameException("error.nip.questionCount", MIN_QUESTIONS, MAX_QUESTIONS);
         }
     }
 }

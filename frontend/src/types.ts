@@ -31,7 +31,9 @@ export interface ImpostorSettings {
   customWordSet: boolean;
   /** Nur beim Host gefüllt. */
   customWord: string | null;
+  /** IDs der Kategorien, categoryNames sind die Namen dazu in derselben Reihenfolge. */
   allCategories: string[];
+  categoryNames: string[];
   selectedCategories: string[];
   impostorCount: number;
   maxImpostorCount: number;

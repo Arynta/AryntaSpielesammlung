@@ -1,14 +1,15 @@
 package de.kruschinski.werwolf.game;
 
+import de.kruschinski.werwolf.i18n.Language;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
- * Alle Werwolf-Rollen. Sie stehen in {@code games/werwolf-roles.json}, damit der lokale Modus
- * im Frontend dieselben Rollen und Texte nutzt.
+ * Alle Werwolf-Rollen. Sie stehen in {@code games/werwolf-roles*.json}, damit der lokale Modus
+ * im Frontend dieselben Rollen und Texte nutzt. Die Spiellogik arbeitet mit den IDs, Namen und
+ * Beschreibungen kommen erst in der Ansicht in der Sprache des Spielers dazu.
  */
 public final class WerwolfRoles {
 
@@ -25,30 +26,41 @@ public final class WerwolfRoles {
     private record RoleFile(List<Team> teams, List<Role> roles) {
     }
 
-    private static final RoleFile FILE = GameData.read("games/werwolf-roles.json", RoleFile.class);
-    private static final Map<String, Role> BY_ID = FILE.roles().stream()
-            .collect(Collectors.toMap(Role::id, Function.identity()));
-    private static final Map<String, String> TEAM_NAMES = FILE.teams().stream()
-            .collect(Collectors.toMap(Team::id, Team::name));
+    private static final Map<Language, RoleFile> FILES = GameData.perLanguage("werwolf-roles", RoleFile.class);
 
     private WerwolfRoles() {
     }
 
     public static Role byId(String id) {
-        Role role = BY_ID.get(id);
-        if (role == null) {
-            throw new GameException("Die Rolle \"" + id + "\" gibt es nicht.");
-        }
-        return role;
+        return byId(id, Language.DE);
+    }
+
+    public static Role byId(String id, Language language) {
+        return FILES.get(language).roles().stream()
+                .filter(r -> r.id().equals(id))
+                .findFirst()
+                .orElseThrow(() -> new GameException("error.werwolf.unknownRole", id));
     }
 
     public static String teamName(String teamId) {
-        return TEAM_NAMES.getOrDefault(teamId, teamId);
+        return teamName(teamId, Language.DE);
+    }
+
+    public static String teamName(String teamId, Language language) {
+        return FILES.get(language).teams().stream()
+                .filter(t -> t.id().equals(teamId))
+                .map(Team::name)
+                .findFirst()
+                .orElse(teamId);
     }
 
     /** Rollen, die einzeln angekreuzt werden. Dorfbewohner füllen auf, Werwölfe werden gezählt. */
     public static List<Role> specialRoles() {
-        return FILE.roles().stream()
+        return specialRoles(Language.DE);
+    }
+
+    public static List<Role> specialRoles(Language language) {
+        return FILES.get(language).roles().stream()
                 .filter(r -> !r.id().equals(VILLAGER) && !r.id().equals(WEREWOLF))
                 .toList();
     }
@@ -56,11 +68,11 @@ public final class WerwolfRoles {
     /** Prüft die Auswahl und bringt sie in die feste Reihenfolge der Rollenliste. */
     public static List<String> normalizeSpecialRoles(Collection<String> ids) {
         if (ids == null) {
-            throw new GameException("Bitte gib die Rollen an.");
+            throw new GameException("error.werwolf.noRoles");
         }
         List<String> known = specialRoles().stream().map(Role::id).toList();
         if (!known.containsAll(ids)) {
-            throw new GameException("Diese Rolle kann man nicht auswählen.");
+            throw new GameException("error.werwolf.roleNotSelectable");
         }
         return known.stream().filter(ids::contains).toList();
     }

@@ -1,34 +1,32 @@
 package de.kruschinski.werwolf.game;
 
-/** Die Spiele, die der Host in der Lobby auswählen kann. */
+import de.kruschinski.werwolf.i18n.Text;
+
+/** Die Spiele, die der Host in der Lobby auswählen kann. Name und Beschreibung stehen in i18n/messages*.properties. */
 public enum GameType {
 
-    WERWOLF("Werwolf", 4, "Rollen werden geheim verteilt. Nachts jagen die Werwölfe, tagsüber sucht das Dorf sie."),
-    IMPOSTOR("Impostor", 3, "Alle kennen dasselbe geheime Wort, nur einer nicht. Findet ihn, bevor er sich durchmogelt."),
-    TABU("Tabu", 4, "Erklärt eurem Team Begriffe, ohne die verbotenen Wörter zu sagen. Ein Aufpasser hat den Buzzer."),
-    NOBODY_IS_PERFECT("Nobody is Perfect", 3, "Zu kuriosen Fragen erfindet jeder eine glaubwürdige Antwort. Wer findet die echte, wer legt die anderen rein?"),
-    BUZZER("Buzzer", 2, "Kein Spiel, sondern ein Werkzeug fürs Quiz: Wer zuerst drückt, ist dran. Die Spielleitung sieht die Reihenfolge."),
-    GEO_BINGO("Geo-Bingo", 2, "Ihr lauft durch Straßenbilder derselben Stadt und sucht die Motive eurer Bingo-Karte. Die anderen bestätigen jeden Fund.");
+    WERWOLF(4),
+    IMPOSTOR(3),
+    TABU(4),
+    NOBODY_IS_PERFECT(3),
+    BUZZER(2),
+    GEO_BINGO(2);
 
-    private final String displayName;
     private final int minPlayers;
-    private final String description;
 
-    GameType(String displayName, int minPlayers, String description) {
-        this.displayName = displayName;
+    GameType(int minPlayers) {
         this.minPlayers = minPlayers;
-        this.description = description;
     }
 
-    public String displayName() {
-        return displayName;
+    public Text displayName() {
+        return Text.of("game." + name() + ".name");
     }
 
     public int minPlayers() {
         return minPlayers;
     }
 
-    public String description() {
-        return description;
+    public Text description() {
+        return Text.of("game." + name() + ".description");
     }
 }

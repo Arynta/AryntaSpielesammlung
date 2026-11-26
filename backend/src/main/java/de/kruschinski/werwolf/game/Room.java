@@ -1,6 +1,8 @@
 package de.kruschinski.werwolf.game;
 
 import de.kruschinski.werwolf.game.ImpostorWords.SecretWord;
+import de.kruschinski.werwolf.i18n.Language;
+import de.kruschinski.werwolf.i18n.Text;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -42,8 +44,8 @@ public class Room {
     private GameType selectedGame = GameType.IMPOSTOR;
     private int playerLimit = DEFAULT_PLAYER_LIMIT;
     private ImpostorOptions impostorOptions = ImpostorOptions.DEFAULT;
-    /** Aus diesen Kategorien kommen die Impostor-Wörter. Reihenfolge wie in der Wortliste. */
-    private List<String> impostorCategories = ImpostorWords.categoryNames();
+    /** IDs der Kategorien, aus denen die Impostor-Wörter kommen. Reihenfolge wie in der Wortliste. */
+    private List<String> impostorCategories = ImpostorWords.categoryIds();
     /** Vom Host vorgegebenes Wort für die nächste Impostor-Runde, sonst {@code null}. */
     private String customWord;
     /** {@code null} heißt: automatisch passend zur Spielerzahl. */
@@ -116,15 +118,15 @@ public class Room {
 
     public synchronized Player addPlayer(String rawName) {
         if (game != null) {
-            throw new GameException("Das Spiel läuft schon. Warte, bis alle zurück in der Lobby sind.");
+            throw new GameException("error.room.running");
         }
         if (players.size() >= playerLimit) {
-            throw new GameException("Der Raum ist voll.");
+            throw new GameException("error.room.full");
         }
         String name = cleanName(rawName);
         boolean taken = players.values().stream().anyMatch(p -> p.name().equalsIgnoreCase(name));
         if (taken) {
-            throw new GameException("Der Name \"" + name + "\" ist schon vergeben.");
+            throw new GameException("error.name.taken", name);
         }
 
         Player player = new Player("p" + nextPlayerNumber++, UUID.randomUUID().toString(), name);
@@ -163,7 +165,7 @@ public class Room {
         requireHost(requesterId);
         requireLobby();
         if (requesterId.equals(targetId)) {
-            throw new GameException("Du kannst dich nicht selbst entfernen.");
+            throw new GameException("error.room.kickSelf");
         }
         players.remove(require(targetId).id());
         chosenTeams.remove(targetId);
@@ -174,7 +176,7 @@ public class Room {
         requireHost(requesterId);
         int lowest = lowestPlayerLimit();
         if (limit < lowest || limit > MAX_PLAYERS) {
-            throw new GameException("Das Spielerlimit muss zwischen " + lowest + " und " + MAX_PLAYERS + " liegen.");
+            throw new GameException("error.room.playerLimit", lowest, MAX_PLAYERS);
         }
         playerLimit = limit;
         touch();
@@ -203,10 +205,14 @@ public class Room {
         touch();
     }
 
+    public synchronized void setLanguage(String playerId, Language language) {
+        require(playerId).setLanguage(language);
+    }
+
     public synchronized void setReady(String playerId, boolean ready) {
         Player player = require(playerId);
         if (game != null && !game.betweenRounds()) {
-            throw new GameException("Gerade läuft eine Runde.");
+            throw new GameException("error.room.roundRunning");
         }
         player.setReady(ready);
         touch();
@@ -258,7 +264,7 @@ public class Room {
         requireHost(requesterId);
         requireLobby();
         if (count != null && (count < 1 || count >= MAX_PLAYERS)) {
-            throw new GameException("Es kann 1 bis " + (MAX_PLAYERS - 1) + " Werwölfe geben.");
+            throw new GameException("error.werwolf.count", MAX_PLAYERS - 1);
         }
         List<String> selected = WerwolfRoles.normalizeSpecialRoles(roles);
         boolean changed = !Objects.equals(count, werewolfCount) || !selected.equals(werwolfRoles)
@@ -276,11 +282,11 @@ public class Room {
         requireHost(requesterId);
         requireLobby();
         if (categories == null || categories.isEmpty()) {
-            throw new GameException("Bitte wähle mindestens eine Kategorie.");
+            throw new GameException("error.impostor.noCategory");
         }
-        List<String> known = ImpostorWords.categoryNames();
+        List<String> known = ImpostorWords.categoryIds();
         if (!new HashSet<>(known).containsAll(categories)) {
-            throw new GameException("Diese Kategorie gibt es nicht.");
+            throw new GameException("error.impostor.unknownCategory");
         }
         List<String> selected = known.stream().filter(categories::contains).toList();
         if (!selected.equals(impostorCategories)) {
@@ -345,7 +351,7 @@ public class Room {
         }
         require(playerId);
         if (team < 0 || team >= tabuOptions.teamCount()) {
-            throw new GameException("Dieses Team gibt es nicht.");
+            throw new GameException("error.tabu.unknownTeam");
         }
         chosenTeams.put(playerId, team);
         touch();
@@ -356,7 +362,7 @@ public class Room {
     public synchronized void start(String requesterId, RandomGenerator random) {
         requireHost(requesterId);
         if (game != null) {
-            throw new GameException("Das Spiel läuft schon.");
+            throw new GameException("error.room.alreadyStarted");
         }
         requireStartable();
         game = switch (selectedGame) {
@@ -365,7 +371,7 @@ public class Room {
                 yield new WerwolfGame(playersExcept(gameMasterId), gameMasterId, werewolfCount, werwolfRoles, random);
             }
             case IMPOSTOR -> newImpostorRound(1, random);
-            case TABU -> new TabuGame(tabuTeams(random), tabuOptions, random);
+            case TABU -> new TabuGame(tabuTeams(random), tabuOptions, contentLanguage(), random);
             case NOBODY_IS_PERFECT -> newNobodyIsPerfect(random);
             case BUZZER -> new BuzzerGame(playersExcept(hostId), buzzerLockout);
             case GEO_BINGO -> newGeoBingo(1, random);
@@ -398,16 +404,16 @@ public class Room {
     public synchronized void nextRound(String requesterId, RandomGenerator random) {
         requireHost(requesterId);
         if (game == null || !game.betweenRounds()) {
-            throw new GameException("Die Runde ist noch nicht vorbei.");
+            throw new GameException("error.room.roundNotOver");
         }
         requireStartable();
         game = switch (game) {
             case ImpostorGame impostor -> newImpostorRound(impostor.round() + 1, random);
-            case TabuGame ignored -> new TabuGame(tabuTeams(random), tabuOptions, random);
+            case TabuGame ignored -> new TabuGame(tabuTeams(random), tabuOptions, contentLanguage(), random);
             case NobodyIsPerfectGame ignored -> newNobodyIsPerfect(random);
             case GeoBingoGame geoBingo -> newGeoBingo(geoBingo.round() + 1, random);
-            case WerwolfGame ignored -> throw new GameException("Das geht in diesem Spiel gerade nicht.");
-            case BuzzerGame ignored -> throw new GameException("Das geht in diesem Spiel gerade nicht.");
+            case WerwolfGame ignored -> throw new GameException("error.room.notNow");
+            case BuzzerGame ignored -> throw new GameException("error.room.notNow");
         };
         resetReady();
         touch();
@@ -442,7 +448,7 @@ public class Room {
 
     private NobodyIsPerfectGame newNobodyIsPerfect(RandomGenerator random) {
         List<NobodyIsPerfectQuestions.Question> questions =
-                NobodyIsPerfectQuestions.pick(nobodyIsPerfectOptions.questionCount(), usedQuestions, random);
+                NobodyIsPerfectQuestions.pick(contentLanguage(), nobodyIsPerfectOptions.questionCount(), usedQuestions, random);
         questions.forEach(q -> usedQuestions.add(q.question()));
         return new NobodyIsPerfectGame(List.copyOf(players.values()), questions, random);
     }
@@ -494,9 +500,9 @@ public class Room {
     }
 
     private GeoBingoGame newGeoBingo(int round, RandomGenerator random) {
-        GeoBingoData.Place place = GeoBingoData.pickPlace(usedPlaces, random);
+        GeoBingoData.Place place = GeoBingoData.pickPlace(contentLanguage(), usedPlaces, random);
         usedPlaces.add(place.name());
-        List<String> board = GeoBingoData.pickMotifs(GeoBingoGame.SIZE * GeoBingoGame.SIZE, random);
+        List<String> board = GeoBingoData.pickMotifs(contentLanguage(), GeoBingoGame.SIZE * GeoBingoGame.SIZE, random);
         return new GeoBingoGame(List.copyOf(players.values()), place, board, geoBingoOptions, round, clock.instant());
     }
 
@@ -588,6 +594,7 @@ public class Room {
     /** Baut die Ansicht für genau einen Spieler. Fremde Rollen und Wörter stehen hier nie drin. */
     public synchronized RoomView viewFor(String playerId) {
         Player me = require(playerId);
+        Language language = me.language();
         boolean isHost = me.id().equals(hostId);
 
         List<RoomView.PlayerView> publicPlayers = players.values().stream()
@@ -595,17 +602,17 @@ public class Room {
                 .toList();
 
         boolean canChooseNext = game == null || game.betweenRounds();
-        String startHint = canChooseNext ? startBlocker() : null;
+        Text startHint = canChooseNext ? startBlocker() : null;
 
         RoomView.ImpostorSettings impostorSettings = new RoomView.ImpostorSettings(
                 impostorOptions.impostorSeesCategory(), customWord != null, isHost ? customWord : null,
-                ImpostorWords.categoryNames(), impostorCategories,
+                ImpostorWords.categoryIds(), ImpostorWords.categoryNames(language), impostorCategories,
                 impostorOptions.impostorCount(), ImpostorOptions.MAX_IMPOSTORS, impostorOptions.randomStartPlayer());
 
         int werwolfPlayers = players.size() - (werwolfHostIsGameMaster ? 1 : 0);
         RoomView.WerwolfSettings werwolfSettings = new RoomView.WerwolfSettings(
                 werewolfCount, RoleDistribution.werewolves(werwolfPlayers, werewolfCount),
-                WerwolfRoles.specialRoles().stream().map(RoomView.RoleCard::of).toList(),
+                WerwolfRoles.specialRoles().stream().map(r -> RoomView.RoleCard.of(r, language)).toList(),
                 werwolfRoles, werwolfHostIsGameMaster);
 
         RoomView.TabuSettings tabuSettings = new RoomView.TabuSettings(
@@ -615,7 +622,7 @@ public class Room {
         return new RoomView(
                 code,
                 selectedGame,
-                RoomView.GameOption.all(lockedGames),
+                RoomView.GameOption.all(lockedGames, language),
                 impostorSettings,
                 werwolfSettings,
                 tabuSettings,
@@ -628,11 +635,11 @@ public class Room {
                 hostId,
                 publicPlayers,
                 canChooseNext && startHint == null,
-                startHint,
+                startHint == null ? null : startHint.in(language),
                 new RoomView.You(me.id(), me.name(), isHost, me.ready()),
-                game instanceof WerwolfGame werwolf ? werwolf.viewFor(me.id()) : null,
+                game instanceof WerwolfGame werwolf ? werwolf.viewFor(me.id(), language) : null,
                 game instanceof ImpostorGame impostor ? impostor.viewFor(me.id()) : null,
-                game instanceof TabuGame tabu ? tabu.viewFor(me.id(), clock.instant()) : null,
+                game instanceof TabuGame tabu ? tabu.viewFor(me.id(), clock.instant(), language) : null,
                 game instanceof NobodyIsPerfectGame nobodyIsPerfect ? nobodyIsPerfect.viewFor(me.id()) : null,
                 game instanceof BuzzerGame buzzer ? buzzer.viewFor(me.id(), isHost) : null,
                 game instanceof GeoBingoGame geoBingo ? geoBingo.viewFor(me.id(), clock.instant()) : null);
@@ -641,7 +648,7 @@ public class Room {
     // ---- Hilfsmethoden -------------------------------------------------
 
     /** Warum noch nicht gestartet werden kann, oder {@code null}, wenn alles passt. */
-    private String startBlocker() {
+    private Text startBlocker() {
         // Falls das voreingestellte Spiel selbst gesperrt ist
         if (lockedGames.contains(selectedGame)) {
             return lockedHint(selectedGame);
@@ -651,10 +658,10 @@ public class Room {
         int missing = selectedGame.minPlayers() - playing;
         if (missing > 0) {
             return hostSitsOut
-                    ? "Noch " + missing + " Spieler (ohne Spielleitung), dann kann es losgehen."
-                    : "Noch " + missing + " Spieler, dann kann es losgehen.";
+                    ? Text.of("hint.missingPlayersWithoutGameMaster", missing)
+                    : Text.of("hint.missingPlayers", missing);
         }
-        String settingsProblem = switch (selectedGame) {
+        Text settingsProblem = switch (selectedGame) {
             case WERWOLF -> RoleDistribution.problem(playing, werewolfCount, werwolfRoles);
             case IMPOSTOR -> impostorOptions.problem(playing);
             case TABU -> tabuProblem();
@@ -667,12 +674,12 @@ public class Room {
         List<Player> online = players.values().stream().filter(Player::connected).toList();
         long ready = online.stream().filter(Player::ready).count();
         if (ready < online.size()) {
-            return "Warte, bis alle bereit sind (" + ready + " von " + online.size() + ").";
+            return Text.of("hint.waitForReady", ready, online.size());
         }
         return null;
     }
 
-    private String tabuProblem() {
+    private Text tabuProblem() {
         List<Integer> sizes = chosenTeamIds().stream().map(List::size).toList();
         int unassigned = players.size() - sizes.stream().mapToInt(Integer::intValue).sum();
         return tabuOptions.problem(players.size(), sizes, unassigned);
@@ -688,8 +695,13 @@ public class Room {
         };
     }
 
-    private static String lockedHint(GameType type) {
-        return type.displayName() + " ist bald verfügbar.";
+    private static Text lockedHint(GameType type) {
+        return Text.of("hint.locked", type.displayName());
+    }
+
+    /** Wörter, Karten, Fragen und Orte kommen in der Sprache der Spielleitung, damit alle dasselbe sehen. */
+    private Language contentLanguage() {
+        return players.get(hostId).language();
     }
 
     private List<Player> playersExcept(String playerId) {
@@ -701,7 +713,7 @@ public class Room {
     }
 
     private void requireStartable() {
-        String blocker = startBlocker();
+        Text blocker = startBlocker();
         if (blocker != null) {
             throw new GameException(blocker);
         }
@@ -711,7 +723,7 @@ public class Room {
         String gameMasterId = customWord != null ? hostId : null;
         SecretWord secret = customWord != null
                 ? new SecretWord(customWord, null)
-                : ImpostorWords.pick(random, usedWords, impostorCategories);
+                : ImpostorWords.pick(contentLanguage(), random, usedWords, impostorCategories);
 
         ImpostorGame next = new ImpostorGame(playersExcept(gameMasterId), gameMasterId, secret, impostorOptions, round, random);
 
@@ -723,27 +735,27 @@ public class Room {
 
     private <T extends Game> T requireGame(Class<T> type) {
         if (!type.isInstance(game)) {
-            throw new GameException("Das geht in diesem Spiel gerade nicht.");
+            throw new GameException("error.room.notNow");
         }
         return type.cast(game);
     }
 
     private void requireLobby() {
         if (game != null) {
-            throw new GameException("Das geht nur in der Lobby.");
+            throw new GameException("error.room.lobbyOnly");
         }
     }
 
     private void requireHost(String requesterId) {
         if (!requesterId.equals(hostId)) {
-            throw new GameException("Das darf nur die Spielleitung.");
+            throw new GameException("error.room.hostOnly");
         }
     }
 
     private Player require(String playerId) {
         Player player = players.get(playerId);
         if (player == null) {
-            throw new GameException("Du bist nicht (mehr) in diesem Raum.");
+            throw new GameException("error.room.notInRoom");
         }
         return player;
     }
@@ -777,10 +789,10 @@ public class Room {
     static String cleanName(String rawName) {
         String name = normalizeText(rawName);
         if (name.isEmpty()) {
-            throw new GameException("Bitte gib einen Namen ein.");
+            throw new GameException("error.name.empty");
         }
         if (name.length() > MAX_NAME_LENGTH) {
-            throw new GameException("Der Name darf höchstens " + MAX_NAME_LENGTH + " Zeichen lang sein.");
+            throw new GameException("error.name.tooLong", MAX_NAME_LENGTH);
         }
         return name;
     }
@@ -792,7 +804,7 @@ public class Room {
             return null;
         }
         if (word.length() > MAX_WORD_LENGTH) {
-            throw new GameException("Das Wort darf höchstens " + MAX_WORD_LENGTH + " Zeichen lang sein.");
+            throw new GameException("error.impostor.wordTooLong", MAX_WORD_LENGTH);
         }
         return word;
     }

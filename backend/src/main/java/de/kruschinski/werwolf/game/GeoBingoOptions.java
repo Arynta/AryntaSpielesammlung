@@ -10,7 +10,7 @@ public record GeoBingoOptions(int minutes) {
 
     public GeoBingoOptions {
         if (minutes < MIN_MINUTES || minutes > MAX_MINUTES) {
-            throw new GameException("Die Spielzeit muss zwischen " + MIN_MINUTES + " und " + MAX_MINUTES + " Minuten liegen.");
+            throw new GameException("error.geoBingo.minutes", MIN_MINUTES, MAX_MINUTES);
         }
     }
 }

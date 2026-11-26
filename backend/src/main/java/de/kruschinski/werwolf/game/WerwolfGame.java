@@ -1,5 +1,7 @@
 package de.kruschinski.werwolf.game;
 
+import de.kruschinski.werwolf.i18n.Language;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -74,19 +76,19 @@ public final class WerwolfGame implements Game {
         }
     }
 
-    RoomView.WerwolfView viewFor(String playerId) {
+    RoomView.WerwolfView viewFor(String playerId, Language language) {
         if (playerId.equals(gameMasterId)) {
             List<RoomView.RoleAssignment> overview = players.stream()
-                    .map(p -> assignment(p, roleOf(p.id())))
+                    .map(p -> assignment(p, roleOf(p.id()), language))
                     .toList();
-            return new RoomView.WerwolfView(true, null, List.of(), roleNames(leftover), overview);
+            return new RoomView.WerwolfView(true, null, List.of(), roleNames(leftover, language), overview);
         }
         Role role = roleOf(playerId);
         if (role == null) {
             return null;
         }
-        List<String> thiefChoices = role.id().equals(WerwolfRoles.THIEF) ? roleNames(leftover) : List.of();
-        return new RoomView.WerwolfView(false, RoomView.RoleCard.of(role), knownWolves(playerId, role), thiefChoices, null);
+        List<String> thiefChoices = role.id().equals(WerwolfRoles.THIEF) ? roleNames(leftover, language) : List.of();
+        return new RoomView.WerwolfView(false, RoomView.RoleCard.of(role, language), knownWolves(playerId, role), thiefChoices, null);
     }
 
     /** Das Rudel kennt sich gegenseitig, der Günstling kennt das Rudel. */
@@ -100,11 +102,11 @@ public final class WerwolfGame implements Game {
                 .toList();
     }
 
-    private static RoomView.RoleAssignment assignment(Player player, Role role) {
-        return new RoomView.RoleAssignment(player.id(), player.name(), RoomView.RoleCard.of(role));
+    private static RoomView.RoleAssignment assignment(Player player, Role role, Language language) {
+        return new RoomView.RoleAssignment(player.id(), player.name(), RoomView.RoleCard.of(role, language));
     }
 
-    private static List<String> roleNames(List<Role> roles) {
-        return roles.stream().map(Role::name).toList();
+    private static List<String> roleNames(List<Role> roles, Language language) {
+        return roles.stream().map(r -> WerwolfRoles.byId(r.id(), language).name()).toList();
     }
 }

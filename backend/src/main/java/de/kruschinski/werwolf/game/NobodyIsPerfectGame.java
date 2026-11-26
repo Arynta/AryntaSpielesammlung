@@ -37,7 +37,7 @@ public final class NobodyIsPerfectGame implements Game {
 
     NobodyIsPerfectGame(List<Player> participants, List<Question> questions, RandomGenerator random) {
         if (questions.isEmpty()) {
-            throw new GameException("Es gibt keine Fragen.");
+            throw new GameException("error.nip.noQuestions");
         }
         this.participants = List.copyOf(participants);
         this.questions = List.copyOf(questions);
@@ -79,14 +79,14 @@ public final class NobodyIsPerfectGame implements Game {
 
     /** Antwort abgeben oder ändern, solange noch nicht alle fertig sind. */
     void submitAnswer(String playerId, String rawAnswer) {
-        requirePhase(Phase.WRITING, "Gerade werden keine Antworten geschrieben.");
+        requirePhase(Phase.WRITING, "error.nip.notWriting");
         requireParticipant(playerId);
         String answer = Room.normalizeText(rawAnswer);
         if (answer.isEmpty()) {
-            throw new GameException("Bitte schreib eine Antwort.");
+            throw new GameException("error.nip.emptyAnswer");
         }
         if (answer.length() > NobodyIsPerfectOptions.MAX_ANSWER_LENGTH) {
-            throw new GameException("Die Antwort darf höchstens " + NobodyIsPerfectOptions.MAX_ANSWER_LENGTH + " Zeichen lang sein.");
+            throw new GameException("error.nip.answerTooLong", NobodyIsPerfectOptions.MAX_ANSWER_LENGTH);
         }
         answers.put(playerId, answer);
         closeStageIfComplete();
@@ -94,14 +94,14 @@ public final class NobodyIsPerfectGame implements Game {
 
     /** Tipp abgeben oder ändern. Auf die eigene Erfindung darf man nicht tippen. */
     void guess(String playerId, String choiceId) {
-        requirePhase(Phase.GUESSING, "Gerade wird nicht getippt.");
+        requirePhase(Phase.GUESSING, "error.nip.notGuessing");
         requireParticipant(playerId);
         Choice choice = choices.stream()
                 .filter(c -> c.id().equals(choiceId))
                 .findFirst()
-                .orElseThrow(() -> new GameException("Diese Antwort gibt es nicht."));
+                .orElseThrow(() -> new GameException("error.nip.unknownAnswer"));
         if (playerId.equals(choice.authorId())) {
-            throw new GameException("Auf deine eigene Antwort kannst du nicht tippen.");
+            throw new GameException("error.nip.ownAnswer");
         }
         guesses.put(playerId, choiceId);
         closeStageIfComplete();
@@ -120,18 +120,18 @@ public final class NobodyIsPerfectGame implements Game {
     void skipWaiting() {
         if (phase == Phase.WRITING) {
             if (answers.isEmpty()) {
-                throw new GameException("Noch hat niemand eine Antwort abgegeben.");
+                throw new GameException("error.nip.noAnswers");
             }
             startGuessing();
         } else if (phase == Phase.GUESSING) {
             reveal();
         } else {
-            throw new GameException("Gerade wird auf niemanden gewartet.");
+            throw new GameException("error.nip.nobodyToWaitFor");
         }
     }
 
     void nextQuestion() {
-        requirePhase(Phase.REVEAL, "Die Frage ist noch nicht aufgelöst.");
+        requirePhase(Phase.REVEAL, "error.nip.notRevealed");
         index++;
         answers.clear();
         guesses.clear();
@@ -221,7 +221,7 @@ public final class NobodyIsPerfectGame implements Game {
 
     private void requireParticipant(String playerId) {
         if (participants.stream().noneMatch(p -> p.id().equals(playerId))) {
-            throw new GameException("Du spielst in dieser Runde nicht mit.");
+            throw new GameException("error.notInRound");
         }
     }
 }

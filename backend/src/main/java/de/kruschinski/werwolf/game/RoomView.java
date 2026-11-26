@@ -1,5 +1,7 @@
 package de.kruschinski.werwolf.game;
 
+import de.kruschinski.werwolf.i18n.Language;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -47,19 +49,24 @@ public record RoomView(
     /** Ein Spiel, das der Host auswählen kann. {@code locked}: noch nicht wählbar ("Bald verfügbar"). */
     public record GameOption(GameType type, String name, String description, int minPlayers, boolean locked) {
 
-        static List<GameOption> all(Set<GameType> lockedGames) {
+        static List<GameOption> all(Set<GameType> lockedGames, Language language) {
             return Arrays.stream(GameType.values())
-                    .map(t -> new GameOption(t, t.displayName(), t.description(), t.minPlayers(), lockedGames.contains(t)))
+                    .map(t -> new GameOption(t, t.displayName().in(language), t.description().in(language),
+                            t.minPlayers(), lockedGames.contains(t)))
                     .toList();
         }
     }
 
-    /** {@code customWord} steht nur in der Ansicht des Hosts, alle anderen sehen nur, ob eins gesetzt ist. */
+    /**
+     * {@code customWord} steht nur in der Ansicht des Hosts, alle anderen sehen nur, ob eins gesetzt ist.
+     * Kategorien werden über ihre ID gewählt, {@code categoryNames} sind die Namen dazu in derselben Reihenfolge.
+     */
     public record ImpostorSettings(
             boolean impostorSeesCategory,
             boolean customWordSet,
             String customWord,
             List<String> allCategories,
+            List<String> categoryNames,
             List<String> selectedCategories,
             int impostorCount,
             int maxImpostorCount,
@@ -197,8 +204,10 @@ public record RoomView(
     /** Eine Rolle so, wie sie auf der Karte steht. */
     public record RoleCard(String id, String name, String team, String teamName, String description) {
 
-        static RoleCard of(Role role) {
-            return new RoleCard(role.id(), role.name(), role.team(), WerwolfRoles.teamName(role.team()), role.description());
+        static RoleCard of(Role role, Language language) {
+            Role translated = WerwolfRoles.byId(role.id(), language);
+            return new RoleCard(role.id(), translated.name(), role.team(),
+                    WerwolfRoles.teamName(role.team(), language), translated.description());
         }
     }
 

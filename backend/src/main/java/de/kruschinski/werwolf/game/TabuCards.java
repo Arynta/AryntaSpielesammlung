@@ -1,9 +1,12 @@
 package de.kruschinski.werwolf.game;
 
+import de.kruschinski.werwolf.i18n.Language;
+
 import java.util.List;
+import java.util.Map;
 
 /**
- * Die Wortkarten für Tabu. Sie stehen in {@code games/tabu-cards.json},
+ * Die Wortkarten für Tabu. Sie stehen in {@code games/tabu-cards*.json},
  * damit der lokale Modus im Frontend dieselben Karten nutzt.
  */
 public final class TabuCards {
@@ -15,12 +18,12 @@ public final class TabuCards {
     private record CardFile(List<Card> cards) {
     }
 
-    private static final List<Card> CARDS = GameData.read("games/tabu-cards.json", CardFile.class).cards();
+    private static final Map<Language, CardFile> FILES = GameData.perLanguage("tabu-cards", CardFile.class);
 
     private TabuCards() {
     }
 
-    public static List<Card> all() {
-        return CARDS;
+    public static List<Card> all(Language language) {
+        return FILES.get(language).cards();
     }
 }

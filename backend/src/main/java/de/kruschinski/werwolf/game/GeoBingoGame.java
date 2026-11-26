@@ -38,10 +38,10 @@ public final class GeoBingoGame implements Game {
 
         public Spot {
             if (imageId == null || !IMAGE_ID.matcher(imageId).matches()) {
-                throw new GameException("Dieses Straßenbild kenne ich nicht.");
+                throw new GameException("error.geoBingo.unknownImage");
             }
             if (!inRange(x, 1) || !inRange(y, 1) || !inRange(zoom, MAX_ZOOM)) {
-                throw new GameException("Die Blickrichtung ist ungültig.");
+                throw new GameException("error.geoBingo.invalidView");
             }
         }
 
@@ -106,13 +106,13 @@ public final class GeoBingoGame implements Game {
         requireRunning();
         requireParticipant(playerId);
         if (field < 0 || field >= board.size()) {
-            throw new GameException("Dieses Feld gibt es nicht.");
+            throw new GameException("error.geoBingo.unknownField");
         }
         if (foundBy(playerId).contains(field)) {
-            throw new GameException("Dieses Feld hast du schon.");
+            throw new GameException("error.geoBingo.fieldTaken");
         }
         if (claims.stream().anyMatch(c -> c.playerId().equals(playerId))) {
-            throw new GameException("Warte, bis über deinen letzten Fund abgestimmt ist.");
+            throw new GameException("error.geoBingo.waitForVote");
         }
         claims.add(new Claim("c" + nextClaim++, playerId, field, spot, now.plus(VOTE_TIME), new LinkedHashMap<>()));
         resolveCompleteClaims();
@@ -123,9 +123,9 @@ public final class GeoBingoGame implements Game {
         requireRunning();
         requireParticipant(voterId);
         Claim claim = claims.stream().filter(c -> c.id().equals(claimId)).findFirst()
-                .orElseThrow(() -> new GameException("Über diesen Fund wird nicht mehr abgestimmt."));
+                .orElseThrow(() -> new GameException("error.geoBingo.voteClosed"));
         if (claim.playerId().equals(voterId)) {
-            throw new GameException("Über deinen eigenen Fund stimmst du nicht ab.");
+            throw new GameException("error.geoBingo.ownClaim");
         }
         claim.votes().putIfAbsent(voterId, accept);
         resolveCompleteClaims();
@@ -234,13 +234,13 @@ public final class GeoBingoGame implements Game {
 
     private void requireRunning() {
         if (phase != Phase.GEO_BINGO) {
-            throw new GameException("Das Spiel ist schon vorbei.");
+            throw new GameException("error.gameOver");
         }
     }
 
     private void requireParticipant(String playerId) {
         if (participants.stream().noneMatch(p -> p.id().equals(playerId))) {
-            throw new GameException("Du spielst in dieser Runde nicht mit.");
+            throw new GameException("error.notInRound");
         }
     }
 }

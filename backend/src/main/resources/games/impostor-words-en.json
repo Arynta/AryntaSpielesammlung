@@ -1,0 +1,44 @@
+{
+  "categories": [
+    {
+      "id": "animals", "name": "Animals",
+      "words": ["Elephant", "Penguin", "Giraffe", "Crocodile", "Squirrel", "Dolphin", "Cow", "Bat", "Snail", "Parrot", "Kangaroo", "Hedgehog", "Shark", "Bee", "Owl"]
+    },
+    {
+      "id": "food", "name": "Food and Drink",
+      "words": ["Pizza", "Spaghetti", "Kebab", "Pancake", "Sushi", "Pretzel", "Popcorn", "Strawberry", "Chocolate", "Coffee", "Sausage", "Cheese", "Banana", "Ice cream", "Soup"]
+    },
+    {
+      "id": "places", "name": "Places",
+      "words": ["Beach", "Hospital", "Airport", "School", "Cinema", "Train station", "Zoo", "Library", "Supermarket", "Petrol station", "Swimming pool", "Church", "Bakery", "Theme park", "Campsite"]
+    },
+    {
+      "id": "jobs", "name": "Jobs",
+      "words": ["Firefighter", "Doctor", "Teacher", "Pilot", "Cook", "Police officer", "Farmer", "Dentist", "Hairdresser", "Astronaut", "Baker", "Vet", "Postman", "Clown", "Detective"]
+    },
+    {
+      "id": "household", "name": "Around the House",
+      "words": ["Fridge", "Vacuum cleaner", "Toaster", "Iron", "Washing machine", "Toothbrush", "Pillow", "Mirror", "Umbrella", "Alarm clock", "Candle", "Remote control", "Broom", "Fork", "Bathtub"]
+    },
+    {
+      "id": "sports", "name": "Sports",
+      "words": ["Football", "Tennis", "Swimming", "Skiing", "Boxing", "Basketball", "Golf", "Horse riding", "Climbing", "Bowling", "Volleyball", "Table tennis", "Surfing", "Marathon", "Chess"]
+    },
+    {
+      "id": "vehicles", "name": "Vehicles",
+      "words": ["Bicycle", "Helicopter", "Submarine", "Tractor", "Fire engine", "Cruise ship", "Tram", "Rocket", "Skateboard", "Motorbike", "Hot-air balloon", "Ambulance", "Taxi", "Canoe", "Excavator"]
+    },
+    {
+      "id": "nature", "name": "Nature",
+      "words": ["Volcano", "Rainbow", "Waterfall", "Desert", "Thunderstorm", "Glacier", "Island", "Cave", "Sunset", "Forest", "Moon", "Snowman", "Cactus", "Mushroom", "Tornado"]
+    },
+    {
+      "id": "leisure", "name": "Free Time",
+      "words": ["Birthday", "Wedding", "Camping", "Karaoke", "Roller coaster", "Picnic", "New Year's Eve", "Concert", "Flea market", "Barbecue", "Board game", "Christmas", "Circus", "Fishing", "Halloween"]
+    },
+    {
+      "id": "clothing", "name": "Clothing",
+      "words": ["Wellies", "Tie", "Swimming trunks", "Pyjamas", "Sunglasses", "Gloves", "Hat", "Bathrobe", "Backpack", "Trainers", "Scarf", "Wedding dress", "Beanie", "Braces", "Jumper"]
+    }
+  ]
+}

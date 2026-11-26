@@ -48,7 +48,7 @@ public class RoomRegistry {
 
     public Room createRoom() {
         if (rooms.size() >= MAX_ROOMS) {
-            throw new GameException("Gerade sind zu viele Räume offen. Versuch es in ein paar Minuten nochmal.");
+            throw new GameException("error.rooms.tooMany");
         }
         for (int attempt = 0; attempt < 100; attempt++) {
             String code = randomCode();
@@ -57,7 +57,7 @@ public class RoomRegistry {
                 return room;
             }
         }
-        throw new GameException("Konnte keinen freien Raumcode finden. Versuch es nochmal.");
+        throw new GameException("error.rooms.noFreeCode");
     }
 
     public Optional<Room> find(String code) {
@@ -68,7 +68,7 @@ public class RoomRegistry {
     }
 
     public Room require(String code) {
-        return find(code).orElseThrow(() -> new GameException("Diesen Raum gibt es nicht (mehr)."));
+        return find(code).orElseThrow(() -> new GameException("error.rooms.unknown"));
     }
 
     public void removeIfEmpty(Room room) {

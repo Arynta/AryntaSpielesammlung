@@ -1,5 +1,8 @@
 package de.kruschinski.werwolf.game;
 
+import de.kruschinski.werwolf.i18n.Language;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
@@ -206,9 +209,10 @@ class NobodyIsPerfectTest {
         assertEquals(12, room.viewFor("p1").nobodyIsPerfectSettings().questionCount());
     }
 
-    @Test
-    void fragenSindVollstaendig() {
-        List<NobodyIsPerfectQuestions.Question> all = NobodyIsPerfectQuestions.all();
+    @ParameterizedTest
+    @EnumSource(Language.class)
+    void fragenSindVollstaendig(Language language) {
+        List<NobodyIsPerfectQuestions.Question> all = NobodyIsPerfectQuestions.all(language);
         assertTrue(all.size() >= 60);
         assertEquals(all.size(), all.stream().map(NobodyIsPerfectQuestions.Question::question).distinct().count(), "Keine doppelten Fragen");
         for (NobodyIsPerfectQuestions.Question q : all) {

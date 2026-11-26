@@ -1,5 +1,7 @@
 package de.kruschinski.werwolf.game;
 
+import de.kruschinski.werwolf.i18n.Text;
+
 /** Einstellungen einer Impostor-Runde, die der Host in der Lobby wählt. */
 public record ImpostorOptions(int impostorCount, boolean impostorSeesCategory, boolean randomStartPlayer) {
 
@@ -10,7 +12,7 @@ public record ImpostorOptions(int impostorCount, boolean impostorSeesCategory, b
 
     public ImpostorOptions {
         if (impostorCount < 1 || impostorCount > MAX_IMPOSTORS) {
-            throw new GameException("Es kann 1 bis " + MAX_IMPOSTORS + " Impostor geben.");
+            throw new GameException("error.impostor.count", MAX_IMPOSTORS);
         }
     }
 
@@ -21,14 +23,14 @@ public record ImpostorOptions(int impostorCount, boolean impostorSeesCategory, b
     }
 
     /** Warum mit so vielen Mitspielern nicht gespielt werden kann, oder {@code null}. */
-    public String problem(int participantCount) {
+    public Text problem(int participantCount) {
         int needed = minParticipants(impostorCount);
         if (participantCount >= needed) {
             return null;
         }
         return impostorCount == 1
-                ? "Für Impostor braucht es mindestens " + needed + " Mitspieler."
-                : "Für " + impostorCount + " Impostor braucht es mindestens " + needed + " Mitspieler.";
+                ? Text.of("hint.impostor.minPlayers", needed)
+                : Text.of("hint.impostor.minPlayersFor", impostorCount, needed);
     }
 
     public ImpostorOptions withImpostorSeesCategory(boolean value) {

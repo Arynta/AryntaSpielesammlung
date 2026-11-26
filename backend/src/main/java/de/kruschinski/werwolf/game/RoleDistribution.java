@@ -1,5 +1,7 @@
 package de.kruschinski.werwolf.game;
 
+import de.kruschinski.werwolf.i18n.Text;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.random.RandomGenerator;
@@ -25,22 +27,21 @@ public final class RoleDistribution {
     }
 
     /** Warum mit dieser Auswahl nicht verteilt werden kann, oder {@code null}, wenn alles passt. */
-    public static String problem(int playerCount, Integer chosenCount, List<String> specialRoles) {
+    public static Text problem(int playerCount, Integer chosenCount, List<String> specialRoles) {
         int minPlayers = GameType.WERWOLF.minPlayers();
         if (playerCount < minPlayers) {
-            return "Es werden mindestens " + minPlayers + " Spieler gebraucht.";
+            return Text.of("hint.werwolf.minPlayers", minPlayers);
         }
         int cards = werewolves(playerCount, chosenCount) + specialRoles.size();
         if (cards > playerCount) {
-            return "Zu viele Rollen: " + cards + " Rollen für " + playerCount
-                    + " Spieler. Nimm Rollen raus oder weniger Werwölfe.";
+            return Text.of("hint.werwolf.tooManyRoles", cards, playerCount);
         }
         return null;
     }
 
     /** Werwölfe, dann die Sonderrollen, Rest Dorfbewohner. Mit Dieb zwei Dorfbewohner extra. */
     public static List<Role> cardsFor(int playerCount, Integer chosenCount, List<String> specialRoles) {
-        String problem = problem(playerCount, chosenCount, specialRoles);
+        Text problem = problem(playerCount, chosenCount, specialRoles);
         if (problem != null) {
             throw new GameException(problem);
         }

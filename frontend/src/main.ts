@@ -658,6 +658,7 @@ function impostorForm(room: RoomView): ImpostorForm {
     seesCategory: settings.impostorSeesCategory,
     randomStartPlayer: settings.randomStartPlayer,
     allCategories: settings.allCategories,
+    categoryNames: settings.categoryNames,
     selectedCategories: settings.selectedCategories,
     categoryHint: settings.customWordSet
       ? "Gilt erst wieder, wenn kein eigenes Wort gesetzt ist."

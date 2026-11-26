@@ -50,7 +50,7 @@ public final class BuzzerGame implements Game {
     /** Wer zu spät oder doppelt drückt, wird ignoriert: Das ist beim Buzzern normal und kein Fehler. */
     void press(String playerId, Instant now) {
         if (!participantIds.contains(playerId)) {
-            throw new GameException("Die Spielleitung hat keinen Buzzer.");
+            throw new GameException("error.buzzer.gameMasterHasNone");
         }
         if (canPress(playerId)) {
             presses.add(new Press(playerId, now));

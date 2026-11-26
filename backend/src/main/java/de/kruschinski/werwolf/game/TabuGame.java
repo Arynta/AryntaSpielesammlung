@@ -1,6 +1,8 @@
 package de.kruschinski.werwolf.game;
 
 import de.kruschinski.werwolf.game.TabuCards.Card;
+import de.kruschinski.werwolf.i18n.Language;
+import de.kruschinski.werwolf.i18n.Text;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -15,7 +17,10 @@ import java.util.random.RandomGenerator;
  */
 public final class TabuGame implements Game {
 
-    public static final List<String> TEAM_NAMES = List.of("Team Rot", "Team Blau", "Team Grün", "Team Gelb");
+    /** Teamnamen stehen in i18n/messages*.properties unter tabu.team.0 bis tabu.team.3. */
+    public static Text teamName(int team) {
+        return Text.of("tabu.team." + team);
+    }
 
     public enum Outcome {
         CORRECT,
@@ -29,6 +34,8 @@ public final class TabuGame implements Game {
 
     private final List<List<Player>> teams;
     private final TabuOptions options;
+    /** Sprache der Karten, siehe {@link Room}. */
+    private final Language language;
     private final RandomGenerator random;
     private final int[] scores;
     /** Pro Team: wer als Nächstes erklärt bzw. aufpasst (zählt nur hoch, Rest der Teamgröße zählt). */
@@ -44,13 +51,14 @@ public final class TabuGame implements Game {
     private Card card;
     private Integer winnerTeam;
 
-    TabuGame(List<List<Player>> teams, TabuOptions options, RandomGenerator random) {
+    TabuGame(List<List<Player>> teams, TabuOptions options, Language language, RandomGenerator random) {
         if (teams.size() != options.teamCount()
                 || teams.stream().anyMatch(t -> t.size() < TabuOptions.MIN_TEAM_SIZE)) {
-            throw new GameException("Jedes Team braucht mindestens " + TabuOptions.MIN_TEAM_SIZE + " Spieler.");
+            throw new GameException("hint.tabu.teamSize", TabuOptions.MIN_TEAM_SIZE);
         }
         this.teams = teams.stream().map(List::copyOf).toList();
         this.options = options;
+        this.language = language;
         this.random = random;
         this.scores = new int[teams.size()];
         this.explainerTurns = new int[teams.size()];
@@ -114,10 +122,10 @@ public final class TabuGame implements Game {
     /** Der Erklärer (oder der Host, falls der Erklärer offline ist) startet die Uhr. */
     void startTurn(String requesterId, boolean requesterIsHost, Instant now) {
         if (phase != Phase.TURN_READY) {
-            throw new GameException("Gerade kann kein Zug starten.");
+            throw new GameException("error.tabu.cannotStartTurn");
         }
         if (!requesterIsHost && !requesterId.equals(explainerId())) {
-            throw new GameException("Den Zug startet, wer erklärt.");
+            throw new GameException("error.tabu.explainerStarts");
         }
         phase = Phase.TURN;
         turnEndsAt = now.plus(Duration.ofSeconds(options.turnSeconds()));
@@ -125,17 +133,17 @@ public final class TabuGame implements Game {
     }
 
     void correct(String requesterId) {
-        requireRunning(requesterId, explainerId(), "Nur wer erklärt, kann „Richtig“ drücken.");
+        requireRunning(requesterId, explainerId(), "error.tabu.onlyExplainerCorrect");
         score(currentTeam, Outcome.CORRECT);
     }
 
     void skip(String requesterId) {
-        requireRunning(requesterId, explainerId(), "Nur wer erklärt, kann überspringen.");
+        requireRunning(requesterId, explainerId(), "error.tabu.onlyExplainerSkip");
         discard(Outcome.SKIPPED);
     }
 
     void buzz(String requesterId) {
-        requireRunning(requesterId, watcherId(), "Nur der Aufpasser hat den Buzzer.");
+        requireRunning(requesterId, watcherId(), "error.tabu.onlyWatcherBuzzes");
         discard(Outcome.BUZZED);
     }
 
@@ -162,7 +170,7 @@ public final class TabuGame implements Game {
         return true;
     }
 
-    RoomView.TabuView viewFor(String playerId, Instant now) {
+    RoomView.TabuView viewFor(String playerId, Instant now, Language viewerLanguage) {
         List<RoomView.TabuTeam> teamViews = new ArrayList<>();
         Integer yourTeam = null;
         for (int i = 0; i < teams.size(); i++) {
@@ -170,7 +178,7 @@ public final class TabuGame implements Game {
             if (ids.contains(playerId)) {
                 yourTeam = i;
             }
-            teamViews.add(new RoomView.TabuTeam(TEAM_NAMES.get(i), ids, scores[i]));
+            teamViews.add(new RoomView.TabuTeam(teamName(i).in(viewerLanguage), ids, scores[i]));
         }
 
         boolean seesCard = playerId.equals(explainerId()) || playerId.equals(watcherId());
@@ -187,7 +195,7 @@ public final class TabuGame implements Game {
 
     private void requireRunning(String requesterId, String allowedId, String notAllowed) {
         if (phase != Phase.TURN) {
-            throw new GameException("Gerade läuft kein Zug.");
+            throw new GameException("error.tabu.noTurn");
         }
         if (!requesterId.equals(allowedId)) {
             throw new GameException(notAllowed);
@@ -212,7 +220,7 @@ public final class TabuGame implements Game {
     /** Neu gemischt wird erst, wenn alle Karten einmal dran waren. */
     private void drawCard() {
         if (deck.isEmpty()) {
-            deck.addAll(TabuCards.all());
+            deck.addAll(TabuCards.all(language));
             Shuffle.inPlace(deck, random);
         }
         card = deck.removeLast();

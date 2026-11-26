@@ -34,8 +34,14 @@ export interface ImpostorForm {
   seesCategory: boolean;
   randomStartPlayer: boolean;
   allCategories: string[];
+  /** Anzeigenamen zu allCategories, fehlt im lokalen Modus (dort sind Wert und Name gleich). */
+  categoryNames?: string[];
   selectedCategories: string[];
   categoryHint: string;
+}
+
+function categoryName(form: ImpostorForm, value: string): string {
+  return form.categoryNames?.[form.allCategories.indexOf(value)] ?? value;
 }
 
 export function viewImpostorOptions(form: ImpostorForm): string {
@@ -61,7 +67,7 @@ function viewCategoryChoice(form: ImpostorForm): string {
         <label class="check category">
           <input type="checkbox" id="category-${index}" data-category="${esc(name)}"
                  ${checked ? "checked" : ""} ${locked ? "disabled" : ""} />
-          <span>${esc(name)}</span>
+          <span>${esc(categoryName(form, name))}</span>
         </label>`;
     })
     .join("");
@@ -80,7 +86,7 @@ export function impostorSummary(form: ImpostorForm): string[] {
     `Anzahl Impostor: <strong>${form.impostorCount}</strong>`,
     `Impostor sieht die Kategorie: <strong>${form.seesCategory ? "an" : "aus"}</strong>`,
     `Startspieler auslosen: <strong>${form.randomStartPlayer ? "an" : "aus"}</strong>`,
-    `Kategorien: <strong>${allSelected ? "alle" : form.selectedCategories.map(esc).join(", ")}</strong>`,
+    `Kategorien: <strong>${allSelected ? "alle" : form.selectedCategories.map((c) => esc(categoryName(form, c))).join(", ")}</strong>`,
   ];
 }
 

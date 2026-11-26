@@ -1,5 +1,7 @@
 package de.kruschinski.werwolf.game;
 
+import de.kruschinski.werwolf.i18n.Text;
+
 import java.util.List;
 
 /** Einstellungen für Tabu, die der Host in der Lobby wählt. */
@@ -18,13 +20,13 @@ public record TabuOptions(int turnSeconds, boolean autoTeams, int teamCount, int
 
     public TabuOptions {
         if (turnSeconds < MIN_TURN_SECONDS || turnSeconds > MAX_TURN_SECONDS) {
-            throw new GameException("Die Zeit muss zwischen " + MIN_TURN_SECONDS + " und " + MAX_TURN_SECONDS + " Sekunden liegen.");
+            throw new GameException("error.tabu.turnSeconds", MIN_TURN_SECONDS, MAX_TURN_SECONDS);
         }
         if (teamCount < MIN_TEAMS || teamCount > MAX_TEAMS) {
-            throw new GameException("Es kann " + MIN_TEAMS + " bis " + MAX_TEAMS + " Teams geben.");
+            throw new GameException("error.tabu.teamCount", MIN_TEAMS, MAX_TEAMS);
         }
         if (targetScore < MIN_TARGET_SCORE || targetScore > MAX_TARGET_SCORE) {
-            throw new GameException("Die Siegpunkte müssen zwischen " + MIN_TARGET_SCORE + " und " + MAX_TARGET_SCORE + " liegen.");
+            throw new GameException("error.tabu.targetScore", MIN_TARGET_SCORE, MAX_TARGET_SCORE);
         }
     }
 
@@ -34,21 +36,21 @@ public record TabuOptions(int turnSeconds, boolean autoTeams, int teamCount, int
      * @param chosenTeamSizes Spieler pro Team bei selbst gewählten Teams, sonst ignoriert
      * @param unassigned      wie viele noch kein Team gewählt haben
      */
-    public String problem(int playerCount, List<Integer> chosenTeamSizes, int unassigned) {
+    public Text problem(int playerCount, List<Integer> chosenTeamSizes, int unassigned) {
         int needed = teamCount * MIN_TEAM_SIZE;
         if (playerCount < needed) {
-            return "Für " + teamCount + " Teams braucht es mindestens " + needed + " Spieler.";
+            return Text.of("hint.tabu.minPlayers", teamCount, needed);
         }
         if (autoTeams) {
             return null;
         }
         if (unassigned > 0) {
             return unassigned == 1
-                    ? "1 Spieler hat noch kein Team gewählt."
-                    : unassigned + " Spieler haben noch kein Team gewählt.";
+                    ? Text.of("hint.tabu.oneUnassigned")
+                    : Text.of("hint.tabu.unassigned", unassigned);
         }
         if (chosenTeamSizes.stream().anyMatch(size -> size < MIN_TEAM_SIZE)) {
-            return "Jedes Team braucht mindestens " + MIN_TEAM_SIZE + " Spieler.";
+            return Text.of("hint.tabu.teamSize", MIN_TEAM_SIZE);
         }
         return null;
     }
