@@ -110,7 +110,7 @@ void main() {
 
     test('lost die gewünschte Zahl Impostor und einen Startspieler aus der Crew', () {
       for (var seed = 0; seed < 50; seed++) {
-        final options = ImpostorOptions(impostorCount: 2, randomStartPlayer: true, categories: gameData.categoryNames);
+        final options = ImpostorOptions(impostorCount: 2, randomStartPlayer: true, categories: gameData.categoryIds);
         final deal = dealImpostor(6, options, [], seeded(seed));
         expect(deal.impostors.toSet(), hasLength(2));
         expect(deal.startPlayer, isNotNull);
@@ -119,22 +119,22 @@ void main() {
     });
 
     test('lost keinen Startspieler, wenn ausgeschaltet', () {
-      final options = ImpostorOptions(impostorCount: 1, randomStartPlayer: false, categories: gameData.categoryNames);
+      final options = ImpostorOptions(impostorCount: 1, randomStartPlayer: false, categories: gameData.categoryIds);
       expect(dealImpostor(3, options, [], seeded(1)).startPlayer, isNull);
     });
 
     test('nimmt nur Wörter aus den gewählten Kategorien und wiederholt keine', () {
-      final animals = gameData.categories.firstWhere((c) => c.name == 'Tiere');
+      final animals = gameData.categories.firstWhere((c) => c.id == 'animals');
       final used = <String>[];
       final random = seeded(7);
       for (var i = 0; i < animals.words.length; i++) {
-        final picked = pickWord(['Tiere'], used, random);
+        final picked = pickWord(['animals'], used, random);
         expect(picked.category, 'Tiere');
         expect(used, isNot(contains(picked.word)));
         used.add(picked.word);
       }
       // Alle verbraucht: dann geht es von vorne los
-      expect(animals.words, contains(pickWord(['Tiere'], used, random).word));
+      expect(animals.words, contains(pickWord(['animals'], used, random).word));
     });
   });
 

@@ -3,13 +3,14 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../core/view_model/app_controller.dart';
 import '../../../domain/models/models.dart';
+import '../../../l10n/l10n.dart';
 import '../../core/widgets/players.dart';
 import '../../core/widgets/shared.dart';
 import '../../core/themes/theme.dart';
 import '../../core/widgets/widgets.dart';
 
 List<Widget> impostorView(AppController controller, RoomView room, ImpostorView impostor) {
-  final label = 'Impostor · Runde ${room.round}';
+  final label = texts.impostorRound(room.round);
   final result = impostor.result;
   if (room.phase == Phase.result && result != null) {
     return [GameLabel(label), ..._result(controller, room, result)];
@@ -19,10 +20,10 @@ List<Widget> impostorView(AppController controller, RoomView room, ImpostorView 
   return [
     PhaseHead(
       label: label,
-      title: voting ? 'Abstimmung' : 'Hinweise',
+      title: voting ? texts.voting : texts.clues,
       lead: voting
-          ? 'Wer ist der Impostor? Tippe auf einen Namen. Du kannst deine Stimme noch ändern.'
-          : 'Reihum sagt jeder ein Wort als Hinweis. Nicht zu deutlich, sonst errät der Impostor das Wort.',
+          ? texts.votingLead
+          : texts.cluesLead,
     ),
     if (voting) _Voting(controller: controller, room: room, impostor: impostor),
     _wordCard(impostor),
@@ -34,10 +35,10 @@ List<Widget> impostorView(AppController controller, RoomView room, ImpostorView 
     ActionColumn(
       children: [
         if (room.you.host) ...[
-          if (!voting) AppButton.primary('Zur Abstimmung', onPressed: controller.startVoting),
-          AppButton.quiet('Spiel beenden', onPressed: controller.backToLobby),
+          if (!voting) AppButton.primary(texts.toVoting, onPressed: controller.startVoting),
+          AppButton.quiet(texts.endGame, onPressed: controller.backToLobby),
         ] else
-          AppButton.quiet('Raum verlassen', onPressed: controller.leave),
+          AppButton.quiet(texts.leaveRoom, onPressed: controller.leave),
       ],
     ),
   ];
@@ -50,8 +51,8 @@ Widget _wordCard(ImpostorView impostor) {
       child: Gap(
         spacing: 0,
         children: [
-          const Text('Du leitest diese Runde und spielst nicht mit.'),
-          RichLine(['Das Wort: ', Strong(impostor.word ?? '')]),
+          Text(texts.youLeadThisRound),
+          RichLine(['${texts.theWord}: ', Strong(impostor.word ?? '')]),
         ],
       ),
     );
@@ -60,7 +61,7 @@ Widget _wordCard(ImpostorView impostor) {
   return SecretCard(
     key: const ValueKey('secret'),
     tone: isImpostor ? CardTone.wolves : CardTone.neutral,
-    what: 'um dein Wort zu sehen',
+    what: texts.toSeeYourWord,
     content: ImpostorCardContent(
       isImpostor: isImpostor,
       word: impostor.word,
@@ -84,7 +85,7 @@ class StartPlayer extends StatelessWidget {
       borderRadius: BorderRadius.circular(12),
     ),
     child: RichLine(
-      you ? ['Du fängst an.'] : [Strong(name), ' fängt an.'],
+      you ? [texts.youStart] : [Strong(name), texts.startsSuffix],
       textAlign: TextAlign.center,
       style: const TextStyle(fontSize: 18.4),
     ),
@@ -109,7 +110,7 @@ class _Voting extends StatelessWidget {
     return Gap(
       spacing: 8,
       children: [
-        Hint('${voted.length} von $online haben abgestimmt.'),
+        Hint(texts.votedCount(voted.length, online)),
         if (impostor.part == ImpostorPart.gameMaster)
           PlayerList(room: room, only: impostor.participantIds, votedIds: voted)
         else
@@ -122,7 +123,7 @@ class _Voting extends StatelessWidget {
                 spacing: 16,
                 children: [
                   Expanded(child: Text(p.name)),
-                  if (voted.contains(p.id)) Text('hat abgestimmt', style: TextStyle(color: note, fontSize: 14.4)),
+                  if (voted.contains(p.id)) Text(texts.noteVoted, style: TextStyle(color: note, fontSize: 14.4)),
                 ],
               ),
             ),
@@ -135,19 +136,19 @@ List<Widget> _result(AppController controller, RoomView room, ImpostorResult res
   final several = result.impostorIds.length > 1;
   final youWereImpostor = result.impostorIds.contains(room.you.id);
   final title = result.impostorCaught
-      ? 'Erwischt!'
+      ? texts.impostorCaught
       : several
-      ? 'Die Impostor gewinnen!'
-      : 'Der Impostor gewinnt!';
-  final names = result.impostorNames.join(' und ');
-  var lead = several ? '$names waren die Impostor.' : '$names war der Impostor.';
+      ? texts.impostorsWin
+      : texts.impostorWins;
+  final names = result.impostorNames.join(texts.and);
+  var lead = several ? texts.impostorsWere(names) : texts.impostorWas(names);
   if (youWereImpostor && !several) {
-    lead = result.impostorCaught ? 'Sie haben dich durchschaut.' : 'Du hast alle getäuscht.';
+    lead = result.impostorCaught ? texts.youWereCaught : texts.youFooledEveryone;
   }
 
   return [
     PhaseHead(title: title, lead: lead),
-    ResultWord(intro: 'Das Wort war', word: result.word, category: result.category),
+    ResultWord(intro: texts.theWordWas, word: result.word, category: result.category),
     PlayerList(
       room: room,
       showReady: true,
@@ -158,8 +159,8 @@ List<Widget> _result(AppController controller, RoomView room, ImpostorResult res
       children: afterRound(
         controller,
         room,
-        againLabel: 'Nächste Runde',
-        waitingText: 'Alle sind bereit. Die Spielleitung startet die nächste Runde.',
+        againLabel: texts.nextRound,
+        waitingText: texts.allReadyHostStartsNextRound,
       ),
     ),
   ];

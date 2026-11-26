@@ -2,6 +2,7 @@
 import 'package:material_ui/material_ui.dart';
 
 import '../../../domain/models/models.dart';
+import '../../../l10n/l10n.dart';
 import 'street_view_controller.dart';
 
 class StreetView extends StatelessWidget {
@@ -13,5 +14,5 @@ class StreetView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) =>
-      const Center(child: Text('Straßenbilder gibt es nur im Browser.', textAlign: TextAlign.center));
+      Center(child: Text(texts.streetViewBrowserOnly, textAlign: TextAlign.center));
 }

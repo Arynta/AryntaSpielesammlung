@@ -5,6 +5,7 @@ import 'dart:math' as math;
 import 'package:material_ui/material_ui.dart';
 
 import '../../../../domain/models/models.dart';
+import '../../../../l10n/l10n.dart';
 import '../../themes/theme.dart';
 import '../widgets.dart';
 
@@ -34,8 +35,8 @@ class ForbiddenCard extends StatelessWidget {
             style: display(40, height: 1.05, color: ink),
           ),
           Text(
-            'NICHT SAGEN:',
-            semanticsLabel: 'Nicht sagen:',
+            texts.dontSay.toUpperCase(),
+            semanticsLabel: texts.dontSay,
             textAlign: TextAlign.center,
             style: const TextStyle(
               color: Color(0xFFA12A1C),
@@ -101,7 +102,7 @@ class _CountdownState extends State<Countdown> {
     final seconds = math.max(0, (widget.deadline.difference(DateTime.now()).inMilliseconds / 1000).ceil());
     final low = seconds <= 10;
     return Semantics(
-      label: widget.clock ? 'Restzeit' : 'Restzeit in Sekunden',
+      label: widget.clock ? texts.timeLeft : texts.timeLeftSeconds,
       child: Container(
         constraints: const BoxConstraints(minWidth: 56),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
@@ -158,7 +159,7 @@ class Scoreboard extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Semantics(
     container: true,
-    label: 'Punktestand',
+    label: texts.score,
     child: Gap(
       spacing: 6,
       children: [
@@ -187,7 +188,7 @@ class Scoreboard extends StatelessWidget {
               ),
           ],
         ),
-        Hint('Gewonnen hat, wer zuerst $targetScore Punkte hat.'),
+        Hint(texts.firstToPointsWins(targetScore)),
       ],
     ),
   );
@@ -224,9 +225,9 @@ class TurnResults extends StatelessWidget {
                     ),
                   TextSpan(
                     text: switch (r.outcome) {
-                      CardOutcome.correct => ' richtig',
-                      CardOutcome.skipped => 'übersprungen',
-                      CardOutcome.buzzed => ' verboten',
+                      CardOutcome.correct => ' ${texts.outcomeCorrect}',
+                      CardOutcome.skipped => texts.outcomeSkipped,
+                      CardOutcome.buzzed => ' ${texts.outcomeForbidden}',
                     },
                   ),
                   if (r.scoringTeam case final team?) TextSpan(text: ' · +1 ${teamNames[team]}'),

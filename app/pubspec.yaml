@@ -9,6 +9,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  intl: any
   material_ui: ^1.1.0
   web: ^1.1.2
   web_socket_channel: ^3.0.3
@@ -22,6 +25,8 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  # Texte stehen in lib/l10n/app_*.arb, Flutter erzeugt daraus AppLocalizations.
+  generate: true
 
   assets:
     # Kopien aus dem Backend- und Bilder-Ordner, siehe tool/sync_assets.dart

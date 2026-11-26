@@ -17,6 +17,7 @@ class ImpostorSettings {
       customWordSet = j['customWordSet'] as bool,
       customWord = j['customWord'] as String?,
       allCategories = parseStrings(j['allCategories']),
+      categoryNames = parseStrings(j['categoryNames']),
       selectedCategories = parseStrings(j['selectedCategories']),
       impostorCount = j['impostorCount'] as int,
       maxImpostorCount = j['maxImpostorCount'] as int,
@@ -26,7 +27,9 @@ class ImpostorSettings {
 
   /// Nur beim Host gefüllt.
   final String? customWord;
+  /// IDs der Kategorien. [categoryNames] sind die Namen dazu in derselben Reihenfolge und in der eigenen Sprache.
   final List<String> allCategories;
+  final List<String> categoryNames;
   final List<String> selectedCategories;
   final int impostorCount;
   final int maxImpostorCount;

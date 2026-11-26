@@ -3,6 +3,8 @@ import 'dart:async';
 
 import 'package:flutter/widgets.dart';
 
+import '../../../l10n/l10n.dart';
+
 import '../../../data/services/device/device.dart' as device;
 import '../../../data/services/storage/storage_base.dart';
 import '../../../data/services/connection.dart';
@@ -14,6 +16,7 @@ import '../../../domain/models/models.dart';
 const _sessionKey = 'werwolf.session';
 const _nameKey = 'werwolf.name';
 const _settingsOpenKey = 'arynta.settingsOpen';
+const _languageKey = 'arynta.language';
 const _toastDuration = Duration(seconds: 4);
 
 /// Ja/Nein-Abfrage. Die Oberfläche setzt hier ihren Dialog ein.
@@ -39,6 +42,7 @@ class AppController extends ChangeNotifier {
     }
     if (storage.readJson(_nameKey) case final String name) nameInput.text = name;
     settingsOpen = storage.readJson(_settingsOpenKey) == true;
+    _useLanguage(Language.parse(storage.read(_languageKey)));
     codeInput.text = initialCode.toUpperCase();
   }
 
@@ -49,6 +53,9 @@ class AppController extends ChangeNotifier {
   Confirm confirm = (_, _) async => false;
 
   ConnectionStatus status = ConnectionStatus.waking;
+
+  /// Sprache der Oberfläche. Eigener Notifier, weil daran die ganze App hängt und nicht jede Änderung sie neu baut.
+  final language = ValueNotifier(Language.de);
   Session? session;
   RoomView? room;
   bool settingsOpen = false;
@@ -98,11 +105,26 @@ class AppController extends ChangeNotifier {
     customWordInput.dispose();
     answerInput.dispose();
     nameFocus.dispose();
+    language.dispose();
     super.dispose();
   }
 
   void _changed() {
     if (!_disposed) notifyListeners();
+  }
+
+  /// Deutsch ↔ Englisch. Der Server bekommt es mit, damit Hinweise und Fehler passen.
+  void toggleLanguage() {
+    _useLanguage(language.value.other);
+    storage.write(_languageKey, language.value.wire);
+    _link.send(ClientMessage.setLanguage(language.value));
+    _changed();
+  }
+
+  void _useLanguage(Language next) {
+    language.value = next;
+    appLanguage = next;
+    device.setPageLanguage(next.wire);
   }
 
   void _setStatus(ConnectionStatus next) {
@@ -114,7 +136,7 @@ class AppController extends ChangeNotifier {
     final current = session;
     if (current == null) return;
     _waitingForRejoin = true;
-    _link.send(ClientMessage.rejoin(current.code, current.secret));
+    _link.send(ClientMessage.rejoin(current.code, current.secret, language.value));
   }
 
   void handleMessage(ServerMessage msg) {
@@ -143,7 +165,7 @@ class AppController extends ChangeNotifier {
         _forgetRoom();
       case Kicked():
         _forgetRoom();
-        showToast('Du wurdest aus dem Raum entfernt.');
+        showToast(texts.toastKicked);
         return;
       case ErrorMessage(:final message):
         // Raum gibt es nach einem Server-Neustart nicht mehr
@@ -175,7 +197,7 @@ class AppController extends ChangeNotifier {
   }
 
   void _send(ClientMessage msg) {
-    if (!_link.send(msg)) showToast('Keine Verbindung zum Server. Einen Moment, ich versuche es weiter.');
+    if (!_link.send(msg)) showToast(texts.toastOffline);
   }
 
   // ---- Startseite ------------------------------------------------------
@@ -183,7 +205,7 @@ class AppController extends ChangeNotifier {
   bool _requireName() {
     nameInput.text = nameInput.text.trim();
     if (nameInput.text.isEmpty) {
-      showToast('Gib zuerst deinen Namen ein.');
+      showToast(texts.toastNameMissing);
       nameFocus.requestFocus();
       return false;
     }
@@ -192,17 +214,17 @@ class AppController extends ChangeNotifier {
   }
 
   void create() {
-    if (_requireName()) _send(ClientMessage.create(nameInput.text));
+    if (_requireName()) _send(ClientMessage.create(nameInput.text, language.value));
   }
 
   void join() {
     if (!_requireName()) return;
     final code = codeInput.text.trim();
     if (code.isEmpty) {
-      showToast('Gib den Raumcode ein, den dir deine Freunde geschickt haben.');
+      showToast(texts.toastCodeMissing);
       return;
     }
-    _send(ClientMessage.join(code, nameInput.text));
+    _send(ClientMessage.join(code, nameInput.text, language.value));
   }
 
   /// Enter im Namensfeld: beitreten, wenn schon ein Code dasteht, sonst Raum erstellen.
@@ -381,11 +403,11 @@ class AppController extends ChangeNotifier {
   Future<void> shareRoom() async {
     final code = room?.code;
     if (code == null) return;
-    if (await device.shareRoom(code) == device.ShareResult.copied) showToast('Link kopiert');
+    if (await device.shareRoom(code, texts.shareInvite(code)) == device.ShareResult.copied) showToast(texts.toastLinkCopied);
   }
 
   Future<void> leave() async {
-    if (!await confirm('Raum wirklich verlassen?', 'Ja, verlassen')) return;
+    if (!await confirm(texts.confirmLeave, texts.confirmLeaveYes)) return;
     if (!_link.send(ClientMessage.leave())) {
       _forgetRoom();
       _changed();
@@ -395,7 +417,7 @@ class AppController extends ChangeNotifier {
   Future<void> kick(String playerId) async {
     final player = room?.players.where((p) => p.id == playerId).firstOrNull;
     if (player == null) return;
-    if (await confirm('${player.name} aus dem Raum entfernen?', 'Ja, entfernen')) {
+    if (await confirm(texts.confirmKick(player.name), texts.confirmKickYes)) {
       _send(ClientMessage.kick(player.id));
     }
   }
@@ -413,7 +435,7 @@ class AppController extends ChangeNotifier {
 
   void submitAnswer() {
     if (answerInput.text.trim().isEmpty) {
-      showToast('Schreib zuerst eine Antwort.');
+      showToast(texts.toastAnswerMissing);
       return;
     }
     _send(ClientMessage.submitAnswer(answerInput.text));
@@ -429,7 +451,7 @@ class AppController extends ChangeNotifier {
   Future<void> claimGeoBingoField(int field) async {
     final spot = await streetView.currentSpot();
     if (spot == null) {
-      showToast('Das Straßenbild ist noch nicht geladen.');
+      showToast(texts.toastStreetViewLoading);
       return;
     }
     _send(ClientMessage.claimGeoBingoField(field, spot));
@@ -439,23 +461,22 @@ class AppController extends ChangeNotifier {
   void nextRound() => _send(ClientMessage.nextRound());
 
   Future<void> backToLobby() async {
-    if (await confirm('Spiel beenden und alle zurück in die Lobby schicken?', 'Ja, beenden')) {
+    if (await confirm(texts.confirmBackToLobby, texts.confirmBackToLobbyYes)) {
       _send(ClientMessage.backToLobby());
     }
   }
 
   Future<void> forgetDevice() async {
     final inRoom = session != null;
-    final question = inRoom
-        ? 'Name und Raum auf diesem Gerät löschen? Du verlässt dabei den Raum.'
-        : 'Deinen gespeicherten Namen auf diesem Gerät löschen?';
-    if (!await confirm(question, 'Ja, löschen')) return;
+    final question = inRoom ? texts.confirmForgetInRoom : texts.confirmForget;
+    if (!await confirm(question, texts.confirmForgetYes)) return;
 
     if (inRoom) _link.send(ClientMessage.leave());
     _forgetRoom();
     forgetLocalSetup(storage);
     nameInput.clear();
     storage.write(_nameKey, null);
-    showToast('Deine Daten auf diesem Gerät sind gelöscht.');
+    storage.write(_languageKey, null);
+    showToast(texts.toastForgotten);
   }
 }

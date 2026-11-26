@@ -4,6 +4,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../../../data/repositories/game_data.dart';
 import '../../../../domain/models/models.dart';
+import '../../../../l10n/l10n.dart';
 import '../../themes/theme.dart';
 import '../widgets.dart';
 
@@ -77,10 +78,10 @@ class RoleCardContent extends StatelessWidget {
     final String? wolves;
     if (data.seesWolfPack) {
       wolves = knownWolves.isEmpty
-          ? 'Es gibt keine Werwölfe, die du kennst.'
-          : 'Die Werwölfe: ${knownWolves.join(', ')}';
+          ? texts.noKnownWolves
+          : texts.theWerewolves(knownWolves.join(', '));
     } else if (data.wolfPack) {
-      wolves = knownWolves.isEmpty ? 'Du jagst allein.' : 'Mit dir jagen: ${knownWolves.join(', ')}';
+      wolves = knownWolves.isEmpty ? texts.huntAlone : texts.huntingWithYou(knownWolves.join(', '));
     } else {
       wolves = null;
     }
@@ -108,7 +109,7 @@ class RoleCardContent extends StatelessWidget {
         ],
         _cardText(role.description),
         if (wolves != null) _cardText(wolves, bold: true),
-        if (leftoverRoles.isNotEmpty) _cardText('Übrige Karten: ${leftoverRoles.join(' und ')}', bold: true),
+        if (leftoverRoles.isNotEmpty) _cardText(texts.leftoverCards(leftoverRoles.join(texts.and)), bold: true),
       ],
     );
   }
@@ -135,10 +136,10 @@ class ImpostorCardContent extends StatelessWidget {
     children: [
       Text(isImpostor ? 'Impostor' : word ?? '', style: display(48)),
       if (category != null)
-        isImpostor ? RichLine(['Kategorie: ', Strong(category!)]) : _cardText('Kategorie: $category')
+        isImpostor ? RichLine(['${texts.category}: ', Strong(category!)]) : _cardText('${texts.category}: $category')
       else if (isImpostor)
-        _cardText('Du kennst das Wort nicht. Hör gut zu und bluffe.'),
-      if (isImpostor && fellowImpostors.isNotEmpty) _cardText('Mit dir: ${fellowImpostors.join(', ')}', bold: true),
+        _cardText(texts.impostorBluff),
+      if (isImpostor && fellowImpostors.isNotEmpty) _cardText(texts.withYou(fellowImpostors.join(', ')), bold: true),
     ],
   );
 }
@@ -206,7 +207,7 @@ class _SecretCardState extends State<SecretCard> {
     },
     child: Semantics(
       button: true,
-      label: _revealing ? null : 'Gedrückt halten, ${widget.what}',
+      label: _revealing ? null : texts.holdTo(widget.what),
       excludeSemantics: !_revealing,
       child: Listener(
         onPointerDown: (_) => _set(true),
@@ -228,7 +229,7 @@ class _SecretCardState extends State<SecretCard> {
                 child: _revealing
                     ? widget.content
                     : Text(
-                        'Gedrückt halten,\n${widget.what}',
+                        texts.holdToTwoLines(widget.what),
                         style: TextStyle(color: context.palette.muted, fontSize: 17.6),
                       ),
               ),
@@ -253,7 +254,7 @@ class RoleOverview extends StatelessWidget {
     return Gap(
       spacing: 0,
       children: [
-        const Padding(padding: EdgeInsets.only(bottom: 8), child: SectionTitle('Alle Rollen')),
+        Padding(padding: const EdgeInsets.only(bottom: 8), child: SectionTitle(texts.allRoles)),
         for (final row in rows)
           NameLine(
             name: row.name,
@@ -265,7 +266,7 @@ class RoleOverview extends StatelessWidget {
             note: Text('${row.role.name} · ${row.role.teamName}'),
           ),
         if (leftoverRoles.isNotEmpty)
-          Padding(padding: const EdgeInsets.only(top: 8), child: Hint('Übrige Karten: ${leftoverRoles.join(' und ')}')),
+          Padding(padding: const EdgeInsets.only(top: 8), child: Hint(texts.leftoverCards(leftoverRoles.join(texts.and)))),
       ],
     );
   }

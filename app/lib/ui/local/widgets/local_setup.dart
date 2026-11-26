@@ -2,6 +2,7 @@
 import 'package:material_ui/material_ui.dart';
 
 import '../../../data/repositories/game_data.dart';
+import '../../../l10n/l10n.dart';
 import '../view_model/local_controller.dart';
 import '../../../domain/rules/local_games.dart';
 import '../../../domain/models/models.dart';
@@ -10,29 +11,29 @@ import '../../core/widgets/showcase.dart';
 import '../../core/themes/theme.dart';
 import '../../core/widgets/widgets.dart';
 
-final _games = <ShowcaseGame>[
+List<ShowcaseGame> get _games => [
   (
     type: GameType.impostor,
     name: 'Impostor',
-    description: 'Alle kennen ein geheimes Wort, nur die Impostor nicht.',
+    description: texts.localImpostorDescription,
     minPlayers: minPlayers[GameType.impostor]!,
   ),
   (
     type: GameType.werwolf,
-    name: 'Werwolf',
-    description: 'Das Handy verteilt nur die Rollen. Den Rest leitet ihr am Tisch.',
+    name: texts.werwolf,
+    description: texts.localWerwolfDescription,
     minPlayers: minPlayers[GameType.werwolf]!,
   ),
   (
     type: GameType.tabu,
-    name: 'Tabu',
-    description: 'Erklärt eurem Team Begriffe, ohne die verbotenen Wörter zu sagen.',
+    name: texts.tabu,
+    description: texts.localTabuDescription,
     minPlayers: minPlayers[GameType.tabu]!,
   ),
   (
     type: GameType.nobodyIsPerfect,
     name: 'Nobody is Perfect',
-    description: 'Erfindet glaubwürdige Antworten auf kuriose Fragen und findet die echte.',
+    description: texts.localNipDescription,
     minPlayers: minPlayers[GameType.nobodyIsPerfect]!,
   ),
 ];
@@ -46,7 +47,7 @@ List<Widget> localSetupView(BuildContext context, LocalController local) {
     GameHero(
       title: game.name,
       text: game.description,
-      meta: 'ab ${game.minPlayers} Spielern · Ein Handy geht reihum, kein Internet nötig',
+      meta: '${texts.minPlayers(game.minPlayers)} · ${texts.localMeta}',
       game: game.type,
       count: _games.length,
       index: index,
@@ -62,18 +63,18 @@ List<Widget> localSetupView(BuildContext context, LocalController local) {
             child: Gap(
               children: [
                 AppStepper(
-                  label: 'Spieler',
+                  label: texts.playerCount,
                   value: setup.playerCount,
                   min: minPlayers[GameType.impostor]!,
                   max: maxPlayers,
                   onStep: local.changePlayers,
                 ),
                 if (setup.game == GameType.werwolf)
-                  const Hint('Die Spielleitung zählt nicht mit, sie bekommt keine Karte.'),
+                  Hint(texts.localGameMasterNoCard),
                 SettingsGroup(
                   key: const ValueKey('names'),
                   children: [
-                    const Text('Namen (optional)', style: TextStyle(fontWeight: FontWeight.w700)),
+                    Text(texts.namesOptional, style: const TextStyle(fontWeight: FontWeight.w700)),
                     AutoGrid(
                       minWidth: 152,
                       children: [
@@ -91,7 +92,7 @@ List<Widget> localSetupView(BuildContext context, LocalController local) {
         ActionColumn(
           children: [
             AppButton.primary(
-              setup.game == GameType.nobodyIsPerfect ? 'Los geht\'s' : 'Karten verteilen',
+              setup.game == GameType.nobodyIsPerfect ? texts.letsGo : texts.dealCards,
               onPressed: problem == null ? local.startRound : null,
             ),
             if (problem != null) Hint(problem),
@@ -130,9 +131,10 @@ Widget _gameSettings(LocalController local) {
           maxImpostorCount: setup.maxImpostors,
           seesCategory: setup.seesCategory,
           randomStartPlayer: setup.randomStartPlayer,
-          allCategories: gameData.categoryNames,
+          allCategories: gameData.categoryIds,
+          categoryNames: [for (final c in gameData.categories) c.name],
           selectedCategories: setup.categories,
-          categoryHint: 'Das Wort kommt zufällig aus den angekreuzten Kategorien.',
+          categoryHint: texts.categoriesHint,
         ),
         onCount: local.changeImpostorCount,
         onSeesCategory: (value) => local.configure((s) => s.seesCategory = value),
@@ -179,8 +181,8 @@ class _NameFieldState extends State<_NameField> {
   @override
   Widget build(BuildContext context) => AppField(
     controller: _controller,
-    hint: 'Spieler ${widget.seat + 1}',
-    semanticLabel: 'Name von Spieler ${widget.seat + 1}',
+    hint: texts.playerNumber(widget.seat + 1),
+    semanticLabel: texts.nameOfPlayer(widget.seat + 1),
     maxLength: 20,
     dense: true,
     capitalization: TextCapitalization.words,
@@ -200,7 +202,7 @@ class _TeamPicker extends StatelessWidget {
     final p = context.palette;
     return SettingsGroup(
       children: [
-        const Text('Teams', style: TextStyle(fontWeight: FontWeight.w700)),
+        Text(texts.teams, style: const TextStyle(fontWeight: FontWeight.w700)),
         for (var seat = 0; seat < names.length; seat++)
           Wrap(
             key: ValueKey(seat),
@@ -212,7 +214,7 @@ class _TeamPicker extends StatelessWidget {
               Text(names[seat]),
               Semantics(
                 container: true,
-                label: 'Team von ${names[seat]}',
+                label: texts.teamOf(names[seat]),
                 child: Wrap(
                   spacing: 6,
                   runSpacing: 6,
@@ -264,7 +266,7 @@ class _TeamChip extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 10),
             child: Center(
               child: Text(
-                Tabu.teamNames[team].replaceFirst('Team ', ''),
+                tabuTeamNames[team].replaceFirst('Team ', ''),
                 style: TextStyle(
                   color: selected ? palette.onAccent : palette.text,
                   fontSize: 15,

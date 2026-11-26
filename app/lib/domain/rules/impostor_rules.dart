@@ -2,6 +2,7 @@
 import 'dart:math' as math;
 
 import '../../data/repositories/game_data.dart';
+import '../../l10n/l10n.dart';
 import '../models/models.dart';
 import 'common.dart';
 
@@ -13,13 +14,13 @@ int minImpostorParticipants(int impostorCount) {
 
 String? impostorProblem(int playerCount, int impostorCount) {
   if (impostorCount < 1 || impostorCount > maxImpostorsOverall) {
-    return 'Es kann 1 bis $maxImpostorsOverall Impostor geben.';
+    return texts.impostorCountRange(maxImpostorsOverall);
   }
   final needed = minImpostorParticipants(impostorCount);
   if (playerCount >= needed) return null;
   return impostorCount == 1
-      ? 'Für Impostor braucht es mindestens $needed Mitspieler.'
-      : 'Für $impostorCount Impostor braucht es mindestens $needed Mitspieler.';
+      ? texts.impostorMinPlayers(needed)
+      : texts.impostorMinPlayersFor(impostorCount, needed);
 }
 
 class ImpostorOptions {
@@ -47,10 +48,10 @@ typedef PickedWord = ({String word, String category});
 PickedWord pickWord(List<String> categories, List<String> usedWords, Random random) {
   final inCategories = <PickedWord>[
     for (final c in gameData.categories)
-      if (categories.contains(c.name))
+      if (categories.contains(c.id))
         for (final word in c.words) (word: word, category: c.name),
   ];
-  if (inCategories.isEmpty) throw StateError('Bitte wähle mindestens eine Kategorie.');
+  if (inCategories.isEmpty) throw StateError(texts.chooseCategory);
   final unused = [
     for (final w in inCategories)
       if (!usedWords.contains(w.word)) w,

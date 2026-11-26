@@ -1,6 +1,7 @@
 // Nachrichten vom Server und an den Server.
 import 'json.dart';
 import 'game.dart';
+import 'language.dart';
 import 'geo_bingo.dart';
 import 'room.dart';
 
@@ -54,9 +55,12 @@ class ClientMessage {
   final Json json;
   String get type => json['type'] as String;
 
-  ClientMessage.create(String name) : this._('create', {'name': name});
-  ClientMessage.join(String code, String name) : this._('join', {'code': code, 'name': name});
-  ClientMessage.rejoin(String code, String secret) : this._('rejoin', {'code': code, 'secret': secret});
+  ClientMessage.create(String name, Language language) : this._('create', {'name': name, 'language': language.wire});
+  ClientMessage.join(String code, String name, Language language)
+    : this._('join', {'code': code, 'name': name, 'language': language.wire});
+  ClientMessage.rejoin(String code, String secret, Language language)
+    : this._('rejoin', {'code': code, 'secret': secret, 'language': language.wire});
+  ClientMessage.setLanguage(Language language) : this._('setLanguage', {'language': language.wire});
   ClientMessage.leave() : this._('leave');
   ClientMessage.selectGame(GameType game) : this._('selectGame', {'game': game.wire});
   ClientMessage.setReady(bool ready) : this._('setReady', {'ready': ready});

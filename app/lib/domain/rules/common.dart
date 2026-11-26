@@ -1,6 +1,8 @@
 // Zufall und Spielernamen für alle lokalen Spiele.
 import 'dart:math' as math;
 
+import '../../l10n/l10n.dart';
+
 /// Zufallszahl von 0 (inklusive) bis 1 (exklusive). Austauschbar für Tests.
 typedef Random = double Function();
 
@@ -20,7 +22,7 @@ List<T> shuffled<T>(Iterable<T> items, Random random) {
 /// Leere Felder werden zu „Spieler 1“, „Spieler 2“ usw.
 List<String> playerNames(int count, List<String> typed) => List.generate(count, (i) {
   final name = cleanName(i < typed.length ? typed[i] : '');
-  return name.isEmpty ? 'Spieler ${i + 1}' : name;
+  return name.isEmpty ? texts.playerNumber(i + 1) : name;
 });
 
 final _invisible = RegExp(r'[\p{Cc}\p{Cf}\p{Co}\p{Cn}]', unicode: true);

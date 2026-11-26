@@ -4,13 +4,13 @@ import 'dart:math' as math;
 import 'package:material_ui/material_ui.dart';
 
 import '../../../data/repositories/game_data.dart';
+import '../../../l10n/l10n.dart';
 import '../view_model/local_controller.dart';
 import '../../../domain/rules/local_games.dart';
 import '../../core/widgets/shared.dart';
 import '../../core/widgets/widgets.dart';
 
-String _fibLabel(NobodyIsPerfectMatch match) =>
-    'Nobody is Perfect · Frage ${match.index + 1} von ${match.questions.length}';
+String _fibLabel(NobodyIsPerfectMatch match) => texts.nipQuestionLabel(match.index + 1, match.questions.length);
 
 Widget _fibQuestion(NobodyIsPerfectMatch match) => QuestionCard(
   question: match.questions[match.index].question,
@@ -24,18 +24,16 @@ List<Widget> localFibPass(LocalController local, NobodyIsPerfectMatch match) {
   return [
     PhaseHead(
       label: _fibLabel(match),
-      title: 'Gib das Handy an $name',
-      lead:
-          '${guessing ? 'Jetzt wird getippt.' : 'Jetzt wird geflunkert.'} '
-          'Nur $name darf auf den Bildschirm schauen.',
+      title: texts.passPhoneTo(name),
+      lead: '${guessing ? texts.nowGuessing : texts.nowFibbing} ${texts.onlyNameMayLook(name)}',
     ),
     ActionColumn(
       children: [
         AppButton.primary(
-          'Ich bin $name, ${guessing ? 'Antworten zeigen' : 'Frage zeigen'}',
+          guessing ? texts.iAmNameShowAnswers(name) : texts.iAmNameShowQuestion(name),
           onPressed: local.showFibTurn,
         ),
-        AppButton.quiet('Spiel abbrechen', onPressed: local.backToSetup),
+        AppButton.quiet(texts.cancelGame, onPressed: local.backToSetup),
       ],
     ),
   ];
@@ -44,23 +42,23 @@ List<Widget> localFibPass(LocalController local, NobodyIsPerfectMatch match) {
 List<Widget> localFibWrite(LocalController local, NobodyIsPerfectMatch match) => [
   PhaseHead(
     label: _fibLabel(match),
-    title: 'Flunker los, ${local.players[local.index]}!',
-    lead: 'Denk dir eine Antwort aus, die echt klingt.',
+    title: texts.startFibbingName(local.players[local.index]),
+    lead: texts.makeUpRealSounding,
   ),
   _fibQuestion(match),
   SettingsGroup(
     key: const ValueKey('local-answer'),
     children: [
       AppField(
-        label: 'Deine erfundene Antwort',
+        label: texts.yourFakeAnswer,
         controller: local.answerInput,
-        hint: 'Klingt echt, ist aber ausgedacht',
+        hint: texts.yourFakeAnswerHint,
         maxLength: NobodyIsPerfectRules.maxAnswerLength,
         onSubmitted: local.submitAnswer,
       ),
     ],
   ),
-  ActionColumn(children: [AppButton.primary('Abgeben und weitergeben', onPressed: local.submitAnswer)]),
+  ActionColumn(children: [AppButton.primary(texts.submitAndPass, onPressed: local.submitAnswer)]),
 ];
 
 List<Widget> localFibGuess(LocalController local, NobodyIsPerfectMatch match) {
@@ -69,8 +67,8 @@ List<Widget> localFibGuess(LocalController local, NobodyIsPerfectMatch match) {
   return [
     PhaseHead(
       label: _fibLabel(match),
-      title: 'Welche ist echt, ${local.players[local.index]}?',
-      lead: 'Tippe auf die Antwort, die du für die echte hältst.',
+      title: texts.whichIsRealName(local.players[local.index]),
+      lead: texts.tapTheRealAnswer,
     ),
     _fibQuestion(match),
     ChoiceList(
@@ -81,7 +79,7 @@ List<Widget> localFibGuess(LocalController local, NobodyIsPerfectMatch match) {
     ),
     ActionColumn(
       children: [
-        AppButton.primary('Tipp abgeben und weitergeben', onPressed: chosen == null ? null : local.finishGuess),
+        AppButton.primary(texts.guessAndPass, onPressed: chosen == null ? null : local.finishGuess),
       ],
     ),
   ];
@@ -105,20 +103,20 @@ List<Widget> localFibReveal(LocalController local, NobodyIsPerfectMatch match) {
   final points = PointTable([
     for (var seat = 0; seat < local.players.length; seat++)
       (name: local.players[seat], score: match.scores[seat], gained: match.gained[seat]),
-  ], title: over ? 'Endstand' : 'Punkte');
-  final answer = ResultWord(intro: 'Die echte Antwort', word: match.questions[match.index].answer, size: 26);
+  ], title: over ? texts.finalScore : texts.points);
+  final answer = ResultWord(intro: texts.theRealAnswer, word: match.questions[match.index].answer, size: 26);
 
   if (!over) {
     return [
-      PhaseHead(label: _fibLabel(match), title: 'Auflösung'),
+      PhaseHead(label: _fibLabel(match), title: texts.reveal),
       _fibQuestion(match),
       answer,
       reveal,
       points,
       ActionColumn(
         children: [
-          AppButton.primary('Nächste Frage', onPressed: local.nextQuestion),
-          AppButton.quiet('Spiel abbrechen', onPressed: local.backToSetup),
+          AppButton.primary(texts.nextQuestion, onPressed: local.nextQuestion),
+          AppButton.quiet(texts.cancelGame, onPressed: local.backToSetup),
         ],
       ),
     ];
@@ -131,9 +129,9 @@ List<Widget> localFibReveal(LocalController local, NobodyIsPerfectMatch match) {
   ];
   return [
     PhaseHead(
-      label: 'Nobody is Perfect · Spielende',
-      title: winners.length == 1 ? '${winners.first} gewinnt!' : 'Gleichstand: ${winners.join(' und ')}',
-      lead: 'Mit $best Punkten.',
+      label: texts.nipGameOver,
+      title: winners.length == 1 ? texts.wins(winners.first) : texts.tie(winners.join(texts.and)),
+      lead: texts.withPoints(best),
     ),
     points,
     _fibQuestion(match),
@@ -141,8 +139,8 @@ List<Widget> localFibReveal(LocalController local, NobodyIsPerfectMatch match) {
     reveal,
     ActionColumn(
       children: [
-        AppButton.primary('Nochmal spielen', onPressed: local.startRound),
-        AppButton.quiet('Einstellungen ändern', onPressed: local.backToSetup),
+        AppButton.primary(texts.playAgain, onPressed: local.startRound),
+        AppButton.quiet(texts.changeSettings, onPressed: local.backToSetup),
       ],
     ),
   ];

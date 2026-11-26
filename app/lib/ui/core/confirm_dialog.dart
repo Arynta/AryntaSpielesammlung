@@ -2,6 +2,7 @@
 import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../../l10n/l10n.dart';
 import 'themes/theme.dart';
 import 'widgets/widgets.dart';
 
@@ -39,7 +40,7 @@ class ConfirmDialog extends StatelessWidget {
                     children: [
                       // Bei Fragen, die etwas kaputtmachen können, steht der Fokus sicherheitshalber auf "Nein"
                       Expanded(
-                        child: AppButton('Nein', autofocus: true, onPressed: () => Navigator.of(context).pop(false)),
+                        child: AppButton(texts.no, autofocus: true, onPressed: () => Navigator.of(context).pop(false)),
                       ),
                       Expanded(child: AppButton.primary(yesLabel, onPressed: () => Navigator.of(context).pop(true))),
                     ],

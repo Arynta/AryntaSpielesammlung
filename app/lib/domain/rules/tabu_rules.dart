@@ -1,5 +1,6 @@
 // Tabu lokal, wie TabuGame im Backend.
 import '../../data/repositories/game_data.dart';
+import '../../l10n/l10n.dart';
 import '../models/models.dart';
 import 'common.dart';
 
@@ -29,16 +30,16 @@ class TabuMatch {
 /// [chosen] pro Platz das selbst gewählte Team, null = noch keins
 String? tabuProblem(int playerCount, int teamCount, bool autoTeams, List<int?> chosen) {
   final needed = teamCount * Tabu.minTeamSize;
-  if (playerCount < needed) return 'Für $teamCount Teams braucht es mindestens $needed Spieler.';
+  if (playerCount < needed) return texts.tabuMinPlayers(teamCount, needed);
   if (autoTeams) return null;
   final picks = List.generate(playerCount, (i) => i < chosen.length ? chosen[i] : null);
   final unassigned = picks.where((t) => t == null || t >= teamCount).length;
   if (unassigned > 0) {
-    return unassigned == 1 ? '1 Spieler hat noch kein Team.' : '$unassigned Spieler haben noch kein Team.';
+    return texts.withoutTeamCount(unassigned);
   }
   for (var team = 0; team < teamCount; team++) {
     if (picks.where((t) => t == team).length < Tabu.minTeamSize) {
-      return 'Jedes Team braucht mindestens ${Tabu.minTeamSize} Spieler.';
+      return texts.teamMinSize(Tabu.minTeamSize);
     }
   }
   return null;

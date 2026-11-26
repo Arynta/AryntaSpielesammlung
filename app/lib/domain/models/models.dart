@@ -1,6 +1,7 @@
 // Spiegelt die Java-Klassen im Backend (RoomView, GameType, Phase).
 export 'json.dart';
 export 'game.dart';
+export 'language.dart';
 export 'impostor.dart';
 export 'tabu.dart';
 export 'room.dart';

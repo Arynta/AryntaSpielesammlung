@@ -1,6 +1,7 @@
 // Nobody is Perfect: Frage, Antworten zum Tippen, Auflösung und Punkte.
 import 'package:material_ui/material_ui.dart';
 
+import '../../../../l10n/l10n.dart';
 import '../../themes/theme.dart';
 import '../widgets.dart';
 
@@ -18,7 +19,7 @@ class QuestionCard extends StatelessWidget {
     child: Gap(
       spacing: 6,
       children: [
-        Text('Frage $number von $count', style: TextStyle(color: context.palette.muted, fontSize: 14.4)),
+        Text(texts.questionOf(number, count), style: TextStyle(color: context.palette.muted, fontSize: 14.4)),
         Text(question, style: const TextStyle(fontSize: 22, height: 1.3, fontWeight: FontWeight.w700)),
       ],
     ),
@@ -151,7 +152,7 @@ class ChoiceList extends StatelessWidget {
             children: [
               ChoiceLetter(c.id, color: foreground),
               Expanded(child: Text(c.text)),
-              if (c.id == ownId) Text('deine', style: TextStyle(color: note, fontSize: 14.4)),
+              if (c.id == ownId) Text(texts.yours, style: TextStyle(color: note, fontSize: 14.4)),
             ],
           ),
         ),
@@ -203,7 +204,7 @@ class RevealList extends StatelessWidget {
     return Gap(
       spacing: 0,
       children: [
-        const Padding(padding: EdgeInsets.only(bottom: 8), child: SectionTitle('Auflösung')),
+        Padding(padding: const EdgeInsets.only(bottom: 8), child: SectionTitle(texts.reveal)),
         for (final r in sortReveal(rows))
           ListLine(
             child: Row(
@@ -220,8 +221,8 @@ class RevealList extends StatelessWidget {
                         style: r.correct ? TextStyle(color: p.accent, fontWeight: FontWeight.w700) : null,
                       ),
                       Text(
-                        '${r.correct ? 'Die echte Antwort' : 'Erfunden von ${r.author ?? '?'}'} · '
-                        '${r.guessers.isEmpty ? 'Niemand hat darauf getippt' : 'Getippt: ${r.guessers.join(', ')}'}',
+                        '${r.correct ? texts.theRealAnswer : texts.madeUpBy(r.author ?? '?')} · '
+                        '${r.guessers.isEmpty ? texts.nobodyPicked : texts.pickedBy(r.guessers.join(', '))}',
                         style: TextStyle(color: p.muted, fontSize: 14.4),
                       ),
                     ],
@@ -237,16 +238,16 @@ class RevealList extends StatelessWidget {
 
 /// Punktestand, Bester oben. `gained`: Punkte für die letzte Frage.
 class PointTable extends StatelessWidget {
-  const PointTable(this.rows, {super.key, this.title = 'Punkte'});
+  const PointTable(this.rows, {super.key, this.title});
 
   final List<({String name, int score, int gained})> rows;
-  final String title;
+  final String? title;
 
   @override
   Widget build(BuildContext context) => Gap(
     spacing: 0,
     children: [
-      Padding(padding: const EdgeInsets.only(bottom: 8), child: SectionTitle(title)),
+      Padding(padding: const EdgeInsets.only(bottom: 8), child: SectionTitle(title ?? texts.points)),
       for (final r in _stableSort(rows, (a, b) => b.score - a.score))
         NameLine(
           name: r.name,

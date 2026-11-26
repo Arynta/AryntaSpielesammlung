@@ -4,6 +4,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../core/view_model/app_controller.dart';
 import '../../../domain/models/models.dart';
+import '../../../l10n/l10n.dart';
 import '../../core/widgets/players.dart';
 import '../../core/widgets/shared.dart';
 import '../../core/themes/theme.dart';
@@ -20,19 +21,19 @@ class BuzzerSettingsView extends StatelessWidget {
     final lockout = room.buzzerSettings.lockout;
     if (!room.you.host) {
       return SettingsSummary([
-        [lockout ? 'Nach dem ersten Druck sind alle anderen gesperrt.' : 'Jeder kann einmal drücken.'],
+        [lockout ? texts.buzzerLockedAfterFirst : texts.buzzerEveryoneOnce],
       ]);
     }
     return AppCheck(
       value: lockout,
       onChanged: controller.setBuzzerLockout,
-      label: 'Lock-out: Nach dem ersten Druck sind alle anderen gesperrt',
+      label: texts.buzzerLockoutOption,
     );
   }
 }
 
 List<Widget> buzzerView(AppController controller, RoomView room, BuzzerView game) => [
-  GameLabel('Buzzer · Frage ${room.round}'),
+  GameLabel(texts.buzzerQuestion(room.round)),
   if (room.you.host) ..._order(controller, room, game) else ..._button(controller, game),
   ActionColumn(children: [endOrLeave(controller, room)]),
 ];
@@ -40,10 +41,10 @@ List<Widget> buzzerView(AppController controller, RoomView room, BuzzerView game
 List<Widget> _button(AppController controller, BuzzerView game) {
   final rank = game.yourRank;
   final status = rank != null
-      ? (rank == 1 ? 'Du warst Erster!' : 'Du bist auf Platz $rank.')
+      ? (rank == 1 ? texts.buzzerFirst : texts.buzzerRank(rank))
       : !game.canPress
-      ? 'Gesperrt. Warte auf die Freigabe.'
-      : 'Drück, sobald du die Antwort weißt.';
+      ? texts.buzzerLocked
+      : texts.buzzerPressWhenYouKnow;
   return [
     BuzzerButton(key: const ValueKey('buzzer'), onPress: game.canPress ? controller.pressBuzzer : null),
     Semantics(
@@ -157,13 +158,13 @@ class _BuzzerButtonState extends State<BuzzerButton> {
 
 List<Widget> _order(AppController controller, RoomView room, BuzzerView game) => [
   PhaseHead(
-    title: game.presses.isEmpty ? 'Warte auf den Buzzer' : '${room.nameOf(game.presses.first.playerId)} ist dran',
+    title: game.presses.isEmpty ? texts.buzzerWaiting : texts.isUp(room.nameOf(game.presses.first.playerId)),
     lead: game.lockout
-        ? 'Lock-out ist an: Nach dem ersten Druck sind alle anderen gesperrt.'
-        : 'Jeder kann einmal drücken.',
+        ? texts.buzzerLockoutOn
+        : texts.buzzerEveryoneOnce,
   ),
   if (game.presses.isEmpty)
-    const TurnTextBox('Noch hat niemand gedrückt.')
+    TurnTextBox(texts.buzzerNobodyYet)
   else
     Gap(
       spacing: 8,
@@ -174,7 +175,7 @@ List<Widget> _order(AppController controller, RoomView room, BuzzerView game) =>
     ),
   ActionColumn(
     children: [
-      AppButton.primary('Buzzer freigeben', onPressed: game.presses.isEmpty ? null : controller.releaseBuzzer),
+      AppButton.primary(texts.buzzerRelease, onPressed: game.presses.isEmpty ? null : controller.releaseBuzzer),
     ],
   ),
 ];

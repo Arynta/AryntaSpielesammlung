@@ -6,12 +6,13 @@ import 'package:material_ui/material_ui.dart';
 import '../../core/view_model/app_controller.dart';
 import '../../../data/repositories/game_data.dart';
 import '../../../domain/models/models.dart';
+import '../../../l10n/l10n.dart';
 import '../../core/widgets/players.dart';
 import '../../core/widgets/shared.dart';
 import '../../core/widgets/widgets.dart';
 
 List<Widget> nobodyIsPerfectView(AppController controller, RoomView room, NobodyIsPerfectView game) {
-  final label = 'Nobody is Perfect · Frage ${game.questionNumber} von ${game.questionCount}';
+  final label = texts.nipQuestionLabel(game.questionNumber, game.questionCount);
   final question = QuestionCard(question: game.question, number: game.questionNumber, count: game.questionCount);
   final points = [for (final s in game.scores) (name: room.nameOf(s.playerId), score: s.score, gained: s.gained)];
 
@@ -22,16 +23,15 @@ List<Widget> nobodyIsPerfectView(AppController controller, RoomView room, Nobody
       for (final p in room.players)
         if (game.participantIds.contains(p.id) && p.connected && !done.contains(p.id)) p.name,
     ];
-    final progress =
-        '${done.length} von ${done.length + waitingFor.length} '
-        '${writing ? 'haben geschrieben' : 'haben getippt'}.';
+    final total = done.length + waitingFor.length;
+    final progress = writing ? texts.haveWritten(done.length, total) : texts.haveGuessed(done.length, total);
     return [
       PhaseHead(
         label: label,
-        title: writing ? 'Flunker los!' : 'Welche ist echt?',
+        title: writing ? texts.nipWritingTitle : texts.nipGuessingTitle,
         lead: writing
-            ? 'Denk dir eine Antwort aus, die echt klingt. Je glaubwürdiger, desto mehr fallen darauf herein.'
-            : 'Tippe auf die Antwort, die du für die echte hältst. Du kannst deinen Tipp noch ändern.',
+            ? texts.nipWritingLead
+            : texts.nipGuessingLead,
       ),
       question,
       if (writing)
@@ -43,11 +43,11 @@ List<Widget> nobodyIsPerfectView(AppController controller, RoomView room, Nobody
           chosenId: game.yourGuess,
           onChoose: controller.guessAnswer,
         ),
-      Hint(waitingFor.isEmpty ? progress : '$progress Warte auf ${waitingFor.join(', ')}.'),
+      Hint(waitingFor.isEmpty ? progress : '$progress ${texts.waitingFor(waitingFor.join(', '))}'),
       ActionColumn(
         children: [
           if (room.you.host && done.isNotEmpty && waitingFor.isNotEmpty)
-            AppButton('Nicht länger warten', onPressed: controller.skipWaiting),
+            AppButton(texts.stopWaiting, onPressed: controller.skipWaiting),
           endOrLeave(controller, room),
         ],
       ),
@@ -64,11 +64,11 @@ List<Widget> nobodyIsPerfectView(AppController controller, RoomView room, Nobody
         guessers: [for (final id in r.guesserIds) room.nameOf(id)],
       ),
   ]);
-  final answer = ResultWord(intro: 'Die echte Antwort', word: game.answer ?? '', size: 26);
+  final answer = ResultWord(intro: texts.theRealAnswer, word: game.answer ?? '', size: 26);
 
   if (room.phase == Phase.reveal) {
     return [
-      PhaseHead(label: label, title: 'Auflösung'),
+      PhaseHead(label: label, title: texts.reveal),
       question,
       answer,
       reveal,
@@ -76,9 +76,9 @@ List<Widget> nobodyIsPerfectView(AppController controller, RoomView room, Nobody
       ActionColumn(
         children: [
           if (room.you.host)
-            AppButton.primary('Nächste Frage', onPressed: controller.nextQuestion)
+            AppButton.primary(texts.nextQuestion, onPressed: controller.nextQuestion)
           else
-            const Hint('Die Spielleitung geht zur nächsten Frage.'),
+            Hint(texts.hostGoesToNextQuestion),
           endOrLeave(controller, room),
         ],
       ),
@@ -92,15 +92,15 @@ List<Widget> nobodyIsPerfectView(AppController controller, RoomView room, Nobody
       if (s.score == best) s.playerId,
   ];
   final title = winners.length == 1
-      ? '${room.nameOf(winners.first)} gewinnt!'
-      : 'Gleichstand: ${winners.map(room.nameOf).join(' und ')}';
+      ? texts.wins(room.nameOf(winners.first))
+      : texts.tie(winners.map(room.nameOf).join(texts.and));
   return [
     PhaseHead(
-      label: 'Nobody is Perfect · Spielende',
+      label: texts.nipGameOver,
       title: title,
-      lead: winners.contains(room.you.id) ? 'Niemand flunkert so gut wie du.' : 'Mit $best Punkten.',
+      lead: winners.contains(room.you.id) ? texts.nobodyFibsLikeYou : texts.withPoints(best),
     ),
-    PointTable(points, title: 'Endstand'),
+    PointTable(points, title: texts.finalScore),
     question,
     answer,
     reveal,
@@ -108,8 +108,8 @@ List<Widget> nobodyIsPerfectView(AppController controller, RoomView room, Nobody
       children: afterRound(
         controller,
         room,
-        againLabel: 'Nochmal spielen',
-        waitingText: 'Alle sind bereit. Die Spielleitung kann neu starten.',
+        againLabel: texts.playAgain,
+        waitingText: texts.allReadyHostCanRestart,
       ),
     ),
   ];
@@ -127,14 +127,14 @@ class _Writing extends StatelessWidget {
     return SettingsGroup(
       children: [
         AppField(
-          label: 'Deine erfundene Antwort',
+          label: texts.yourFakeAnswer,
           controller: controller.answerInput,
-          hint: 'Klingt echt, ist aber ausgedacht',
+          hint: texts.yourFakeAnswerHint,
           maxLength: NobodyIsPerfectRules.maxAnswerLength,
           onSubmitted: controller.submitAnswer,
         ),
-        AppButton.primary(submitted == null ? 'Antwort abgeben' : 'Antwort ändern', onPressed: controller.submitAnswer),
-        if (submitted != null) Hint('Abgegeben: „$submitted“. Du kannst sie noch ändern, bis alle fertig sind.'),
+        AppButton.primary(submitted == null ? texts.submitAnswer : texts.changeAnswer, onPressed: controller.submitAnswer),
+        if (submitted != null) Hint(texts.answerSubmitted(submitted)),
       ],
     );
   }

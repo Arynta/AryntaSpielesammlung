@@ -2,6 +2,7 @@
 import 'package:material_ui/material_ui.dart';
 
 import '../../../data/repositories/game_data.dart';
+import '../../../l10n/l10n.dart';
 import '../view_model/local_controller.dart';
 import '../../../domain/rules/local_games.dart';
 import '../../games/widgets/impostor.dart' show StartPlayer;
@@ -12,14 +13,14 @@ List<Widget> localPassView(LocalController local) {
   final name = local.players[local.index];
   return [
     PhaseHead(
-      label: 'Karte ${local.index + 1} von ${local.players.length}',
-      title: 'Gib das Handy an $name',
-      lead: 'Nur $name darf auf den Bildschirm schauen.',
+      label: texts.cardOf(local.index + 1, local.players.length),
+      title: texts.passPhoneTo(name),
+      lead: texts.onlyNameMayLook(name),
     ),
     ActionColumn(
       children: [
-        AppButton.primary('Ich bin $name, Karte zeigen', onPressed: local.showCard),
-        AppButton.quiet('Runde abbrechen', onPressed: local.backToSetup),
+        AppButton.primary(texts.iAmNameShowCard(name), onPressed: local.showCard),
+        AppButton.quiet(texts.cancelRound, onPressed: local.backToSetup),
       ],
     ),
   ];
@@ -57,12 +58,12 @@ List<Widget> localCardView(LocalController local) {
     );
   }
   return [
-    GameLabel('Karte von ${local.players[local.index]}'),
+    GameLabel(texts.cardOfPlayer(local.players[local.index])),
     CardFace(tone: tone, child: content),
     ActionColumn(
       children: [
         AppButton.primary(
-          last ? 'Verstecken, alle haben ihre Karte' : 'Verstecken und weitergeben',
+          last ? texts.hideAllHaveCards : texts.hideAndPass,
           onPressed: local.passOn,
         ),
       ],
@@ -73,16 +74,16 @@ List<Widget> localCardView(LocalController local) {
 List<Widget> localImpostorTable(LocalController local) {
   final start = local.impostor!.startPlayer;
   return [
-    const PhaseHead(
+    PhaseHead(
       label: 'Impostor',
-      title: 'Alle kennen ihr Wort',
-      lead: 'Reihum sagt jeder ein Wort als Hinweis. Dann zeigt ihr gleichzeitig auf euren Verdacht.',
+      title: texts.everyoneKnowsTheirWord,
+      lead: texts.localImpostorLead,
     ),
     if (start != null) StartPlayer(name: local.players[start]),
     ActionColumn(
       children: [
-        AppButton.primary('Auflösen', onPressed: local.revealImpostor),
-        AppButton.quiet('Runde abbrechen', onPressed: local.backToSetup),
+        AppButton.primary(texts.revealAction, onPressed: local.revealImpostor),
+        AppButton.quiet(texts.cancelRound, onPressed: local.backToSetup),
       ],
     ),
   ];
@@ -94,17 +95,17 @@ List<Widget> localImpostorReveal(LocalController local) {
   return [
     PhaseHead(
       label: 'Impostor',
-      title: 'Auflösung',
+      title: texts.reveal,
       leadParts: [
-        for (var i = 0; i < names.length; i++) ...[if (i > 0) ' und ', Strong(names[i])],
-        names.length == 1 ? ' war der Impostor.' : ' waren die Impostor.',
+        for (var i = 0; i < names.length; i++) ...[if (i > 0) texts.and, Strong(names[i])],
+        names.length == 1 ? texts.wasTheImpostorSuffix : texts.wereTheImpostorsSuffix,
       ],
     ),
-    ResultWord(intro: 'Das Wort war', word: deal.word, category: deal.category),
+    ResultWord(intro: texts.theWordWas, word: deal.word, category: deal.category),
     ActionColumn(
       children: [
-        AppButton.primary('Nächste Runde', onPressed: local.startRound),
-        AppButton.quiet('Einstellungen ändern', onPressed: local.backToSetup),
+        AppButton.primary(texts.nextRound, onPressed: local.startRound),
+        AppButton.quiet(texts.changeSettings, onPressed: local.backToSetup),
       ],
     ),
   ];
@@ -113,10 +114,10 @@ List<Widget> localImpostorReveal(LocalController local) {
 List<Widget> localWerwolfTable(LocalController local) {
   final deal = local.werwolf!;
   return [
-    const PhaseHead(
-      label: 'Werwolf',
-      title: 'Alle kennen ihre Rolle',
-      lead: 'Die Spielleitung führt jetzt durch Nacht und Tag.',
+    PhaseHead(
+      label: texts.werwolf,
+      title: texts.everyoneKnowsTheirRole,
+      lead: texts.localWerwolfLead,
     ),
     ActionColumn(
       children: [
@@ -128,11 +129,11 @@ List<Widget> localWerwolfTable(LocalController local) {
             ],
             leftoverRoles: [for (final r in deal.leftover) r.name],
           ),
-          AppButton('Übersicht verstecken', onPressed: local.hideOverview),
+          AppButton(texts.hideOverview, onPressed: local.hideOverview),
         ] else
-          AppButton('Spielleitung: alle Rollen zeigen', onPressed: local.showOverview),
-        AppButton.quiet('Neu verteilen', onPressed: local.redeal),
-        AppButton.quiet('Einstellungen ändern', onPressed: local.backToSetup),
+          AppButton(texts.showOverview, onPressed: local.showOverview),
+        AppButton.quiet(texts.redeal, onPressed: local.redeal),
+        AppButton.quiet(texts.changeSettings, onPressed: local.backToSetup),
       ],
     ),
   ];

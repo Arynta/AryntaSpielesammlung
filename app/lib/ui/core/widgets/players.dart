@@ -3,6 +3,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../view_model/app_controller.dart';
 import '../../../domain/models/models.dart';
+import '../../../l10n/l10n.dart';
 import '../themes/theme.dart';
 import 'widgets.dart';
 
@@ -56,7 +57,7 @@ class PlayerList extends StatelessWidget {
       children: [
         Padding(
           padding: const EdgeInsets.only(bottom: 8),
-          child: SectionTitle('Mitspieler', count: count),
+          child: SectionTitle(texts.players, count: count),
         ),
         for (final p in players) _line(context, p),
       ],
@@ -68,12 +69,12 @@ class PlayerList extends StatelessWidget {
     final voteCount = votes?[p.id];
     final ready = showReady && p.ready;
     final notes = [
-      if (voteCount != null) '$voteCount ${voteCount == 1 ? 'Stimme' : 'Stimmen'}',
-      if (p.id == room.you.id) 'du',
-      if (p.id == room.hostId) 'Spielleitung',
-      if (ready) 'bereit',
-      if (votedIds?.contains(p.id) ?? false) 'hat abgestimmt',
-      if (!p.connected) 'offline',
+      if (voteCount != null) texts.votes(voteCount),
+      if (p.id == room.you.id) texts.noteYou,
+      if (p.id == room.hostId) texts.gameMaster,
+      if (ready) texts.noteReady,
+      if (votedIds?.contains(p.id) ?? false) texts.noteVoted,
+      if (!p.connected) texts.noteOffline,
     ];
     final impostor = impostorIds?.contains(p.id) ?? false;
     final color = impostor ? palette.accent : palette.text;
@@ -89,7 +90,7 @@ class PlayerList extends StatelessWidget {
       note: notes.isEmpty ? null : Text(notes.join(' · ')),
       noteColor: ready ? palette.accent : null,
       trailing: onKick != null && p.id != room.you.id
-          ? IconSquare(icon: Icons.close, semanticLabel: '${p.name} entfernen', onPressed: () => onKick!(p.id))
+          ? IconSquare(icon: Icons.close, semanticLabel: texts.kickPlayer(p.name), onPressed: () => onKick!(p.id))
           : null,
     );
   }
@@ -103,7 +104,7 @@ class ReadyButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => AppButton(
-    room.you.ready ? 'Bereit' : 'Ich bin bereit',
+    room.you.ready ? texts.ready : texts.imReady,
     icon: room.you.ready ? Icons.check : null,
     highlighted: room.you.ready,
     selected: room.you.ready,
@@ -113,8 +114,8 @@ class ReadyButton extends StatelessWidget {
 
 /// Der übliche Knopf unter einem laufenden Spiel: die Spielleitung beendet, alle anderen gehen.
 Widget endOrLeave(AppController controller, RoomView room) => room.you.host
-    ? AppButton.quiet('Spiel beenden', onPressed: controller.backToLobby)
-    : AppButton.quiet('Raum verlassen', onPressed: controller.leave);
+    ? AppButton.quiet(texts.endGame, onPressed: controller.backToLobby)
+    : AppButton.quiet(texts.leaveRoom, onPressed: controller.leave);
 
 /// Knöpfe am Ende einer Runde: bereit melden, neu starten oder zurück zur Lobby.
 List<Widget> afterRound(
@@ -128,9 +129,9 @@ List<Widget> afterRound(
     ReadyButton(controller, room),
     if (room.you.host) ...[
       AppButton.primary(againLabel, onPressed: room.canStart ? controller.nextRound : null),
-      AppButton.quiet('Zurück zur Lobby', onPressed: controller.backToLobby),
+      AppButton.quiet(texts.backToLobby, onPressed: controller.backToLobby),
     ] else
-      AppButton.quiet('Raum verlassen', onPressed: controller.leave),
+      AppButton.quiet(texts.leaveRoom, onPressed: controller.leave),
     if (hint != null) Hint(hint),
   ];
 }

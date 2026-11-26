@@ -1,5 +1,6 @@
 // Nobody is Perfect lokal, wie NobodyIsPerfectGame im Backend.
 import '../../data/repositories/game_data.dart';
+import '../../l10n/l10n.dart';
 import 'common.dart';
 
 /// Eine Antwort zur Auswahl. [author] ist der Platz des Erfinders, null bei der echten.
@@ -45,9 +46,9 @@ List<NobodyIsPerfectQuestion> pickQuestions(int count, List<String> used, Random
 /// Gibt zurück, was an der Antwort nicht stimmt, oder null.
 String? submitLie(NobodyIsPerfectMatch match, int seat, String raw) {
   final answer = cleanName(raw);
-  if (answer.isEmpty) return 'Bitte schreib eine Antwort.';
+  if (answer.isEmpty) return texts.writeAnAnswer;
   if (answer.length > NobodyIsPerfectRules.maxAnswerLength) {
-    return 'Die Antwort darf höchstens ${NobodyIsPerfectRules.maxAnswerLength} Zeichen lang sein.';
+    return texts.answerTooLong(NobodyIsPerfectRules.maxAnswerLength);
   }
   match.answers[seat] = answer;
   return null;
@@ -77,8 +78,8 @@ NobodyIsPerfectChoiceData? _choice(NobodyIsPerfectMatch match, String? id) {
 /// Gibt zurück, warum der Tipp nicht geht, oder null.
 String? guessChoice(NobodyIsPerfectMatch match, int seat, String id) {
   final choice = _choice(match, id);
-  if (choice == null) return 'Diese Antwort gibt es nicht.';
-  if (choice.author == seat) return 'Auf deine eigene Antwort kannst du nicht tippen.';
+  if (choice == null) return texts.unknownAnswer;
+  if (choice.author == seat) return texts.notYourOwnAnswer;
   match.guesses[seat] = id;
   return null;
 }

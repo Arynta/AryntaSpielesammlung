@@ -4,6 +4,7 @@ import 'package:material_ui/material_ui.dart';
 import 'view_model/app_controller.dart';
 import '../../data/services/connection.dart';
 import '../../data/repositories/game_data.dart';
+import '../../l10n/l10n.dart';
 import '../local/view_model/local_controller.dart';
 import '../../domain/models/models.dart';
 import '../games/widgets/buzzer.dart';
@@ -16,6 +17,7 @@ import '../home/widgets/home.dart';
 import '../legal/widgets/legal.dart';
 import '../lobby/widgets/lobby.dart';
 import '../local/widgets/local.dart';
+import 'widgets/language/language_flag.dart';
 import 'widgets/showcase.dart';
 import 'themes/theme.dart';
 import 'widgets/widgets.dart';
@@ -66,10 +68,19 @@ class _AryntaAppState extends State<AryntaApp> {
   }
 
   @override
-  Widget build(BuildContext context) => MaterialApp(
+  Widget build(BuildContext context) => ValueListenableBuilder(
+    valueListenable: controller.language,
+    builder: (context, language, _) => _app(Locale(language.wire)),
+  );
+
+  Widget _app(Locale locale) => MaterialApp(
     title: 'Arynta',
     navigatorKey: _navigator,
     debugShowCheckedModeBanner: false,
+    locale: locale,
+    supportedLocales: AppLocalizations.supportedLocales,
+    // Die Material-Texte kommen aus material_ui, nicht aus flutter_localizations
+    localizationsDelegates: const [AppLocalizations.delegate, ...GlobalMaterialLocalizations.delegates],
     theme: duskTheme,
     builder: (context, child) => ListenableBuilder(
       listenable: controller,
@@ -109,7 +120,13 @@ class GameScreen extends StatelessWidget {
                 controller.local == null && controller.status != ConnectionStatus.online
                     ? StatusBar(controller.status)
                     : const SizedBox.shrink(),
-                Expanded(child: _isShowcase ? _showcase(context, padding) : _narrow(context, padding)),
+                // Neu aufbauen beim Sprachwechsel, damit auch Teile ohne eigenen Neuaufbau die neuen Texte zeigen
+                Expanded(
+                  child: KeyedSubtree(
+                    key: ValueKey(controller.language.value),
+                    child: _isShowcase ? _showcase(context, padding) : _narrow(context, padding),
+                  ),
+                ),
               ],
             ),
             if (toast != null)
@@ -133,7 +150,11 @@ class GameScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           spacing: 20,
-          children: [..._body(context), Footer(controller)],
+          children: [
+            Align(alignment: Alignment.centerRight, child: LanguageFlag(controller)),
+            ..._body(context),
+            Footer(controller),
+          ],
         ),
       ),
     ),
@@ -183,7 +204,8 @@ class GameScreen extends StatelessWidget {
                     children: [
                       ShowcaseBar(
                         online: controller.status == ConnectionStatus.online,
-                        tabs: atStart ? const ['Multiplayer', 'Lokal'] : const [],
+                        language: LanguageFlag(controller),
+                        tabs: atStart ? [texts.tabMultiplayer, texts.tabLocal] : const [],
                         selectedTab: controller.local == null ? 0 : 1,
                         onTab: (tab) => tab == 1 ? controller.openLocal() : controller.local?.quit(),
                       ),

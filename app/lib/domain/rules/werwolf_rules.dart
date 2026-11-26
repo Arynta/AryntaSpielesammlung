@@ -2,6 +2,7 @@
 import 'dart:math' as math;
 
 import '../../data/repositories/game_data.dart';
+import '../../l10n/l10n.dart';
 import '../models/models.dart';
 import 'common.dart';
 
@@ -13,10 +14,10 @@ int werewolves(int playerCount, int? chosen) => chosen ?? autoWerewolves(playerC
 
 String? werwolfProblem(int playerCount, int? chosen, List<String> specialRoles) {
   final needed = minPlayers[GameType.werwolf]!;
-  if (playerCount < needed) return 'Es werden mindestens $needed Spieler gebraucht.';
+  if (playerCount < needed) return texts.werwolfMinPlayers(needed);
   final cards = werewolves(playerCount, chosen) + specialRoles.length;
   if (cards > playerCount) {
-    return 'Zu viele Rollen: $cards Rollen für $playerCount Spieler. Nimm Rollen raus oder weniger Werwölfe.';
+    return texts.tooManyRoles(cards, playerCount);
   }
   return null;
 }

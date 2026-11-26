@@ -8,7 +8,9 @@ const _webUrl = String.fromEnvironment('WEB_URL');
 
 void showRoomInAddress(String? code) {}
 
-Future<ShareResult> shareRoom(String code) async {
+void setPageLanguage(String code) {}
+
+Future<ShareResult> shareRoom(String code, String text) async {
   final text = _webUrl.isEmpty ? code : '$_webUrl?raum=$code';
   await Clipboard.setData(ClipboardData(text: text));
   return ShareResult.copied;

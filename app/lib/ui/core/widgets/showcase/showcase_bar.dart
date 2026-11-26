@@ -1,15 +1,26 @@
-// Kopfleiste mit Tabs, Verbindung und Uhr.
+// Kopfleiste mit Tabs, Sprache, Verbindung und Uhr.
 import 'dart:async';
 
 import 'package:material_ui/material_ui.dart';
 
+import '../../../../l10n/l10n.dart';
 import '../../themes/theme.dart';
 import '../widgets.dart';
 
 class ShowcaseBar extends StatelessWidget {
-  const ShowcaseBar({super.key, required this.online, this.tabs = const [], this.selectedTab = 0, this.onTab});
+  const ShowcaseBar({
+    super.key,
+    required this.online,
+    this.language,
+    this.tabs = const [],
+    this.selectedTab = 0,
+    this.onTab,
+  });
 
   final bool online;
+
+  /// Sprachumschalter links neben dem Verbindungssymbol.
+  final Widget? language;
   final List<String> tabs;
   final int selectedTab;
   final ValueChanged<int>? onTab;
@@ -29,12 +40,15 @@ class ShowcaseBar extends StatelessWidget {
           for (final (index, label) in tabs.indexed)
             _TabPill(label, selected: index == selectedTab, onPressed: () => onTab?.call(index)),
           const Spacer(),
-          Icon(
-            online ? Icons.wifi : Icons.wifi_off,
-            color: online ? const Color(0xFF3DDC84) : p.muted,
-            size: 24,
-            semanticLabel: online ? 'Mit dem Server verbunden' : 'Keine Verbindung zum Server',
-          ),
+          ?language,
+          // Auf sehr schmalen Handys reicht der Platz neben der Flagge nicht. Offline zeigt es dann die Statuszeile.
+          if (constraints.maxWidth >= 360)
+            Icon(
+              online ? Icons.wifi : Icons.wifi_off,
+              color: online ? const Color(0xFF3DDC84) : p.muted,
+              size: 24,
+              semanticLabel: online ? texts.serverOnline : texts.serverOffline,
+            ),
           if (constraints.maxWidth >= 560) const Padding(padding: EdgeInsets.only(left: 12), child: _Clock()),
         ],
       ),

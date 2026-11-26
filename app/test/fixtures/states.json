@@ -1,6 +1,6 @@
 {
  "lobby_impostor_host": {
-  "code": "AGAU",
+  "code": "DSVN",
   "game": "IMPOSTOR",
   "games": [
    {
@@ -51,6 +51,18 @@
    "customWordSet": false,
    "customWord": null,
    "allCategories": [
+    "animals",
+    "food",
+    "places",
+    "jobs",
+    "household",
+    "sports",
+    "vehicles",
+    "nature",
+    "leisure",
+    "clothing"
+   ],
+   "categoryNames": [
     "Tiere",
     "Essen und Trinken",
     "Orte",
@@ -63,8 +75,8 @@
     "Kleidung"
    ],
    "selectedCategories": [
-    "Tiere",
-    "Orte"
+    "animals",
+    "places"
    ],
    "impostorCount": 1,
    "maxImpostorCount": 9,
@@ -295,7 +307,7 @@
   "geoBingo": null
  },
  "lobby_impostor_guest": {
-  "code": "AGAU",
+  "code": "DSVN",
   "game": "IMPOSTOR",
   "games": [
    {
@@ -346,6 +358,18 @@
    "customWordSet": false,
    "customWord": null,
    "allCategories": [
+    "animals",
+    "food",
+    "places",
+    "jobs",
+    "household",
+    "sports",
+    "vehicles",
+    "nature",
+    "leisure",
+    "clothing"
+   ],
+   "categoryNames": [
     "Tiere",
     "Essen und Trinken",
     "Orte",
@@ -358,8 +382,8 @@
     "Kleidung"
    ],
    "selectedCategories": [
-    "Tiere",
-    "Orte"
+    "animals",
+    "places"
    ],
    "impostorCount": 1,
    "maxImpostorCount": 9,
@@ -590,7 +614,7 @@
   "geoBingo": null
  },
  "impostor_word_crew": {
-  "code": "AGAU",
+  "code": "DSVN",
   "game": "IMPOSTOR",
   "games": [
    {
@@ -641,6 +665,18 @@
    "customWordSet": false,
    "customWord": null,
    "allCategories": [
+    "animals",
+    "food",
+    "places",
+    "jobs",
+    "household",
+    "sports",
+    "vehicles",
+    "nature",
+    "leisure",
+    "clothing"
+   ],
+   "categoryNames": [
     "Tiere",
     "Essen und Trinken",
     "Orte",
@@ -653,8 +689,8 @@
     "Kleidung"
    ],
    "selectedCategories": [
-    "Tiere",
-    "Orte"
+    "animals",
+    "places"
    ],
    "impostorCount": 1,
    "maxImpostorCount": 9,
@@ -880,10 +916,10 @@
   "werwolf": null,
   "impostor": {
    "part": "CREW",
-   "word": "Hai",
-   "category": "Tiere",
+   "word": "Supermarkt",
+   "category": "Orte",
    "fellowImpostors": [],
-   "startPlayerId": "p3",
+   "startPlayerId": "p5",
    "gameMasterId": null,
    "participantIds": [
     "p1",
@@ -902,7 +938,7 @@
   "geoBingo": null
  },
  "impostor_word_impostor": {
-  "code": "AGAU",
+  "code": "DSVN",
   "game": "IMPOSTOR",
   "games": [
    {
@@ -953,6 +989,18 @@
    "customWordSet": false,
    "customWord": null,
    "allCategories": [
+    "animals",
+    "food",
+    "places",
+    "jobs",
+    "household",
+    "sports",
+    "vehicles",
+    "nature",
+    "leisure",
+    "clothing"
+   ],
+   "categoryNames": [
     "Tiere",
     "Essen und Trinken",
     "Orte",
@@ -965,8 +1013,8 @@
     "Kleidung"
    ],
    "selectedCategories": [
-    "Tiere",
-    "Orte"
+    "animals",
+    "places"
    ],
    "impostorCount": 1,
    "maxImpostorCount": 9,
@@ -1184,8 +1232,8 @@
   "canStart": false,
   "startHint": null,
   "you": {
-   "id": "p2",
-   "name": "Ben",
+   "id": "p3",
+   "name": "Cem",
    "host": false,
    "ready": false
   },
@@ -1193,9 +1241,9 @@
   "impostor": {
    "part": "IMPOSTOR",
    "word": null,
-   "category": "Tiere",
+   "category": "Orte",
    "fellowImpostors": [],
-   "startPlayerId": "p3",
+   "startPlayerId": "p5",
    "gameMasterId": null,
    "participantIds": [
     "p1",
@@ -1214,7 +1262,7 @@
   "geoBingo": null
  },
  "impostor_voting": {
-  "code": "AGAU",
+  "code": "DSVN",
   "game": "IMPOSTOR",
   "games": [
    {
@@ -1265,6 +1313,18 @@
    "customWordSet": false,
    "customWord": null,
    "allCategories": [
+    "animals",
+    "food",
+    "places",
+    "jobs",
+    "household",
+    "sports",
+    "vehicles",
+    "nature",
+    "leisure",
+    "clothing"
+   ],
+   "categoryNames": [
     "Tiere",
     "Essen und Trinken",
     "Orte",
@@ -1277,8 +1337,8 @@
     "Kleidung"
    ],
    "selectedCategories": [
-    "Tiere",
-    "Orte"
+    "animals",
+    "places"
    ],
    "impostorCount": 1,
    "maxImpostorCount": 9,
@@ -1504,10 +1564,10 @@
   "werwolf": null,
   "impostor": {
    "part": "CREW",
-   "word": "Hai",
-   "category": "Tiere",
+   "word": "Supermarkt",
+   "category": "Orte",
    "fellowImpostors": [],
-   "startPlayerId": "p3",
+   "startPlayerId": "p5",
    "gameMasterId": null,
    "participantIds": [
     "p1",
@@ -1519,7 +1579,7 @@
    "votedIds": [
     "p1"
    ],
-   "yourVote": "p2",
+   "yourVote": "p3",
    "result": null
   },
   "tabu": null,
@@ -1528,7 +1588,7 @@
   "geoBingo": null
  },
  "impostor_result_host": {
-  "code": "AGAU",
+  "code": "DSVN",
   "game": "IMPOSTOR",
   "games": [
    {
@@ -1579,6 +1639,18 @@
    "customWordSet": false,
    "customWord": null,
    "allCategories": [
+    "animals",
+    "food",
+    "places",
+    "jobs",
+    "household",
+    "sports",
+    "vehicles",
+    "nature",
+    "leisure",
+    "clothing"
+   ],
+   "categoryNames": [
     "Tiere",
     "Essen und Trinken",
     "Orte",
@@ -1591,8 +1663,8 @@
     "Kleidung"
    ],
    "selectedCategories": [
-    "Tiere",
-    "Orte"
+    "animals",
+    "places"
    ],
    "impostorCount": 1,
    "maxImpostorCount": 9,
@@ -1818,10 +1890,10 @@
   "werwolf": null,
   "impostor": {
    "part": "CREW",
-   "word": "Hai",
-   "category": "Tiere",
+   "word": "Supermarkt",
+   "category": "Orte",
    "fellowImpostors": [],
-   "startPlayerId": "p3",
+   "startPlayerId": "p5",
    "gameMasterId": null,
    "participantIds": [
     "p1",
@@ -1837,21 +1909,21 @@
     "p4",
     "p5"
    ],
-   "yourVote": "p2",
+   "yourVote": "p3",
    "result": {
     "impostorIds": [
-     "p2"
+     "p3"
     ],
     "impostorNames": [
-     "Ben"
+     "Cem"
     ],
-    "word": "Hai",
-    "category": "Tiere",
+    "word": "Supermarkt",
+    "category": "Orte",
     "impostorCaught": true,
     "votes": [
      {
-      "playerId": "p2",
-      "name": "Ben",
+      "playerId": "p3",
+      "name": "Cem",
       "votes": 4
      },
      {
@@ -1860,8 +1932,8 @@
       "votes": 1
      },
      {
-      "playerId": "p3",
-      "name": "Cem",
+      "playerId": "p2",
+      "name": "Ben",
       "votes": 0
      },
      {
@@ -1883,7 +1955,7 @@
   "geoBingo": null
  },
  "impostor_result_guest": {
-  "code": "AGAU",
+  "code": "DSVN",
   "game": "IMPOSTOR",
   "games": [
    {
@@ -1934,6 +2006,18 @@
    "customWordSet": false,
    "customWord": null,
    "allCategories": [
+    "animals",
+    "food",
+    "places",
+    "jobs",
+    "household",
+    "sports",
+    "vehicles",
+    "nature",
+    "leisure",
+    "clothing"
+   ],
+   "categoryNames": [
     "Tiere",
     "Essen und Trinken",
     "Orte",
@@ -1946,8 +2030,8 @@
     "Kleidung"
    ],
    "selectedCategories": [
-    "Tiere",
-    "Orte"
+    "animals",
+    "places"
    ],
    "impostorCount": 1,
    "maxImpostorCount": 9,
@@ -2172,11 +2256,11 @@
   },
   "werwolf": null,
   "impostor": {
-   "part": "IMPOSTOR",
-   "word": null,
-   "category": "Tiere",
+   "part": "CREW",
+   "word": "Supermarkt",
+   "category": "Orte",
    "fellowImpostors": [],
-   "startPlayerId": "p3",
+   "startPlayerId": "p5",
    "gameMasterId": null,
    "participantIds": [
     "p1",
@@ -2192,21 +2276,21 @@
     "p4",
     "p5"
    ],
-   "yourVote": "p1",
+   "yourVote": "p3",
    "result": {
     "impostorIds": [
-     "p2"
+     "p3"
     ],
     "impostorNames": [
-     "Ben"
+     "Cem"
     ],
-    "word": "Hai",
-    "category": "Tiere",
+    "word": "Supermarkt",
+    "category": "Orte",
     "impostorCaught": true,
     "votes": [
      {
-      "playerId": "p2",
-      "name": "Ben",
+      "playerId": "p3",
+      "name": "Cem",
       "votes": 4
      },
      {
@@ -2215,8 +2299,8 @@
       "votes": 1
      },
      {
-      "playerId": "p3",
-      "name": "Cem",
+      "playerId": "p2",
+      "name": "Ben",
       "votes": 0
      },
      {
@@ -2238,7 +2322,7 @@
   "geoBingo": null
  },
  "lobby_impostor_custom_word": {
-  "code": "AGAU",
+  "code": "DSVN",
   "game": "IMPOSTOR",
   "games": [
    {
@@ -2289,6 +2373,18 @@
    "customWordSet": true,
    "customWord": "Leuchtturm",
    "allCategories": [
+    "animals",
+    "food",
+    "places",
+    "jobs",
+    "household",
+    "sports",
+    "vehicles",
+    "nature",
+    "leisure",
+    "clothing"
+   ],
+   "categoryNames": [
     "Tiere",
     "Essen und Trinken",
     "Orte",
@@ -2301,8 +2397,8 @@
     "Kleidung"
    ],
    "selectedCategories": [
-    "Tiere",
-    "Orte"
+    "animals",
+    "places"
    ],
    "impostorCount": 1,
    "maxImpostorCount": 9,
@@ -2533,7 +2629,7 @@
   "geoBingo": null
  },
  "impostor_game_master": {
-  "code": "AGAU",
+  "code": "DSVN",
   "game": "IMPOSTOR",
   "games": [
    {
@@ -2584,6 +2680,18 @@
    "customWordSet": false,
    "customWord": null,
    "allCategories": [
+    "animals",
+    "food",
+    "places",
+    "jobs",
+    "household",
+    "sports",
+    "vehicles",
+    "nature",
+    "leisure",
+    "clothing"
+   ],
+   "categoryNames": [
     "Tiere",
     "Essen und Trinken",
     "Orte",
@@ -2596,8 +2704,8 @@
     "Kleidung"
    ],
    "selectedCategories": [
-    "Tiere",
-    "Orte"
+    "animals",
+    "places"
    ],
    "impostorCount": 1,
    "maxImpostorCount": 9,
@@ -2826,7 +2934,7 @@
    "word": "Leuchtturm",
    "category": null,
    "fellowImpostors": [],
-   "startPlayerId": "p4",
+   "startPlayerId": "p2",
    "gameMasterId": "p1",
    "participantIds": [
     "p2",
@@ -2844,7 +2952,7 @@
   "geoBingo": null
  },
  "impostor_voting_game_master": {
-  "code": "AGAU",
+  "code": "DSVN",
   "game": "IMPOSTOR",
   "games": [
    {
@@ -2895,6 +3003,18 @@
    "customWordSet": false,
    "customWord": null,
    "allCategories": [
+    "animals",
+    "food",
+    "places",
+    "jobs",
+    "household",
+    "sports",
+    "vehicles",
+    "nature",
+    "leisure",
+    "clothing"
+   ],
+   "categoryNames": [
     "Tiere",
     "Essen und Trinken",
     "Orte",
@@ -2907,8 +3027,8 @@
     "Kleidung"
    ],
    "selectedCategories": [
-    "Tiere",
-    "Orte"
+    "animals",
+    "places"
    ],
    "impostorCount": 1,
    "maxImpostorCount": 9,
@@ -3137,7 +3257,7 @@
    "word": "Leuchtturm",
    "category": null,
    "fellowImpostors": [],
-   "startPlayerId": "p4",
+   "startPlayerId": "p2",
    "gameMasterId": "p1",
    "participantIds": [
     "p2",
@@ -3155,7 +3275,7 @@
   "geoBingo": null
  },
  "lobby_werwolf_host": {
-  "code": "AGAU",
+  "code": "DSVN",
   "game": "WERWOLF",
   "games": [
    {
@@ -3206,6 +3326,18 @@
    "customWordSet": false,
    "customWord": null,
    "allCategories": [
+    "animals",
+    "food",
+    "places",
+    "jobs",
+    "household",
+    "sports",
+    "vehicles",
+    "nature",
+    "leisure",
+    "clothing"
+   ],
+   "categoryNames": [
     "Tiere",
     "Essen und Trinken",
     "Orte",
@@ -3218,8 +3350,8 @@
     "Kleidung"
    ],
    "selectedCategories": [
-    "Tiere",
-    "Orte"
+    "animals",
+    "places"
    ],
    "impostorCount": 1,
    "maxImpostorCount": 9,
@@ -3451,7 +3583,7 @@
   "geoBingo": null
  },
  "lobby_werwolf_guest": {
-  "code": "AGAU",
+  "code": "DSVN",
   "game": "WERWOLF",
   "games": [
    {
@@ -3502,6 +3634,18 @@
    "customWordSet": false,
    "customWord": null,
    "allCategories": [
+    "animals",
+    "food",
+    "places",
+    "jobs",
+    "household",
+    "sports",
+    "vehicles",
+    "nature",
+    "leisure",
+    "clothing"
+   ],
+   "categoryNames": [
     "Tiere",
     "Essen und Trinken",
     "Orte",
@@ -3514,8 +3658,8 @@
     "Kleidung"
    ],
    "selectedCategories": [
-    "Tiere",
-    "Orte"
+    "animals",
+    "places"
    ],
    "impostorCount": 1,
    "maxImpostorCount": 9,
@@ -3747,7 +3891,7 @@
   "geoBingo": null
  },
  "werwolf_night_game_master": {
-  "code": "AGAU",
+  "code": "DSVN",
   "game": "WERWOLF",
   "games": [
    {
@@ -3798,6 +3942,18 @@
    "customWordSet": false,
    "customWord": null,
    "allCategories": [
+    "animals",
+    "food",
+    "places",
+    "jobs",
+    "household",
+    "sports",
+    "vehicles",
+    "nature",
+    "leisure",
+    "clothing"
+   ],
+   "categoryNames": [
     "Tiere",
     "Essen und Trinken",
     "Orte",
@@ -3810,8 +3966,8 @@
     "Kleidung"
    ],
    "selectedCategories": [
-    "Tiere",
-    "Orte"
+    "animals",
+    "places"
    ],
    "impostorCount": 1,
    "maxImpostorCount": 9,
@@ -4040,7 +4196,7 @@
    "role": null,
    "knownWolves": [],
    "leftoverRoles": [
-    "Dieb",
+    "Seherin",
     "Dorfbewohner"
    ],
    "overview": [
@@ -4048,11 +4204,11 @@
      "playerId": "p2",
      "playerName": "Ben",
      "role": {
-      "id": "DORFBEWOHNER",
-      "name": "Dorfbewohner",
+      "id": "DIEB",
+      "name": "Dieb",
       "team": "DORF",
       "teamName": "Das Dorf",
-      "description": "Du hast keine besonderen Fähigkeiten. Entlarve die Werwölfe durch Logik und Diskussion."
+      "description": "Zu Spielbeginn darfst du deine Karte gegen eine der zwei übrigen Karten tauschen."
      }
     },
     {
@@ -4081,11 +4237,11 @@
      "playerId": "p5",
      "playerName": "Elif",
      "role": {
-      "id": "SEHERIN",
-      "name": "Seherin",
+      "id": "DORFBEWOHNER",
+      "name": "Dorfbewohner",
       "team": "DORF",
       "teamName": "Das Dorf",
-      "description": "Du darfst jede Nacht die wahre Identität eines Spielers erfahren."
+      "description": "Du hast keine besonderen Fähigkeiten. Entlarve die Werwölfe durch Logik und Diskussion."
      }
     }
    ]
@@ -4097,7 +4253,7 @@
   "geoBingo": null
  },
  "werwolf_night_player": {
-  "code": "AGAU",
+  "code": "DSVN",
   "game": "WERWOLF",
   "games": [
    {
@@ -4148,6 +4304,18 @@
    "customWordSet": false,
    "customWord": null,
    "allCategories": [
+    "animals",
+    "food",
+    "places",
+    "jobs",
+    "household",
+    "sports",
+    "vehicles",
+    "nature",
+    "leisure",
+    "clothing"
+   ],
+   "categoryNames": [
     "Tiere",
     "Essen und Trinken",
     "Orte",
@@ -4160,8 +4328,8 @@
     "Kleidung"
    ],
    "selectedCategories": [
-    "Tiere",
-    "Orte"
+    "animals",
+    "places"
    ],
    "impostorCount": 1,
    "maxImpostorCount": 9,
@@ -4388,14 +4556,17 @@
   "werwolf": {
    "gameMaster": false,
    "role": {
-    "id": "DORFBEWOHNER",
-    "name": "Dorfbewohner",
+    "id": "DIEB",
+    "name": "Dieb",
     "team": "DORF",
     "teamName": "Das Dorf",
-    "description": "Du hast keine besonderen Fähigkeiten. Entlarve die Werwölfe durch Logik und Diskussion."
+    "description": "Zu Spielbeginn darfst du deine Karte gegen eine der zwei übrigen Karten tauschen."
    },
    "knownWolves": [],
-   "leftoverRoles": [],
+   "leftoverRoles": [
+    "Seherin",
+    "Dorfbewohner"
+   ],
    "overview": null
   },
   "impostor": null,
@@ -4405,7 +4576,7 @@
   "geoBingo": null
  },
  "werwolf_day_game_master": {
-  "code": "AGAU",
+  "code": "DSVN",
   "game": "WERWOLF",
   "games": [
    {
@@ -4456,6 +4627,18 @@
    "customWordSet": false,
    "customWord": null,
    "allCategories": [
+    "animals",
+    "food",
+    "places",
+    "jobs",
+    "household",
+    "sports",
+    "vehicles",
+    "nature",
+    "leisure",
+    "clothing"
+   ],
+   "categoryNames": [
     "Tiere",
     "Essen und Trinken",
     "Orte",
@@ -4468,8 +4651,8 @@
     "Kleidung"
    ],
    "selectedCategories": [
-    "Tiere",
-    "Orte"
+    "animals",
+    "places"
    ],
    "impostorCount": 1,
    "maxImpostorCount": 9,
@@ -4698,7 +4881,7 @@
    "role": null,
    "knownWolves": [],
    "leftoverRoles": [
-    "Dieb",
+    "Seherin",
     "Dorfbewohner"
    ],
    "overview": [
@@ -4706,11 +4889,11 @@
      "playerId": "p2",
      "playerName": "Ben",
      "role": {
-      "id": "DORFBEWOHNER",
-      "name": "Dorfbewohner",
+      "id": "DIEB",
+      "name": "Dieb",
       "team": "DORF",
       "teamName": "Das Dorf",
-      "description": "Du hast keine besonderen Fähigkeiten. Entlarve die Werwölfe durch Logik und Diskussion."
+      "description": "Zu Spielbeginn darfst du deine Karte gegen eine der zwei übrigen Karten tauschen."
      }
     },
     {
@@ -4739,11 +4922,11 @@
      "playerId": "p5",
      "playerName": "Elif",
      "role": {
-      "id": "SEHERIN",
-      "name": "Seherin",
+      "id": "DORFBEWOHNER",
+      "name": "Dorfbewohner",
       "team": "DORF",
       "teamName": "Das Dorf",
-      "description": "Du darfst jede Nacht die wahre Identität eines Spielers erfahren."
+      "description": "Du hast keine besonderen Fähigkeiten. Entlarve die Werwölfe durch Logik und Diskussion."
      }
     }
    ]
@@ -4755,7 +4938,7 @@
   "geoBingo": null
  },
  "werwolf_day_player": {
-  "code": "AGAU",
+  "code": "DSVN",
   "game": "WERWOLF",
   "games": [
    {
@@ -4806,6 +4989,18 @@
    "customWordSet": false,
    "customWord": null,
    "allCategories": [
+    "animals",
+    "food",
+    "places",
+    "jobs",
+    "household",
+    "sports",
+    "vehicles",
+    "nature",
+    "leisure",
+    "clothing"
+   ],
+   "categoryNames": [
     "Tiere",
     "Essen und Trinken",
     "Orte",
@@ -4818,8 +5013,8 @@
     "Kleidung"
    ],
    "selectedCategories": [
-    "Tiere",
-    "Orte"
+    "animals",
+    "places"
    ],
    "impostorCount": 1,
    "maxImpostorCount": 9,
@@ -5046,14 +5241,17 @@
   "werwolf": {
    "gameMaster": false,
    "role": {
-    "id": "DORFBEWOHNER",
-    "name": "Dorfbewohner",
+    "id": "DIEB",
+    "name": "Dieb",
     "team": "DORF",
     "teamName": "Das Dorf",
-    "description": "Du hast keine besonderen Fähigkeiten. Entlarve die Werwölfe durch Logik und Diskussion."
+    "description": "Zu Spielbeginn darfst du deine Karte gegen eine der zwei übrigen Karten tauschen."
    },
    "knownWolves": [],
-   "leftoverRoles": [],
+   "leftoverRoles": [
+    "Seherin",
+    "Dorfbewohner"
+   ],
    "overview": null
   },
   "impostor": null,
@@ -5063,7 +5261,7 @@
   "geoBingo": null
  },
  "werwolf_night_wolf": {
-  "code": "AGAU",
+  "code": "DSVN",
   "game": "WERWOLF",
   "games": [
    {
@@ -5114,6 +5312,18 @@
    "customWordSet": false,
    "customWord": null,
    "allCategories": [
+    "animals",
+    "food",
+    "places",
+    "jobs",
+    "household",
+    "sports",
+    "vehicles",
+    "nature",
+    "leisure",
+    "clothing"
+   ],
+   "categoryNames": [
     "Tiere",
     "Essen und Trinken",
     "Orte",
@@ -5126,8 +5336,8 @@
     "Kleidung"
    ],
    "selectedCategories": [
-    "Tiere",
-    "Orte"
+    "animals",
+    "places"
    ],
    "impostorCount": 1,
    "maxImpostorCount": 9,
@@ -5345,8 +5555,8 @@
   "canStart": false,
   "startHint": null,
   "you": {
-   "id": "p5",
-   "name": "Elif",
+   "id": "p3",
+   "name": "Cem",
    "host": false,
    "ready": false
   },
@@ -5370,7 +5580,7 @@
   "geoBingo": null
  },
  "lobby_tabu_teams_host": {
-  "code": "AGAU",
+  "code": "DSVN",
   "game": "TABU",
   "games": [
    {
@@ -5421,6 +5631,18 @@
    "customWordSet": false,
    "customWord": null,
    "allCategories": [
+    "animals",
+    "food",
+    "places",
+    "jobs",
+    "household",
+    "sports",
+    "vehicles",
+    "nature",
+    "leisure",
+    "clothing"
+   ],
+   "categoryNames": [
     "Tiere",
     "Essen und Trinken",
     "Orte",
@@ -5433,8 +5655,8 @@
     "Kleidung"
    ],
    "selectedCategories": [
-    "Tiere",
-    "Orte"
+    "animals",
+    "places"
    ],
    "impostorCount": 1,
    "maxImpostorCount": 9,
@@ -5669,7 +5891,7 @@
   "geoBingo": null
  },
  "lobby_tabu_teams_guest": {
-  "code": "AGAU",
+  "code": "DSVN",
   "game": "TABU",
   "games": [
    {
@@ -5720,6 +5942,18 @@
    "customWordSet": false,
    "customWord": null,
    "allCategories": [
+    "animals",
+    "food",
+    "places",
+    "jobs",
+    "household",
+    "sports",
+    "vehicles",
+    "nature",
+    "leisure",
+    "clothing"
+   ],
+   "categoryNames": [
     "Tiere",
     "Essen und Trinken",
     "Orte",
@@ -5732,8 +5966,8 @@
     "Kleidung"
    ],
    "selectedCategories": [
-    "Tiere",
-    "Orte"
+    "animals",
+    "places"
    ],
    "impostorCount": 1,
    "maxImpostorCount": 9,
@@ -5968,7 +6202,7 @@
   "geoBingo": null
  },
  "tabu_ready_explainer": {
-  "code": "AGAU",
+  "code": "DSVN",
   "game": "TABU",
   "games": [
    {
@@ -6019,6 +6253,18 @@
    "customWordSet": false,
    "customWord": null,
    "allCategories": [
+    "animals",
+    "food",
+    "places",
+    "jobs",
+    "household",
+    "sports",
+    "vehicles",
+    "nature",
+    "leisure",
+    "clothing"
+   ],
+   "categoryNames": [
     "Tiere",
     "Essen und Trinken",
     "Orte",
@@ -6031,8 +6277,8 @@
     "Kleidung"
    ],
    "selectedCategories": [
-    "Tiere",
-    "Orte"
+    "animals",
+    "places"
    ],
    "impostorCount": 1,
    "maxImpostorCount": 9,
@@ -6302,7 +6548,7 @@
   "geoBingo": null
  },
  "tabu_ready_watcher": {
-  "code": "AGAU",
+  "code": "DSVN",
   "game": "TABU",
   "games": [
    {
@@ -6353,6 +6599,18 @@
    "customWordSet": false,
    "customWord": null,
    "allCategories": [
+    "animals",
+    "food",
+    "places",
+    "jobs",
+    "household",
+    "sports",
+    "vehicles",
+    "nature",
+    "leisure",
+    "clothing"
+   ],
+   "categoryNames": [
     "Tiere",
     "Essen und Trinken",
     "Orte",
@@ -6365,8 +6623,8 @@
     "Kleidung"
    ],
    "selectedCategories": [
-    "Tiere",
-    "Orte"
+    "animals",
+    "places"
    ],
    "impostorCount": 1,
    "maxImpostorCount": 9,
@@ -6636,7 +6894,7 @@
   "geoBingo": null
  },
  "tabu_ready_other": {
-  "code": "AGAU",
+  "code": "DSVN",
   "game": "TABU",
   "games": [
    {
@@ -6687,6 +6945,18 @@
    "customWordSet": false,
    "customWord": null,
    "allCategories": [
+    "animals",
+    "food",
+    "places",
+    "jobs",
+    "household",
+    "sports",
+    "vehicles",
+    "nature",
+    "leisure",
+    "clothing"
+   ],
+   "categoryNames": [
     "Tiere",
     "Essen und Trinken",
     "Orte",
@@ -6699,8 +6969,8 @@
     "Kleidung"
    ],
    "selectedCategories": [
-    "Tiere",
-    "Orte"
+    "animals",
+    "places"
    ],
    "impostorCount": 1,
    "maxImpostorCount": 9,
@@ -6970,7 +7240,7 @@
   "geoBingo": null
  },
  "tabu_turn_explainer": {
-  "code": "AGAU",
+  "code": "DSVN",
   "game": "TABU",
   "games": [
    {
@@ -7021,6 +7291,18 @@
    "customWordSet": false,
    "customWord": null,
    "allCategories": [
+    "animals",
+    "food",
+    "places",
+    "jobs",
+    "household",
+    "sports",
+    "vehicles",
+    "nature",
+    "leisure",
+    "clothing"
+   ],
+   "categoryNames": [
     "Tiere",
     "Essen und Trinken",
     "Orte",
@@ -7033,8 +7315,8 @@
     "Kleidung"
    ],
    "selectedCategories": [
-    "Tiere",
-    "Orte"
+    "animals",
+    "places"
    ],
    "impostorCount": 1,
    "maxImpostorCount": 9,
@@ -7291,32 +7573,32 @@
    "explainerId": "p1",
    "watcherId": "p2",
    "yourTeam": 0,
-   "remainingMs": 179979,
+   "remainingMs": 179976,
    "turnSeconds": 180,
    "targetScore": 10,
    "card": {
-    "word": "Waschmaschine",
+    "word": "Hochzeit",
     "forbidden": [
-     "Wäsche",
-     "waschen",
-     "Trommel",
-     "Kleidung",
-     "schleudern"
+     "heiraten",
+     "Braut",
+     "Ring",
+     "Kirche",
+     "Feier"
     ]
    },
    "turnResults": [
     {
-     "word": "Hausaufgaben",
+     "word": "Heißluftballon",
      "outcome": "CORRECT",
      "scoringTeam": 0
     },
     {
-     "word": "Trompete",
+     "word": "Klettern",
      "outcome": "SKIPPED",
      "scoringTeam": null
     },
     {
-     "word": "Käse",
+     "word": "Gummistiefel",
      "outcome": "BUZZED",
      "scoringTeam": null
     }
@@ -7329,7 +7611,7 @@
   "geoBingo": null
  },
  "tabu_turn_watcher": {
-  "code": "AGAU",
+  "code": "DSVN",
   "game": "TABU",
   "games": [
    {
@@ -7380,6 +7662,18 @@
    "customWordSet": false,
    "customWord": null,
    "allCategories": [
+    "animals",
+    "food",
+    "places",
+    "jobs",
+    "household",
+    "sports",
+    "vehicles",
+    "nature",
+    "leisure",
+    "clothing"
+   ],
+   "categoryNames": [
     "Tiere",
     "Essen und Trinken",
     "Orte",
@@ -7392,8 +7686,8 @@
     "Kleidung"
    ],
    "selectedCategories": [
-    "Tiere",
-    "Orte"
+    "animals",
+    "places"
    ],
    "impostorCount": 1,
    "maxImpostorCount": 9,
@@ -7650,32 +7944,32 @@
    "explainerId": "p1",
    "watcherId": "p2",
    "yourTeam": 1,
-   "remainingMs": 179979,
+   "remainingMs": 179975,
    "turnSeconds": 180,
    "targetScore": 10,
    "card": {
-    "word": "Waschmaschine",
+    "word": "Hochzeit",
     "forbidden": [
-     "Wäsche",
-     "waschen",
-     "Trommel",
-     "Kleidung",
-     "schleudern"
+     "heiraten",
+     "Braut",
+     "Ring",
+     "Kirche",
+     "Feier"
     ]
    },
    "turnResults": [
     {
-     "word": "Hausaufgaben",
+     "word": "Heißluftballon",
      "outcome": "CORRECT",
      "scoringTeam": 0
     },
     {
-     "word": "Trompete",
+     "word": "Klettern",
      "outcome": "SKIPPED",
      "scoringTeam": null
     },
     {
-     "word": "Käse",
+     "word": "Gummistiefel",
      "outcome": "BUZZED",
      "scoringTeam": null
     }
@@ -7688,7 +7982,7 @@
   "geoBingo": null
  },
  "tabu_turn_guesser": {
-  "code": "AGAU",
+  "code": "DSVN",
   "game": "TABU",
   "games": [
    {
@@ -7739,6 +8033,18 @@
    "customWordSet": false,
    "customWord": null,
    "allCategories": [
+    "animals",
+    "food",
+    "places",
+    "jobs",
+    "household",
+    "sports",
+    "vehicles",
+    "nature",
+    "leisure",
+    "clothing"
+   ],
+   "categoryNames": [
     "Tiere",
     "Essen und Trinken",
     "Orte",
@@ -7751,8 +8057,8 @@
     "Kleidung"
    ],
    "selectedCategories": [
-    "Tiere",
-    "Orte"
+    "animals",
+    "places"
    ],
    "impostorCount": 1,
    "maxImpostorCount": 9,
@@ -8009,23 +8315,23 @@
    "explainerId": "p1",
    "watcherId": "p2",
    "yourTeam": 0,
-   "remainingMs": 179979,
+   "remainingMs": 179975,
    "turnSeconds": 180,
    "targetScore": 10,
    "card": null,
    "turnResults": [
     {
-     "word": "Hausaufgaben",
+     "word": "Heißluftballon",
      "outcome": "CORRECT",
      "scoringTeam": 0
     },
     {
-     "word": "Trompete",
+     "word": "Klettern",
      "outcome": "SKIPPED",
      "scoringTeam": null
     },
     {
-     "word": "Käse",
+     "word": "Gummistiefel",
      "outcome": "BUZZED",
      "scoringTeam": null
     }
@@ -8038,7 +8344,7 @@
   "geoBingo": null
  },
  "tabu_turn_other": {
-  "code": "AGAU",
+  "code": "DSVN",
   "game": "TABU",
   "games": [
    {
@@ -8089,6 +8395,18 @@
    "customWordSet": false,
    "customWord": null,
    "allCategories": [
+    "animals",
+    "food",
+    "places",
+    "jobs",
+    "household",
+    "sports",
+    "vehicles",
+    "nature",
+    "leisure",
+    "clothing"
+   ],
+   "categoryNames": [
     "Tiere",
     "Essen und Trinken",
     "Orte",
@@ -8101,8 +8419,8 @@
     "Kleidung"
    ],
    "selectedCategories": [
-    "Tiere",
-    "Orte"
+    "animals",
+    "places"
    ],
    "impostorCount": 1,
    "maxImpostorCount": 9,
@@ -8359,23 +8677,23 @@
    "explainerId": "p1",
    "watcherId": "p2",
    "yourTeam": 1,
-   "remainingMs": 179978,
+   "remainingMs": 179975,
    "turnSeconds": 180,
    "targetScore": 10,
    "card": null,
    "turnResults": [
     {
-     "word": "Hausaufgaben",
+     "word": "Heißluftballon",
      "outcome": "CORRECT",
      "scoringTeam": 0
     },
     {
-     "word": "Trompete",
+     "word": "Klettern",
      "outcome": "SKIPPED",
      "scoringTeam": null
     },
     {
-     "word": "Käse",
+     "word": "Gummistiefel",
      "outcome": "BUZZED",
      "scoringTeam": null
     }
@@ -8388,7 +8706,7 @@
   "geoBingo": null
  },
  "tabu_over_host": {
-  "code": "AGAU",
+  "code": "DSVN",
   "game": "TABU",
   "games": [
    {
@@ -8439,6 +8757,18 @@
    "customWordSet": false,
    "customWord": null,
    "allCategories": [
+    "animals",
+    "food",
+    "places",
+    "jobs",
+    "household",
+    "sports",
+    "vehicles",
+    "nature",
+    "leisure",
+    "clothing"
+   ],
+   "categoryNames": [
     "Tiere",
     "Essen und Trinken",
     "Orte",
@@ -8451,8 +8781,8 @@
     "Kleidung"
    ],
    "selectedCategories": [
-    "Tiere",
-    "Orte"
+    "animals",
+    "places"
    ],
    "impostorCount": 1,
    "maxImpostorCount": 9,
@@ -8716,22 +9046,27 @@
    "turnResults": [],
    "lastTurn": [
     {
-     "word": "Hausaufgaben",
+     "word": "Heißluftballon",
      "outcome": "CORRECT",
      "scoringTeam": 0
     },
     {
-     "word": "Trompete",
+     "word": "Klettern",
      "outcome": "SKIPPED",
      "scoringTeam": null
     },
     {
-     "word": "Käse",
+     "word": "Gummistiefel",
      "outcome": "BUZZED",
      "scoringTeam": null
     },
     {
-     "word": "Waschmaschine",
+     "word": "Hochzeit",
+     "outcome": "CORRECT",
+     "scoringTeam": 0
+    },
+    {
+     "word": "Gespenst",
      "outcome": "CORRECT",
      "scoringTeam": 0
     },
@@ -8741,37 +9076,32 @@
      "scoringTeam": 0
     },
     {
-     "word": "Kaktus",
+     "word": "Burg",
      "outcome": "CORRECT",
      "scoringTeam": 0
     },
     {
-     "word": "Schokolade",
+     "word": "Achterbahn",
      "outcome": "CORRECT",
      "scoringTeam": 0
     },
     {
-     "word": "Schmetterling",
+     "word": "Handschuhe",
      "outcome": "CORRECT",
      "scoringTeam": 0
     },
     {
-     "word": "Flughafen",
+     "word": "Schlüssel",
      "outcome": "CORRECT",
      "scoringTeam": 0
     },
     {
-     "word": "Silvester",
+     "word": "Skifahren",
      "outcome": "CORRECT",
      "scoringTeam": 0
     },
     {
-     "word": "Feuerwehr",
-     "outcome": "CORRECT",
-     "scoringTeam": 0
-    },
-    {
-     "word": "Wasserfall",
+     "word": "Kalender",
      "outcome": "CORRECT",
      "scoringTeam": 0
     }
@@ -8783,7 +9113,7 @@
   "geoBingo": null
  },
  "tabu_over_guest": {
-  "code": "AGAU",
+  "code": "DSVN",
   "game": "TABU",
   "games": [
    {
@@ -8834,6 +9164,18 @@
    "customWordSet": false,
    "customWord": null,
    "allCategories": [
+    "animals",
+    "food",
+    "places",
+    "jobs",
+    "household",
+    "sports",
+    "vehicles",
+    "nature",
+    "leisure",
+    "clothing"
+   ],
+   "categoryNames": [
     "Tiere",
     "Essen und Trinken",
     "Orte",
@@ -8846,8 +9188,8 @@
     "Kleidung"
    ],
    "selectedCategories": [
-    "Tiere",
-    "Orte"
+    "animals",
+    "places"
    ],
    "impostorCount": 1,
    "maxImpostorCount": 9,
@@ -9111,22 +9453,27 @@
    "turnResults": [],
    "lastTurn": [
     {
-     "word": "Hausaufgaben",
+     "word": "Heißluftballon",
      "outcome": "CORRECT",
      "scoringTeam": 0
     },
     {
-     "word": "Trompete",
+     "word": "Klettern",
      "outcome": "SKIPPED",
      "scoringTeam": null
     },
     {
-     "word": "Käse",
+     "word": "Gummistiefel",
      "outcome": "BUZZED",
      "scoringTeam": null
     },
     {
-     "word": "Waschmaschine",
+     "word": "Hochzeit",
+     "outcome": "CORRECT",
+     "scoringTeam": 0
+    },
+    {
+     "word": "Gespenst",
      "outcome": "CORRECT",
      "scoringTeam": 0
     },
@@ -9136,37 +9483,32 @@
      "scoringTeam": 0
     },
     {
-     "word": "Kaktus",
+     "word": "Burg",
      "outcome": "CORRECT",
      "scoringTeam": 0
     },
     {
-     "word": "Schokolade",
+     "word": "Achterbahn",
      "outcome": "CORRECT",
      "scoringTeam": 0
     },
     {
-     "word": "Schmetterling",
+     "word": "Handschuhe",
      "outcome": "CORRECT",
      "scoringTeam": 0
     },
     {
-     "word": "Flughafen",
+     "word": "Schlüssel",
      "outcome": "CORRECT",
      "scoringTeam": 0
     },
     {
-     "word": "Silvester",
+     "word": "Skifahren",
      "outcome": "CORRECT",
      "scoringTeam": 0
     },
     {
-     "word": "Feuerwehr",
-     "outcome": "CORRECT",
-     "scoringTeam": 0
-    },
-    {
-     "word": "Wasserfall",
+     "word": "Kalender",
      "outcome": "CORRECT",
      "scoringTeam": 0
     }
@@ -9178,7 +9520,7 @@
   "geoBingo": null
  },
  "lobby_nobody_host": {
-  "code": "AGAU",
+  "code": "DSVN",
   "game": "NOBODY_IS_PERFECT",
   "games": [
    {
@@ -9229,6 +9571,18 @@
    "customWordSet": false,
    "customWord": null,
    "allCategories": [
+    "animals",
+    "food",
+    "places",
+    "jobs",
+    "household",
+    "sports",
+    "vehicles",
+    "nature",
+    "leisure",
+    "clothing"
+   ],
+   "categoryNames": [
     "Tiere",
     "Essen und Trinken",
     "Orte",
@@ -9241,8 +9595,8 @@
     "Kleidung"
    ],
    "selectedCategories": [
-    "Tiere",
-    "Orte"
+    "animals",
+    "places"
    ],
    "impostorCount": 1,
    "maxImpostorCount": 9,
@@ -9480,7 +9834,7 @@
   "geoBingo": null
  },
  "lobby_nobody_guest": {
-  "code": "AGAU",
+  "code": "DSVN",
   "game": "NOBODY_IS_PERFECT",
   "games": [
    {
@@ -9531,6 +9885,18 @@
    "customWordSet": false,
    "customWord": null,
    "allCategories": [
+    "animals",
+    "food",
+    "places",
+    "jobs",
+    "household",
+    "sports",
+    "vehicles",
+    "nature",
+    "leisure",
+    "clothing"
+   ],
+   "categoryNames": [
     "Tiere",
     "Essen und Trinken",
     "Orte",
@@ -9543,8 +9909,8 @@
     "Kleidung"
    ],
    "selectedCategories": [
-    "Tiere",
-    "Orte"
+    "animals",
+    "places"
    ],
    "impostorCount": 1,
    "maxImpostorCount": 9,
@@ -9782,7 +10148,7 @@
   "geoBingo": null
  },
  "nobody_writing_submitted": {
-  "code": "AGAU",
+  "code": "DSVN",
   "game": "NOBODY_IS_PERFECT",
   "games": [
    {
@@ -9833,6 +10199,18 @@
    "customWordSet": false,
    "customWord": null,
    "allCategories": [
+    "animals",
+    "food",
+    "places",
+    "jobs",
+    "household",
+    "sports",
+    "vehicles",
+    "nature",
+    "leisure",
+    "clothing"
+   ],
+   "categoryNames": [
     "Tiere",
     "Essen und Trinken",
     "Orte",
@@ -9845,8 +10223,8 @@
     "Kleidung"
    ],
    "selectedCategories": [
-    "Tiere",
-    "Orte"
+    "animals",
+    "places"
    ],
    "impostorCount": 1,
    "maxImpostorCount": 9,
@@ -10082,7 +10460,7 @@
   "nobodyIsPerfect": {
    "questionNumber": 1,
    "questionCount": 3,
-   "question": "Was ist ein Wolpertinger?",
+   "question": "Was sind Fisimatenten?",
    "answer": null,
    "participantIds": [
     "p1",
@@ -10132,7 +10510,7 @@
   "geoBingo": null
  },
  "nobody_writing_host": {
-  "code": "AGAU",
+  "code": "DSVN",
   "game": "NOBODY_IS_PERFECT",
   "games": [
    {
@@ -10183,6 +10561,18 @@
    "customWordSet": false,
    "customWord": null,
    "allCategories": [
+    "animals",
+    "food",
+    "places",
+    "jobs",
+    "household",
+    "sports",
+    "vehicles",
+    "nature",
+    "leisure",
+    "clothing"
+   ],
+   "categoryNames": [
     "Tiere",
     "Essen und Trinken",
     "Orte",
@@ -10195,8 +10585,8 @@
     "Kleidung"
    ],
    "selectedCategories": [
-    "Tiere",
-    "Orte"
+    "animals",
+    "places"
    ],
    "impostorCount": 1,
    "maxImpostorCount": 9,
@@ -10432,7 +10822,7 @@
   "nobodyIsPerfect": {
    "questionNumber": 1,
    "questionCount": 3,
-   "question": "Was ist ein Wolpertinger?",
+   "question": "Was sind Fisimatenten?",
    "answer": null,
    "participantIds": [
     "p1",
@@ -10482,7 +10872,7 @@
   "geoBingo": null
  },
  "nobody_guessing": {
-  "code": "AGAU",
+  "code": "DSVN",
   "game": "NOBODY_IS_PERFECT",
   "games": [
    {
@@ -10533,6 +10923,18 @@
    "customWordSet": false,
    "customWord": null,
    "allCategories": [
+    "animals",
+    "food",
+    "places",
+    "jobs",
+    "household",
+    "sports",
+    "vehicles",
+    "nature",
+    "leisure",
+    "clothing"
+   ],
+   "categoryNames": [
     "Tiere",
     "Essen und Trinken",
     "Orte",
@@ -10545,8 +10947,8 @@
     "Kleidung"
    ],
    "selectedCategories": [
-    "Tiere",
-    "Orte"
+    "animals",
+    "places"
    ],
    "impostorCount": 1,
    "maxImpostorCount": 9,
@@ -10782,7 +11184,7 @@
   "nobodyIsPerfect": {
    "questionNumber": 1,
    "questionCount": 3,
-   "question": "Was ist ein Wolpertinger?",
+   "question": "Was sind Fisimatenten?",
    "answer": null,
    "participantIds": [
     "p1",
@@ -10802,11 +11204,11 @@
    "choices": [
     {
      "id": "A",
-     "text": "Erfunden von Elif 1"
+     "text": "Erfunden von Dana 1"
     },
     {
      "id": "B",
-     "text": "Erfunden von Dana 1"
+     "text": "Ausflüchte, unnötige Umstände"
     },
     {
      "id": "C",
@@ -10814,22 +11216,22 @@
     },
     {
      "id": "D",
-     "text": "Erfunden von Ben 1"
+     "text": "Erfunden von Cem 1"
     },
     {
      "id": "E",
-     "text": "Ein bayerisches Fabelwesen aus Teilen verschiedener Tiere"
+     "text": "Erfunden von Elif 1"
     },
     {
      "id": "F",
-     "text": "Erfunden von Cem 1"
+     "text": "Erfunden von Ben 1"
     }
    ],
    "yourChoiceId": "C",
    "guessedIds": [
     "p1"
    ],
-   "yourGuess": "D",
+   "yourGuess": "F",
    "reveal": [],
    "scores": [
     {
@@ -10863,7 +11265,7 @@
   "geoBingo": null
  },
  "nobody_reveal_host": {
-  "code": "AGAU",
+  "code": "DSVN",
   "game": "NOBODY_IS_PERFECT",
   "games": [
    {
@@ -10914,6 +11316,18 @@
    "customWordSet": false,
    "customWord": null,
    "allCategories": [
+    "animals",
+    "food",
+    "places",
+    "jobs",
+    "household",
+    "sports",
+    "vehicles",
+    "nature",
+    "leisure",
+    "clothing"
+   ],
+   "categoryNames": [
     "Tiere",
     "Essen und Trinken",
     "Orte",
@@ -10926,8 +11340,8 @@
     "Kleidung"
    ],
    "selectedCategories": [
-    "Tiere",
-    "Orte"
+    "animals",
+    "places"
    ],
    "impostorCount": 1,
    "maxImpostorCount": 9,
@@ -11163,8 +11577,8 @@
   "nobodyIsPerfect": {
    "questionNumber": 1,
    "questionCount": 3,
-   "question": "Was ist ein Wolpertinger?",
-   "answer": "Ein bayerisches Fabelwesen aus Teilen verschiedener Tiere",
+   "question": "Was sind Fisimatenten?",
+   "answer": "Ausflüchte, unnötige Umstände",
    "participantIds": [
     "p1",
     "p2",
@@ -11183,11 +11597,11 @@
    "choices": [
     {
      "id": "A",
-     "text": "Erfunden von Elif 1"
+     "text": "Erfunden von Dana 1"
     },
     {
      "id": "B",
-     "text": "Erfunden von Dana 1"
+     "text": "Ausflüchte, unnötige Umstände"
     },
     {
      "id": "C",
@@ -11195,15 +11609,15 @@
     },
     {
      "id": "D",
-     "text": "Erfunden von Ben 1"
+     "text": "Erfunden von Cem 1"
     },
     {
      "id": "E",
-     "text": "Ein bayerisches Fabelwesen aus Teilen verschiedener Tiere"
+     "text": "Erfunden von Elif 1"
     },
     {
      "id": "F",
-     "text": "Erfunden von Cem 1"
+     "text": "Erfunden von Ben 1"
     }
    ],
    "yourChoiceId": "C",
@@ -11214,26 +11628,26 @@
     "p4",
     "p5"
    ],
-   "yourGuess": "D",
+   "yourGuess": "F",
    "reveal": [
     {
      "id": "A",
-     "text": "Erfunden von Elif 1",
-     "correct": false,
-     "authorId": "p5",
-     "guesserIds": [
-      "p2",
-      "p3",
-      "p4"
-     ]
-    },
-    {
-     "id": "B",
      "text": "Erfunden von Dana 1",
      "correct": false,
      "authorId": "p4",
      "guesserIds": [
+      "p2",
+      "p3",
       "p5"
+     ]
+    },
+    {
+     "id": "B",
+     "text": "Ausflüchte, unnötige Umstände",
+     "correct": true,
+     "authorId": null,
+     "guesserIds": [
+      "p4"
      ]
     },
     {
@@ -11245,26 +11659,26 @@
     },
     {
      "id": "D",
+     "text": "Erfunden von Cem 1",
+     "correct": false,
+     "authorId": "p3",
+     "guesserIds": []
+    },
+    {
+     "id": "E",
+     "text": "Erfunden von Elif 1",
+     "correct": false,
+     "authorId": "p5",
+     "guesserIds": []
+    },
+    {
+     "id": "F",
      "text": "Erfunden von Ben 1",
      "correct": false,
      "authorId": "p2",
      "guesserIds": [
       "p1"
      ]
-    },
-    {
-     "id": "E",
-     "text": "Ein bayerisches Fabelwesen aus Teilen verschiedener Tiere",
-     "correct": true,
-     "authorId": null,
-     "guesserIds": []
-    },
-    {
-     "id": "F",
-     "text": "Erfunden von Cem 1",
-     "correct": false,
-     "authorId": "p3",
-     "guesserIds": []
     }
    ],
    "scores": [
@@ -11285,13 +11699,13 @@
     },
     {
      "playerId": "p4",
-     "score": 1,
-     "gained": 1
+     "score": 4,
+     "gained": 4
     },
     {
      "playerId": "p5",
-     "score": 3,
-     "gained": 3
+     "score": 0,
+     "gained": 0
     }
    ]
   },
@@ -11299,7 +11713,7 @@
   "geoBingo": null
  },
  "nobody_reveal_guest": {
-  "code": "AGAU",
+  "code": "DSVN",
   "game": "NOBODY_IS_PERFECT",
   "games": [
    {
@@ -11350,6 +11764,18 @@
    "customWordSet": false,
    "customWord": null,
    "allCategories": [
+    "animals",
+    "food",
+    "places",
+    "jobs",
+    "household",
+    "sports",
+    "vehicles",
+    "nature",
+    "leisure",
+    "clothing"
+   ],
+   "categoryNames": [
     "Tiere",
     "Essen und Trinken",
     "Orte",
@@ -11362,8 +11788,8 @@
     "Kleidung"
    ],
    "selectedCategories": [
-    "Tiere",
-    "Orte"
+    "animals",
+    "places"
    ],
    "impostorCount": 1,
    "maxImpostorCount": 9,
@@ -11599,8 +12025,8 @@
   "nobodyIsPerfect": {
    "questionNumber": 1,
    "questionCount": 3,
-   "question": "Was ist ein Wolpertinger?",
-   "answer": "Ein bayerisches Fabelwesen aus Teilen verschiedener Tiere",
+   "question": "Was sind Fisimatenten?",
+   "answer": "Ausflüchte, unnötige Umstände",
    "participantIds": [
     "p1",
     "p2",
@@ -11619,11 +12045,11 @@
    "choices": [
     {
      "id": "A",
-     "text": "Erfunden von Elif 1"
+     "text": "Erfunden von Dana 1"
     },
     {
      "id": "B",
-     "text": "Erfunden von Dana 1"
+     "text": "Ausflüchte, unnötige Umstände"
     },
     {
      "id": "C",
@@ -11631,18 +12057,18 @@
     },
     {
      "id": "D",
-     "text": "Erfunden von Ben 1"
+     "text": "Erfunden von Cem 1"
     },
     {
      "id": "E",
-     "text": "Ein bayerisches Fabelwesen aus Teilen verschiedener Tiere"
+     "text": "Erfunden von Elif 1"
     },
     {
      "id": "F",
-     "text": "Erfunden von Cem 1"
+     "text": "Erfunden von Ben 1"
     }
    ],
-   "yourChoiceId": "D",
+   "yourChoiceId": "F",
    "guessedIds": [
     "p1",
     "p2",
@@ -11654,22 +12080,22 @@
    "reveal": [
     {
      "id": "A",
-     "text": "Erfunden von Elif 1",
-     "correct": false,
-     "authorId": "p5",
-     "guesserIds": [
-      "p2",
-      "p3",
-      "p4"
-     ]
-    },
-    {
-     "id": "B",
      "text": "Erfunden von Dana 1",
      "correct": false,
      "authorId": "p4",
      "guesserIds": [
+      "p2",
+      "p3",
       "p5"
+     ]
+    },
+    {
+     "id": "B",
+     "text": "Ausflüchte, unnötige Umstände",
+     "correct": true,
+     "authorId": null,
+     "guesserIds": [
+      "p4"
      ]
     },
     {
@@ -11681,26 +12107,26 @@
     },
     {
      "id": "D",
+     "text": "Erfunden von Cem 1",
+     "correct": false,
+     "authorId": "p3",
+     "guesserIds": []
+    },
+    {
+     "id": "E",
+     "text": "Erfunden von Elif 1",
+     "correct": false,
+     "authorId": "p5",
+     "guesserIds": []
+    },
+    {
+     "id": "F",
      "text": "Erfunden von Ben 1",
      "correct": false,
      "authorId": "p2",
      "guesserIds": [
       "p1"
      ]
-    },
-    {
-     "id": "E",
-     "text": "Ein bayerisches Fabelwesen aus Teilen verschiedener Tiere",
-     "correct": true,
-     "authorId": null,
-     "guesserIds": []
-    },
-    {
-     "id": "F",
-     "text": "Erfunden von Cem 1",
-     "correct": false,
-     "authorId": "p3",
-     "guesserIds": []
     }
    ],
    "scores": [
@@ -11721,13 +12147,13 @@
     },
     {
      "playerId": "p4",
-     "score": 1,
-     "gained": 1
+     "score": 4,
+     "gained": 4
     },
     {
      "playerId": "p5",
-     "score": 3,
-     "gained": 3
+     "score": 0,
+     "gained": 0
     }
    ]
   },
@@ -11735,7 +12161,7 @@
   "geoBingo": null
  },
  "nobody_over_host": {
-  "code": "AGAU",
+  "code": "DSVN",
   "game": "NOBODY_IS_PERFECT",
   "games": [
    {
@@ -11786,6 +12212,18 @@
    "customWordSet": false,
    "customWord": null,
    "allCategories": [
+    "animals",
+    "food",
+    "places",
+    "jobs",
+    "household",
+    "sports",
+    "vehicles",
+    "nature",
+    "leisure",
+    "clothing"
+   ],
+   "categoryNames": [
     "Tiere",
     "Essen und Trinken",
     "Orte",
@@ -11798,8 +12236,8 @@
     "Kleidung"
    ],
    "selectedCategories": [
-    "Tiere",
-    "Orte"
+    "animals",
+    "places"
    ],
    "impostorCount": 1,
    "maxImpostorCount": 9,
@@ -12035,8 +12473,8 @@
   "nobodyIsPerfect": {
    "questionNumber": 3,
    "questionCount": 3,
-   "question": "Was ist eine Kemenate?",
-   "answer": "Ein beheizbarer Wohnraum auf einer Burg, oft für die Frauen",
+   "question": "Wie heißt der kleinste Knochen im menschlichen Körper?",
+   "answer": "Steigbügel, er sitzt im Mittelohr",
    "participantIds": [
     "p1",
     "p2",
@@ -12055,15 +12493,15 @@
    "choices": [
     {
      "id": "A",
-     "text": "Erfunden von Cem 3"
+     "text": "Steigbügel, er sitzt im Mittelohr"
     },
     {
      "id": "B",
-     "text": "Erfunden von Ben 3"
+     "text": "Erfunden von Anna 3"
     },
     {
      "id": "C",
-     "text": "Erfunden von Dana 3"
+     "text": "Erfunden von Ben 3"
     },
     {
      "id": "D",
@@ -12071,14 +12509,14 @@
     },
     {
      "id": "E",
-     "text": "Ein beheizbarer Wohnraum auf einer Burg, oft für die Frauen"
+     "text": "Erfunden von Dana 3"
     },
     {
      "id": "F",
-     "text": "Erfunden von Anna 3"
+     "text": "Erfunden von Cem 3"
     }
    ],
-   "yourChoiceId": "F",
+   "yourChoiceId": "B",
    "guessedIds": [
     "p1",
     "p2",
@@ -12086,35 +12524,35 @@
     "p4",
     "p5"
    ],
-   "yourGuess": "B",
+   "yourGuess": "C",
    "reveal": [
     {
      "id": "A",
-     "text": "Erfunden von Cem 3",
-     "correct": false,
-     "authorId": "p3",
+     "text": "Steigbügel, er sitzt im Mittelohr",
+     "correct": true,
+     "authorId": null,
      "guesserIds": [
       "p2",
+      "p3",
       "p4",
       "p5"
      ]
     },
     {
      "id": "B",
+     "text": "Erfunden von Anna 3",
+     "correct": false,
+     "authorId": "p1",
+     "guesserIds": []
+    },
+    {
+     "id": "C",
      "text": "Erfunden von Ben 3",
      "correct": false,
      "authorId": "p2",
      "guesserIds": [
-      "p1",
-      "p3"
+      "p1"
      ]
-    },
-    {
-     "id": "C",
-     "text": "Erfunden von Dana 3",
-     "correct": false,
-     "authorId": "p4",
-     "guesserIds": []
     },
     {
      "id": "D",
@@ -12125,16 +12563,16 @@
     },
     {
      "id": "E",
-     "text": "Ein beheizbarer Wohnraum auf einer Burg, oft für die Frauen",
-     "correct": true,
-     "authorId": null,
+     "text": "Erfunden von Dana 3",
+     "correct": false,
+     "authorId": "p4",
      "guesserIds": []
     },
     {
      "id": "F",
-     "text": "Erfunden von Anna 3",
+     "text": "Erfunden von Cem 3",
      "correct": false,
-     "authorId": "p1",
+     "authorId": "p3",
      "guesserIds": []
     }
    ],
@@ -12151,18 +12589,18 @@
     },
     {
      "playerId": "p3",
-     "score": 3,
-     "gained": 3
+     "score": 1,
+     "gained": 1
     },
     {
      "playerId": "p4",
-     "score": 1,
-     "gained": 0
+     "score": 5,
+     "gained": 1
     },
     {
      "playerId": "p5",
-     "score": 3,
-     "gained": 0
+     "score": 1,
+     "gained": 1
     }
    ]
   },
@@ -12170,7 +12608,7 @@
   "geoBingo": null
  },
  "nobody_over_guest": {
-  "code": "AGAU",
+  "code": "DSVN",
   "game": "NOBODY_IS_PERFECT",
   "games": [
    {
@@ -12221,6 +12659,18 @@
    "customWordSet": false,
    "customWord": null,
    "allCategories": [
+    "animals",
+    "food",
+    "places",
+    "jobs",
+    "household",
+    "sports",
+    "vehicles",
+    "nature",
+    "leisure",
+    "clothing"
+   ],
+   "categoryNames": [
     "Tiere",
     "Essen und Trinken",
     "Orte",
@@ -12233,8 +12683,8 @@
     "Kleidung"
    ],
    "selectedCategories": [
-    "Tiere",
-    "Orte"
+    "animals",
+    "places"
    ],
    "impostorCount": 1,
    "maxImpostorCount": 9,
@@ -12470,8 +12920,8 @@
   "nobodyIsPerfect": {
    "questionNumber": 3,
    "questionCount": 3,
-   "question": "Was ist eine Kemenate?",
-   "answer": "Ein beheizbarer Wohnraum auf einer Burg, oft für die Frauen",
+   "question": "Wie heißt der kleinste Knochen im menschlichen Körper?",
+   "answer": "Steigbügel, er sitzt im Mittelohr",
    "participantIds": [
     "p1",
     "p2",
@@ -12490,15 +12940,15 @@
    "choices": [
     {
      "id": "A",
-     "text": "Erfunden von Cem 3"
+     "text": "Steigbügel, er sitzt im Mittelohr"
     },
     {
      "id": "B",
-     "text": "Erfunden von Ben 3"
+     "text": "Erfunden von Anna 3"
     },
     {
      "id": "C",
-     "text": "Erfunden von Dana 3"
+     "text": "Erfunden von Ben 3"
     },
     {
      "id": "D",
@@ -12506,14 +12956,14 @@
     },
     {
      "id": "E",
-     "text": "Ein beheizbarer Wohnraum auf einer Burg, oft für die Frauen"
+     "text": "Erfunden von Dana 3"
     },
     {
      "id": "F",
-     "text": "Erfunden von Anna 3"
+     "text": "Erfunden von Cem 3"
     }
    ],
-   "yourChoiceId": "B",
+   "yourChoiceId": "C",
    "guessedIds": [
     "p1",
     "p2",
@@ -12525,31 +12975,31 @@
    "reveal": [
     {
      "id": "A",
-     "text": "Erfunden von Cem 3",
-     "correct": false,
-     "authorId": "p3",
+     "text": "Steigbügel, er sitzt im Mittelohr",
+     "correct": true,
+     "authorId": null,
      "guesserIds": [
       "p2",
+      "p3",
       "p4",
       "p5"
      ]
     },
     {
      "id": "B",
+     "text": "Erfunden von Anna 3",
+     "correct": false,
+     "authorId": "p1",
+     "guesserIds": []
+    },
+    {
+     "id": "C",
      "text": "Erfunden von Ben 3",
      "correct": false,
      "authorId": "p2",
      "guesserIds": [
-      "p1",
-      "p3"
+      "p1"
      ]
-    },
-    {
-     "id": "C",
-     "text": "Erfunden von Dana 3",
-     "correct": false,
-     "authorId": "p4",
-     "guesserIds": []
     },
     {
      "id": "D",
@@ -12560,16 +13010,16 @@
     },
     {
      "id": "E",
-     "text": "Ein beheizbarer Wohnraum auf einer Burg, oft für die Frauen",
-     "correct": true,
-     "authorId": null,
+     "text": "Erfunden von Dana 3",
+     "correct": false,
+     "authorId": "p4",
      "guesserIds": []
     },
     {
      "id": "F",
-     "text": "Erfunden von Anna 3",
+     "text": "Erfunden von Cem 3",
      "correct": false,
-     "authorId": "p1",
+     "authorId": "p3",
      "guesserIds": []
     }
    ],
@@ -12586,18 +13036,18 @@
     },
     {
      "playerId": "p3",
-     "score": 3,
-     "gained": 3
+     "score": 1,
+     "gained": 1
     },
     {
      "playerId": "p4",
-     "score": 1,
-     "gained": 0
+     "score": 5,
+     "gained": 1
     },
     {
      "playerId": "p5",
-     "score": 3,
-     "gained": 0
+     "score": 1,
+     "gained": 1
     }
    ]
   },
@@ -12605,7 +13055,7 @@
   "geoBingo": null
  },
  "lobby_buzzer_host": {
-  "code": "AGAU",
+  "code": "DSVN",
   "game": "BUZZER",
   "games": [
    {
@@ -12656,6 +13106,18 @@
    "customWordSet": false,
    "customWord": null,
    "allCategories": [
+    "animals",
+    "food",
+    "places",
+    "jobs",
+    "household",
+    "sports",
+    "vehicles",
+    "nature",
+    "leisure",
+    "clothing"
+   ],
+   "categoryNames": [
     "Tiere",
     "Essen und Trinken",
     "Orte",
@@ -12668,8 +13130,8 @@
     "Kleidung"
    ],
    "selectedCategories": [
-    "Tiere",
-    "Orte"
+    "animals",
+    "places"
    ],
    "impostorCount": 1,
    "maxImpostorCount": 9,
@@ -12907,7 +13369,7 @@
   "geoBingo": null
  },
  "lobby_buzzer_guest": {
-  "code": "AGAU",
+  "code": "DSVN",
   "game": "BUZZER",
   "games": [
    {
@@ -12958,6 +13420,18 @@
    "customWordSet": false,
    "customWord": null,
    "allCategories": [
+    "animals",
+    "food",
+    "places",
+    "jobs",
+    "household",
+    "sports",
+    "vehicles",
+    "nature",
+    "leisure",
+    "clothing"
+   ],
+   "categoryNames": [
     "Tiere",
     "Essen und Trinken",
     "Orte",
@@ -12970,8 +13444,8 @@
     "Kleidung"
    ],
    "selectedCategories": [
-    "Tiere",
-    "Orte"
+    "animals",
+    "places"
    ],
    "impostorCount": 1,
    "maxImpostorCount": 9,
@@ -13209,7 +13683,7 @@
   "geoBingo": null
  },
  "buzzer_host_empty": {
-  "code": "AGAU",
+  "code": "DSVN",
   "game": "BUZZER",
   "games": [
    {
@@ -13260,6 +13734,18 @@
    "customWordSet": false,
    "customWord": null,
    "allCategories": [
+    "animals",
+    "food",
+    "places",
+    "jobs",
+    "household",
+    "sports",
+    "vehicles",
+    "nature",
+    "leisure",
+    "clothing"
+   ],
+   "categoryNames": [
     "Tiere",
     "Essen und Trinken",
     "Orte",
@@ -13272,8 +13758,8 @@
     "Kleidung"
    ],
    "selectedCategories": [
-    "Tiere",
-    "Orte"
+    "animals",
+    "places"
    ],
    "impostorCount": 1,
    "maxImpostorCount": 9,
@@ -13516,7 +14002,7 @@
   "geoBingo": null
  },
  "buzzer_player_open": {
-  "code": "AGAU",
+  "code": "DSVN",
   "game": "BUZZER",
   "games": [
    {
@@ -13567,6 +14053,18 @@
    "customWordSet": false,
    "customWord": null,
    "allCategories": [
+    "animals",
+    "food",
+    "places",
+    "jobs",
+    "household",
+    "sports",
+    "vehicles",
+    "nature",
+    "leisure",
+    "clothing"
+   ],
+   "categoryNames": [
     "Tiere",
     "Essen und Trinken",
     "Orte",
@@ -13579,8 +14077,8 @@
     "Kleidung"
    ],
    "selectedCategories": [
-    "Tiere",
-    "Orte"
+    "animals",
+    "places"
    ],
    "impostorCount": 1,
    "maxImpostorCount": 9,
@@ -13823,7 +14321,7 @@
   "geoBingo": null
  },
  "buzzer_host_pressed": {
-  "code": "AGAU",
+  "code": "DSVN",
   "game": "BUZZER",
   "games": [
    {
@@ -13874,6 +14372,18 @@
    "customWordSet": false,
    "customWord": null,
    "allCategories": [
+    "animals",
+    "food",
+    "places",
+    "jobs",
+    "household",
+    "sports",
+    "vehicles",
+    "nature",
+    "leisure",
+    "clothing"
+   ],
+   "categoryNames": [
     "Tiere",
     "Essen und Trinken",
     "Orte",
@@ -13886,8 +14396,8 @@
     "Kleidung"
    ],
    "selectedCategories": [
-    "Tiere",
-    "Orte"
+    "animals",
+    "places"
    ],
    "impostorCount": 1,
    "maxImpostorCount": 9,
@@ -14141,7 +14651,7 @@
   "geoBingo": null
  },
  "buzzer_player_first": {
-  "code": "AGAU",
+  "code": "DSVN",
   "game": "BUZZER",
   "games": [
    {
@@ -14192,6 +14702,18 @@
    "customWordSet": false,
    "customWord": null,
    "allCategories": [
+    "animals",
+    "food",
+    "places",
+    "jobs",
+    "household",
+    "sports",
+    "vehicles",
+    "nature",
+    "leisure",
+    "clothing"
+   ],
+   "categoryNames": [
     "Tiere",
     "Essen und Trinken",
     "Orte",
@@ -14204,8 +14726,8 @@
     "Kleidung"
    ],
    "selectedCategories": [
-    "Tiere",
-    "Orte"
+    "animals",
+    "places"
    ],
    "impostorCount": 1,
    "maxImpostorCount": 9,
@@ -14448,7 +14970,7 @@
   "geoBingo": null
  },
  "buzzer_player_second": {
-  "code": "AGAU",
+  "code": "DSVN",
   "game": "BUZZER",
   "games": [
    {
@@ -14499,6 +15021,18 @@
    "customWordSet": false,
    "customWord": null,
    "allCategories": [
+    "animals",
+    "food",
+    "places",
+    "jobs",
+    "household",
+    "sports",
+    "vehicles",
+    "nature",
+    "leisure",
+    "clothing"
+   ],
+   "categoryNames": [
     "Tiere",
     "Essen und Trinken",
     "Orte",
@@ -14511,8 +15045,8 @@
     "Kleidung"
    ],
    "selectedCategories": [
-    "Tiere",
-    "Orte"
+    "animals",
+    "places"
    ],
    "impostorCount": 1,
    "maxImpostorCount": 9,
@@ -14755,7 +15289,7 @@
   "geoBingo": null
  },
  "lobby_geo_bingo_host": {
-  "code": "AGAU",
+  "code": "DSVN",
   "game": "GEO_BINGO",
   "games": [
    {
@@ -14806,6 +15340,18 @@
    "customWordSet": false,
    "customWord": null,
    "allCategories": [
+    "animals",
+    "food",
+    "places",
+    "jobs",
+    "household",
+    "sports",
+    "vehicles",
+    "nature",
+    "leisure",
+    "clothing"
+   ],
+   "categoryNames": [
     "Tiere",
     "Essen und Trinken",
     "Orte",
@@ -14818,8 +15364,8 @@
     "Kleidung"
    ],
    "selectedCategories": [
-    "Tiere",
-    "Orte"
+    "animals",
+    "places"
    ],
    "impostorCount": 1,
    "maxImpostorCount": 9,
@@ -15057,7 +15603,7 @@
   "geoBingo": null
  },
  "lobby_geo_bingo_guest": {
-  "code": "AGAU",
+  "code": "DSVN",
   "game": "GEO_BINGO",
   "games": [
    {
@@ -15108,6 +15654,18 @@
    "customWordSet": false,
    "customWord": null,
    "allCategories": [
+    "animals",
+    "food",
+    "places",
+    "jobs",
+    "household",
+    "sports",
+    "vehicles",
+    "nature",
+    "leisure",
+    "clothing"
+   ],
+   "categoryNames": [
     "Tiere",
     "Essen und Trinken",
     "Orte",
@@ -15120,8 +15678,8 @@
     "Kleidung"
    ],
    "selectedCategories": [
-    "Tiere",
-    "Orte"
+    "animals",
+    "places"
    ],
    "impostorCount": 1,
    "maxImpostorCount": 9,
@@ -15359,7 +15917,7 @@
   "geoBingo": null
  },
  "geo_bingo_start": {
-  "code": "AGAU",
+  "code": "DSVN",
   "game": "GEO_BINGO",
   "games": [
    {
@@ -15410,6 +15968,18 @@
    "customWordSet": false,
    "customWord": null,
    "allCategories": [
+    "animals",
+    "food",
+    "places",
+    "jobs",
+    "household",
+    "sports",
+    "vehicles",
+    "nature",
+    "leisure",
+    "clothing"
+   ],
+   "categoryNames": [
     "Tiere",
     "Essen und Trinken",
     "Orte",
@@ -15422,8 +15992,8 @@
     "Kleidung"
    ],
    "selectedCategories": [
-    "Tiere",
-    "Orte"
+    "animals",
+    "places"
    ],
    "impostorCount": 1,
    "maxImpostorCount": 9,
@@ -15659,21 +16229,21 @@
   "nobodyIsPerfect": null,
   "buzzer": null,
   "geoBingo": {
-   "place": "Brüssel, Grand-Place",
-   "lat": 50.8467,
-   "lng": 4.3525,
+   "place": "Amsterdam, Dam",
+   "lat": 52.3731,
+   "lng": 4.8926,
    "board": [
-    "Brunnen",
-    "Bus",
-    "Blumenkasten",
-    "Motorroller",
-    "Taxi",
-    "Graffiti",
-    "Markise",
-    "Balkon",
-    "Fensterläden"
+    "Kopfsteinpflaster",
+    "Fahne",
+    "Fahrrad",
+    "Parkbank",
+    "Palme",
+    "Uhr",
+    "Fensterläden",
+    "Torbogen",
+    "Säule"
    ],
-   "remainingMs": 899993,
+   "remainingMs": 899994,
    "scores": [
     {
      "playerId": "p1",
@@ -15703,7 +16273,7 @@
   }
  },
  "geo_bingo_claimer": {
-  "code": "AGAU",
+  "code": "DSVN",
   "game": "GEO_BINGO",
   "games": [
    {
@@ -15754,6 +16324,18 @@
    "customWordSet": false,
    "customWord": null,
    "allCategories": [
+    "animals",
+    "food",
+    "places",
+    "jobs",
+    "household",
+    "sports",
+    "vehicles",
+    "nature",
+    "leisure",
+    "clothing"
+   ],
+   "categoryNames": [
     "Tiere",
     "Essen und Trinken",
     "Orte",
@@ -15766,8 +16348,8 @@
     "Kleidung"
    ],
    "selectedCategories": [
-    "Tiere",
-    "Orte"
+    "animals",
+    "places"
    ],
    "impostorCount": 1,
    "maxImpostorCount": 9,
@@ -16003,21 +16585,21 @@
   "nobodyIsPerfect": null,
   "buzzer": null,
   "geoBingo": {
-   "place": "Brüssel, Grand-Place",
-   "lat": 50.8467,
-   "lng": 4.3525,
+   "place": "Amsterdam, Dam",
+   "lat": 52.3731,
+   "lng": 4.8926,
    "board": [
-    "Brunnen",
-    "Bus",
-    "Blumenkasten",
-    "Motorroller",
-    "Taxi",
-    "Graffiti",
-    "Markise",
-    "Balkon",
-    "Fensterläden"
+    "Kopfsteinpflaster",
+    "Fahne",
+    "Fahrrad",
+    "Parkbank",
+    "Palme",
+    "Uhr",
+    "Fensterläden",
+    "Torbogen",
+    "Säule"
    ],
-   "remainingMs": 899965,
+   "remainingMs": 899961,
    "scores": [
     {
      "playerId": "p1",
@@ -16051,7 +16633,7 @@
      "x": 0.4,
      "y": 0.5,
      "zoom": 1.0,
-     "remainingMs": 19999,
+     "remainingMs": 20000,
      "votedIds": [],
      "yourVote": null
     }
@@ -16068,7 +16650,7 @@
   }
  },
  "geo_bingo_vote": {
-  "code": "AGAU",
+  "code": "DSVN",
   "game": "GEO_BINGO",
   "games": [
    {
@@ -16119,6 +16701,18 @@
    "customWordSet": false,
    "customWord": null,
    "allCategories": [
+    "animals",
+    "food",
+    "places",
+    "jobs",
+    "household",
+    "sports",
+    "vehicles",
+    "nature",
+    "leisure",
+    "clothing"
+   ],
+   "categoryNames": [
     "Tiere",
     "Essen und Trinken",
     "Orte",
@@ -16131,8 +16725,8 @@
     "Kleidung"
    ],
    "selectedCategories": [
-    "Tiere",
-    "Orte"
+    "animals",
+    "places"
    ],
    "impostorCount": 1,
    "maxImpostorCount": 9,
@@ -16368,21 +16962,21 @@
   "nobodyIsPerfect": null,
   "buzzer": null,
   "geoBingo": {
-   "place": "Brüssel, Grand-Place",
-   "lat": 50.8467,
-   "lng": 4.3525,
+   "place": "Amsterdam, Dam",
+   "lat": 52.3731,
+   "lng": 4.8926,
    "board": [
-    "Brunnen",
-    "Bus",
-    "Blumenkasten",
-    "Motorroller",
-    "Taxi",
-    "Graffiti",
-    "Markise",
-    "Balkon",
-    "Fensterläden"
+    "Kopfsteinpflaster",
+    "Fahne",
+    "Fahrrad",
+    "Parkbank",
+    "Palme",
+    "Uhr",
+    "Fensterläden",
+    "Torbogen",
+    "Säule"
    ],
-   "remainingMs": 899966,
+   "remainingMs": 899961,
    "scores": [
     {
      "playerId": "p1",
@@ -16433,7 +17027,7 @@
   }
  },
  "geo_bingo_over_host": {
-  "code": "AGAU",
+  "code": "DSVN",
   "game": "GEO_BINGO",
   "games": [
    {
@@ -16484,6 +17078,18 @@
    "customWordSet": false,
    "customWord": null,
    "allCategories": [
+    "animals",
+    "food",
+    "places",
+    "jobs",
+    "household",
+    "sports",
+    "vehicles",
+    "nature",
+    "leisure",
+    "clothing"
+   ],
+   "categoryNames": [
     "Tiere",
     "Essen und Trinken",
     "Orte",
@@ -16496,8 +17102,8 @@
     "Kleidung"
    ],
    "selectedCategories": [
-    "Tiere",
-    "Orte"
+    "animals",
+    "places"
    ],
    "impostorCount": 1,
    "maxImpostorCount": 9,
@@ -16733,21 +17339,21 @@
   "nobodyIsPerfect": null,
   "buzzer": null,
   "geoBingo": {
-   "place": "Brüssel, Grand-Place",
-   "lat": 50.8467,
-   "lng": 4.3525,
+   "place": "Amsterdam, Dam",
+   "lat": 52.3731,
+   "lng": 4.8926,
    "board": [
-    "Brunnen",
-    "Bus",
-    "Blumenkasten",
-    "Motorroller",
-    "Taxi",
-    "Graffiti",
-    "Markise",
-    "Balkon",
-    "Fensterläden"
+    "Kopfsteinpflaster",
+    "Fahne",
+    "Fahrrad",
+    "Parkbank",
+    "Palme",
+    "Uhr",
+    "Fensterläden",
+    "Torbogen",
+    "Säule"
    ],
-   "remainingMs": 899937,
+   "remainingMs": 899924,
    "scores": [
     {
      "playerId": "p1",
@@ -16803,7 +17409,7 @@
   }
  },
  "geo_bingo_over_guest": {
-  "code": "AGAU",
+  "code": "DSVN",
   "game": "GEO_BINGO",
   "games": [
    {
@@ -16854,6 +17460,18 @@
    "customWordSet": false,
    "customWord": null,
    "allCategories": [
+    "animals",
+    "food",
+    "places",
+    "jobs",
+    "household",
+    "sports",
+    "vehicles",
+    "nature",
+    "leisure",
+    "clothing"
+   ],
+   "categoryNames": [
     "Tiere",
     "Essen und Trinken",
     "Orte",
@@ -16866,8 +17484,8 @@
     "Kleidung"
    ],
    "selectedCategories": [
-    "Tiere",
-    "Orte"
+    "animals",
+    "places"
    ],
    "impostorCount": 1,
    "maxImpostorCount": 9,
@@ -17103,21 +17721,21 @@
   "nobodyIsPerfect": null,
   "buzzer": null,
   "geoBingo": {
-   "place": "Brüssel, Grand-Place",
-   "lat": 50.8467,
-   "lng": 4.3525,
+   "place": "Amsterdam, Dam",
+   "lat": 52.3731,
+   "lng": 4.8926,
    "board": [
-    "Brunnen",
-    "Bus",
-    "Blumenkasten",
-    "Motorroller",
-    "Taxi",
-    "Graffiti",
-    "Markise",
-    "Balkon",
-    "Fensterläden"
+    "Kopfsteinpflaster",
+    "Fahne",
+    "Fahrrad",
+    "Parkbank",
+    "Palme",
+    "Uhr",
+    "Fensterläden",
+    "Torbogen",
+    "Säule"
    ],
-   "remainingMs": 899936,
+   "remainingMs": 899923,
    "scores": [
     {
      "playerId": "p1",

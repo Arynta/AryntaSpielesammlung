@@ -148,6 +148,7 @@ nicht, weil die Handys die Verbindung aktiv halten.
 | Was | Wo |
 | --- | --- |
 | Rollen, Impostor-Wörter, Tabu-Karten, Fragen | JSON-Dateien in `backend/src/main/resources/games/`. Das Frontend liest dieselben Dateien (`gameData.ts`), es gibt also nur eine Liste. |
+| Englische Fassung | Spieldaten: dieselben Dateien mit `-en` (`tabu-cards-en.json` usw.). Texte der Flutter-App: `app/lib/l10n/app_de.arb` und `app_en.arb`. Meldungen des Servers: `backend/src/main/resources/i18n/messages*.properties`. Impressum und Datenschutz: `app/lib/ui/legal/content/`, maßgeblich ist die deutsche Fassung. Die Flagge oben rechts schaltet um. |
 | Regeln der Werwolf-Verteilung | `RoleDistribution.java`, `WerwolfRoles.java` |
 | Ablauf eines Spiels | die Klasse des Spiels, z. B. `TabuGame.java`, und die passenden Methoden in `Room` |
 | Nachrichten zwischen Handy und Server | `ClientMessage.java`, `GameSocketHandler.handle()` und `types.ts` (beide Seiten gleich halten) |

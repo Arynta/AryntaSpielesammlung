@@ -9,6 +9,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:web/web.dart' as web;
 
 import '../../../domain/models/models.dart';
+import '../../../l10n/l10n.dart';
 import 'street_view_controller.dart';
 
 /// Öffentlicher Client-Schlüssel von mapillary.com/developer: --dart-define=MAPILLARY_TOKEN=MLY|…
@@ -83,7 +84,7 @@ class StreetView extends StatefulWidget {
 
 class _StreetViewState extends State<StreetView> {
   _Viewer? _viewer;
-  String? _problem = _token.isEmpty ? 'Für Straßenbilder fehlt der Mapillary-Schlüssel (MAPILLARY_TOKEN).' : null;
+  String? _problem = _token.isEmpty ? texts.streetViewNoToken : null;
 
   @override
   void dispose() {
@@ -100,7 +101,7 @@ class _StreetViewState extends State<StreetView> {
       final imageId = spot?.imageId ?? (start == null ? null : await _findImage(start.lat, start.lng));
       if (!mounted) return;
       if (imageId == null) {
-        setState(() => _problem = 'Hier gibt es leider keine Straßenbilder.');
+        setState(() => _problem = texts.streetViewNoImages);
         return;
       }
       final viewer = _Viewer(
@@ -119,7 +120,7 @@ class _StreetViewState extends State<StreetView> {
       }
       widget.controller?.attach(_readSpot);
     } catch (e) {
-      if (mounted) setState(() => _problem = 'Die Straßenbilder konnten nicht geladen werden.');
+      if (mounted) setState(() => _problem = texts.streetViewLoadFailed);
       debugPrint('Mapillary: $e');
     }
   }

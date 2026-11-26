@@ -14,13 +14,17 @@ void showRoomInAddress(String? code) {
   web.window.history.replaceState(web.window.history.state, '', '${location.pathname}$query${location.hash}');
 }
 
-Future<ShareResult> shareRoom(String code) async {
+/// Damit Vorlesefunktionen die Seite in der richtigen Sprache sprechen.
+void setPageLanguage(String code) => web.document.documentElement?.setAttribute('lang', code);
+
+/// [text] ist die Einladung in der Sprache der Oberfläche.
+Future<ShareResult> shareRoom(String code, String text) async {
   final location = web.window.location;
   final url = '${location.origin}${location.pathname}?raum=$code';
   try {
     if (web.window.navigator.has('share')) {
       await web.window.navigator
-          .share(web.ShareData(title: 'Arynta', text: 'Komm in meinen Spieleraum: $code', url: url))
+          .share(web.ShareData(title: 'Arynta', text: text, url: url))
           .toDart;
       return ShareResult.shared;
     }

@@ -34,16 +34,40 @@ void main() {
 
     await tester.enterText(find.byType(TextField).last, 'k7qx');
     await tap(tester, button('Beitreten'));
-    expect(app.link.sent.last, {'type': 'join', 'code': 'K7QX', 'name': 'Anna'});
+    expect(app.link.sent.last, {'type': 'join', 'code': 'K7QX', 'name': 'Anna', 'language': 'de'});
     expect(app.storage.values['werwolf.name'], '"Anna"');
     await tester.pump(const Duration(seconds: 5));
     expect(find.textContaining('Raumcode ein'), findsNothing);
   });
 
+  testWidgets('Sprachumschalter: Flagge stellt auf Englisch um, die Wahl bleibt gespeichert', (tester) async {
+    final flag = find.byKey(const ValueKey('language'));
+    final app = await pumpApp(tester);
+    expect(find.bySemanticsLabel('Sprache: Deutsch. Auf Englisch umstellen'), findsOneWidget);
+
+    await tap(tester, flag);
+    expect(button('Create a new room'), findsOneWidget);
+    expect(find.text('Delete my data'), findsOneWidget);
+    expect(find.bySemanticsLabel('Language: English. Switch to German'), findsOneWidget);
+    expect(app.storage.values['arynta.language'], 'en');
+    expect(app.link.sent.last, {'type': 'setLanguage', 'language': 'en'});
+
+    // Neu laden: Englisch bleibt, und wer jetzt beitritt, meldet Englisch an
+    final reloaded = await pumpApp(tester, storage: app.storage);
+    expect(button('Create a new room'), findsOneWidget);
+    await tester.enterText(find.byType(TextField).first, 'Anna');
+    await tap(tester, button('Create a new room'));
+    expect(reloaded.link.sent.last, {'type': 'create', 'name': 'Anna', 'language': 'en'});
+
+    await tap(tester, flag);
+    expect(button('Neuen Raum erstellen'), findsOneWidget);
+    expect(reloaded.storage.values['arynta.language'], 'de');
+  });
+
   testWidgets('Gespeicherter Raum: zurückmelden, bei Fehler vergessen', (tester) async {
     final storage = MemoryStorage()..values['werwolf.session'] = '{"code":"ABCD","secret":"geheim"}';
     final app = await pumpApp(tester, storage: storage);
-    expect(app.link.sent.single, {'type': 'rejoin', 'code': 'ABCD', 'secret': 'geheim'});
+    expect(app.link.sent.single, {'type': 'rejoin', 'code': 'ABCD', 'secret': 'geheim', 'language': 'de'});
     expect(find.textContaining('Du kommst zurück in Raum', findRichText: true), findsOneWidget);
 
     app.receive({'type': 'error', 'message': 'Diesen Raum gibt es nicht.'});

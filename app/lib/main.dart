@@ -12,7 +12,7 @@ const _localUrl = 'ws://localhost:8080/ws';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  gameData = await GameData.load();
+  gameDataByLanguage = await GameData.loadAll();
   final url = Uri.parse(_configuredUrl.isEmpty ? _localUrl : _configuredUrl);
   final controller = AppController(
     storage: await openStorage(),

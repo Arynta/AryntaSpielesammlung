@@ -2,6 +2,7 @@
 import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../../../../l10n/l10n.dart';
 import '../../themes/theme.dart';
 import 'buttons.dart';
 
@@ -218,7 +219,7 @@ class AppStepper extends StatelessWidget {
         '−',
         small: true,
         width: 44,
-        semanticLabel: lessLabel ?? '$label verringern',
+        semanticLabel: lessLabel ?? texts.stepperLess(label),
         onPressed: value <= min ? null : () => onStep(-1),
       ),
       Semantics(
@@ -232,7 +233,7 @@ class AppStepper extends StatelessWidget {
         '+',
         small: true,
         width: 44,
-        semanticLabel: moreLabel ?? '$label erhöhen',
+        semanticLabel: moreLabel ?? texts.stepperMore(label),
         onPressed: value >= max ? null : () => onStep(1),
       ),
     ],

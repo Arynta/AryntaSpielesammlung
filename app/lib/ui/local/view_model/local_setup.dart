@@ -1,12 +1,13 @@
 // Einrichtung des lokalen Modus: Spiel, Spieler, Namen und Einstellungen. Wird im Gerät gespeichert.
 import '../../../data/services/storage/storage_base.dart';
 import '../../../data/repositories/game_data.dart';
+import '../../../l10n/l10n.dart';
 import '../../../domain/rules/local_games.dart' as rules;
 import '../../../domain/models/models.dart';
 import 'local_controller.dart';
 
 class LocalSetup {
-  LocalSetup() : categories = gameData.categoryNames, roles = [seer];
+  LocalSetup() : categories = gameData.categoryIds, roles = [seer];
 
   /// Gespeicherte Werte können von einer älteren Version stammen, deshalb absichern.
   factory LocalSetup.load(Storage storage) {
@@ -31,7 +32,7 @@ class LocalSetup {
     setup.seesCategory = saved['seesCategory'] != false;
     setup.randomStartPlayer = saved['randomStartPlayer'] != false;
     final categories = [
-      for (final c in gameData.categoryNames)
+      for (final c in gameData.categoryIds)
         if (list('categories').contains(c)) c,
     ];
     if (categories.isNotEmpty) setup.categories = categories;
@@ -60,6 +61,7 @@ class LocalSetup {
   int impostorCount = 1;
   bool seesCategory = true;
   bool randomStartPlayer = true;
+  /// IDs der Kategorien, gleich in allen Sprachen.
   List<String> categories;
 
   /// null = automatisch.
@@ -94,7 +96,7 @@ class LocalSetup {
 
   String? get problem {
     final duplicate = rules.duplicateName(rules.playerNames(playerCount, names));
-    if (duplicate != null) return 'Der Name „$duplicate“ kommt doppelt vor.';
+    if (duplicate != null) return texts.duplicateName(duplicate);
     return switch (game) {
       GameType.tabu => rules.tabuProblem(playerCount, teamCount, autoTeams, teams),
       GameType.nobodyIsPerfect => null,

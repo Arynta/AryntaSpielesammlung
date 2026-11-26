@@ -3,13 +3,12 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../../data/services/street_view/street_view.dart';
 import '../../../domain/models/models.dart';
+import '../../../l10n/l10n.dart';
 import '../../core/view_model/app_controller.dart';
 import '../../core/widgets/players.dart';
 import '../../core/widgets/shared.dart';
 import '../../core/themes/theme.dart';
 import '../../core/widgets/widgets.dart';
-
-const _sourceHint = 'Die Straßenbilder kommen von Mapillary (Meta). Dein Browser lädt sie beim Spielen direkt von dort.';
 
 class GeoBingoSettingsView extends StatelessWidget {
   const GeoBingoSettingsView({super.key, required this.controller, required this.room});
@@ -22,21 +21,21 @@ class GeoBingoSettingsView extends StatelessWidget {
     final s = room.geoBingoSettings;
     if (!room.you.host) {
       return SettingsSummary([
-        ['Spielzeit: ', Strong('${s.minutes} Minuten')],
-        [_sourceHint],
+        ['${texts.playTime}: ', Strong(texts.minutes(s.minutes))],
+        [texts.geoBingoSource],
       ]);
     }
     return SettingsGroup(
       children: [
         AppStepper(
-          label: 'Spielzeit in Minuten',
+          label: texts.playTimeMinutes,
           value: s.minutes,
           min: s.minMinutes,
           max: s.maxMinutes,
           onStep: controller.changeGeoBingoMinutes,
         ),
-        const Hint('Wer zuerst eine Reihe voll hat, gewinnt. Sonst nach Ablauf der Zeit, wer die meisten Felder hat.'),
-        const Hint(_sourceHint),
+        Hint(texts.geoBingoRules),
+        Hint(texts.geoBingoSource),
       ],
     );
   }
@@ -52,7 +51,7 @@ List<Widget> _running(AppController controller, RoomView room, GeoBingoView game
   return [
     Row(
       children: [
-        Expanded(child: GameLabel('Geo-Bingo · ${game.place}')),
+        Expanded(child: GameLabel(texts.geoBingoPlace(game.place))),
         if (deadline != null) Countdown(deadline, clock: true),
       ],
     ),
@@ -61,7 +60,7 @@ List<Widget> _running(AppController controller, RoomView room, GeoBingoView game
       key: ValueKey('street-${room.round}'),
       child: StreetView(start: (lat: game.lat, lng: game.lng), controller: controller.streetView),
     ),
-    const Hint('Schau dich um. Siehst du ein Motiv, dreh es in die Mitte und tipp auf das Feld.'),
+    Hint(texts.geoBingoLookAround),
     _Board(game: game, playerId: me, onClaim: controller.claimGeoBingoField),
     ..._news(room, game),
     ActionColumn(children: [endOrLeave(controller, room)]),
@@ -71,24 +70,24 @@ List<Widget> _running(AppController controller, RoomView room, GeoBingoView game
 List<Widget> _result(AppController controller, RoomView room, GeoBingoView game) {
   final winners = game.winnerIds;
   final title = switch (winners.length) {
-    0 => 'Niemand hat etwas gefunden',
-    1 => '${room.nameOf(winners.first)} gewinnt!',
-    _ => 'Gleichstand: ${winners.map(room.nameOf).join(' und ')}',
+    0 => texts.geoBingoNothingFound,
+    1 => texts.wins(room.nameOf(winners.first)),
+    _ => texts.tie(winners.map(room.nameOf).join(texts.and)),
   };
   final lead = game.winningLine != null
-      ? 'Mit einer vollen Reihe.'
-      : 'Die Zeit ist um. ${winners.isEmpty ? '' : 'Mit ${game.fieldsOf(winners.first).length} Feldern.'}';
+      ? texts.geoBingoFullRow
+      : '${texts.timeIsUp}${winners.isEmpty ? '' : ' ${texts.withFields(game.fieldsOf(winners.first).length)}'}';
   final shown = winners.isEmpty ? room.you.id : winners.first;
   return [
-    PhaseHead(label: 'Geo-Bingo · ${game.place}', title: title, lead: lead),
+    PhaseHead(label: texts.geoBingoPlace(game.place), title: title, lead: lead),
     _Board(game: game, playerId: shown, highlight: game.winningLine ?? const []),
     _Scores(room: room, game: game),
     ActionColumn(
       children: afterRound(
         controller,
         room,
-        againLabel: 'Neue Stadt',
-        waitingText: 'Alle sind bereit. Die Spielleitung kann eine neue Stadt starten.',
+        againLabel: texts.newCity,
+        waitingText: texts.allReadyHostNewCity,
       ),
     ),
   ];
@@ -100,7 +99,7 @@ List<Widget> _news(RoomView room, GeoBingoView game) => [
     Hint.rich([
       Strong(room.nameOf(d.playerId)),
       ': ${game.board[d.field]} ',
-      Strong(d.accepted ? 'bestätigt' : 'abgelehnt'),
+      Strong(d.accepted ? texts.confirmed : texts.rejected),
     ]),
   _Scores(room: room, game: game),
 ];
@@ -154,9 +153,9 @@ class _Vote extends StatelessWidget {
               Expanded(
                 child: RichLine([
                   Strong(room.nameOf(claim.playerId)),
-                  ' hat ',
+                  texts.claimHas,
                   Strong(game.board[claim.field]),
-                  ' gefunden. Stimmt das?',
+                  texts.claimFound,
                 ]),
               ),
               if (deadline != null) Countdown(deadline),
@@ -167,10 +166,10 @@ class _Vote extends StatelessWidget {
             spacing: 10,
             children: [
               Expanded(
-                child: AppButton.primary('Ja, stimmt', onPressed: () => controller.voteGeoBingo(claim.id, true)),
+                child: AppButton.primary(texts.yesCorrect, onPressed: () => controller.voteGeoBingo(claim.id, true)),
               ),
               Expanded(
-                child: AppButton('Nein', onPressed: () => controller.voteGeoBingo(claim.id, false)),
+                child: AppButton(texts.no, onPressed: () => controller.voteGeoBingo(claim.id, false)),
               ),
             ],
           ),
@@ -203,7 +202,7 @@ class _Board extends StatelessWidget {
         child: Opacity(
           opacity: claim != null && pending != null && !waiting ? 0.45 : 1,
           child: Pressable(
-            semanticLabel: '$motif${done ? ', gefunden' : waiting ? ', wird geprüft' : ''}',
+            semanticLabel: '$motif${done ? ', ${texts.found}' : waiting ? ', ${texts.beingChecked}' : ''}',
             selected: done,
             onPressed: claim == null || done || pending != null ? null : () => claim(field),
             child: Container(

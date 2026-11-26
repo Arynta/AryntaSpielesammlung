@@ -6,6 +6,7 @@ import 'package:flutter/widgets.dart';
 
 import '../../../data/services/storage/storage_base.dart';
 import '../../../data/repositories/game_data.dart';
+import '../../../l10n/l10n.dart';
 import '../../../domain/rules/local_games.dart' as rules;
 import '../../../domain/models/models.dart';
 import 'local_setup.dart';
@@ -145,10 +146,10 @@ class LocalController extends ChangeNotifier {
     s.names[seat] = name;
   });
 
-  void toggleCategory(String name, bool selected) => configure(
+  void toggleCategory(String id, bool selected) => configure(
     (s) => s.categories = [
-      for (final c in gameData.categoryNames)
-        if (c == name ? selected : s.categories.contains(c)) c,
+      for (final c in gameData.categoryIds)
+        if (c == id ? selected : s.categories.contains(c)) c,
     ],
   );
 
@@ -227,11 +228,11 @@ class LocalController extends ChangeNotifier {
   }
 
   Future<void> revealImpostor() =>
-      _confirmThen('Auflösen? Danach sehen alle, wer Impostor war.', 'Ja, auflösen', () => stage = Stage.reveal);
+      _confirmThen(texts.confirmReveal, texts.confirmRevealYes, () => stage = Stage.reveal);
 
   Future<void> showOverview() => _confirmThen(
-    'Nur die Spielleitung darf jetzt hinschauen. Alle Rollen zeigen?',
-    'Ja, zeigen',
+    texts.confirmShowOverview,
+    texts.confirmShowOverviewYes,
     () => overviewOpen = true,
   );
 
@@ -241,7 +242,7 @@ class LocalController extends ChangeNotifier {
   }
 
   Future<void> redeal() =>
-      _confirmThen('Rollen neu verteilen? Das Handy geht dann wieder reihum.', 'Ja, neu verteilen', startRound);
+      _confirmThen(texts.confirmRedeal, texts.confirmRedealYes, startRound);
 
   /// Zurück zu den Einstellungen. Mitten in einer Runde erst nachfragen.
   Future<void> backToSetup() async {
@@ -250,7 +251,7 @@ class LocalController extends ChangeNotifier {
       _changed();
       return;
     }
-    await _confirmThen('Runde abbrechen und zurück zu den Einstellungen?', 'Ja, abbrechen', _toSetup);
+    await _confirmThen(texts.confirmCancelRound, texts.confirmCancelRoundYes, _toSetup);
   }
 
   void _toSetup() {
@@ -259,7 +260,7 @@ class LocalController extends ChangeNotifier {
   }
 
   Future<void> quit() async {
-    if (stage == Stage.setup || await confirm('Lokales Spiel beenden?', 'Ja, beenden')) {
+    if (stage == Stage.setup || await confirm(texts.confirmQuitLocal, texts.confirmBackToLobbyYes)) {
       if (!_disposed) exit();
     }
   }
@@ -329,7 +330,7 @@ class LocalController extends ChangeNotifier {
   /// Tipp steht, Handy weitergeben. Nach dem Letzten wird aufgelöst.
   void finishGuess() {
     if (fib!.guesses[index] == null) {
-      toast('Tippe zuerst auf eine Antwort.');
+      toast(texts.toastPickAnswer);
       return;
     }
     index++;

@@ -2,6 +2,7 @@
 import 'package:material_ui/material_ui.dart';
 
 import '../../../../data/repositories/game_data.dart';
+import '../../../../l10n/l10n.dart';
 import '../../themes/theme.dart';
 import '../widgets.dart';
 
@@ -41,6 +42,7 @@ class ImpostorForm {
     required this.seesCategory,
     required this.randomStartPlayer,
     required this.allCategories,
+    required this.categoryNames,
     required this.selectedCategories,
     required this.categoryHint,
   });
@@ -48,17 +50,25 @@ class ImpostorForm {
   final int maxImpostorCount;
   final bool seesCategory;
   final bool randomStartPlayer;
+  /// IDs, dazu [categoryNames] in derselben Reihenfolge.
   final List<String> allCategories;
+  final List<String> categoryNames;
   final List<String> selectedCategories;
   final String categoryHint;
 
+  String nameOf(String id) => categoryNames[allCategories.indexOf(id)];
+
   List<List<Object>> get summary => [
-    ['Anzahl Impostor: ', Strong('$impostorCount')],
-    ['Impostor sieht die Kategorie: ', Strong(seesCategory ? 'an' : 'aus')],
-    ['Startspieler auslosen: ', Strong(randomStartPlayer ? 'an' : 'aus')],
+    ['${texts.impostorCount}: ', Strong('$impostorCount')],
+    ['${texts.impostorSeesCategory}: ', Strong(seesCategory ? texts.on : texts.off)],
+    ['${texts.randomStartPlayer}: ', Strong(randomStartPlayer ? texts.on : texts.off)],
     [
-      'Kategorien: ',
-      Strong(selectedCategories.length == allCategories.length ? 'alle' : selectedCategories.join(', ')),
+      '${texts.categories}: ',
+      Strong(
+        selectedCategories.length == allCategories.length
+            ? texts.categoriesAll
+            : selectedCategories.map(nameOf).join(', '),
+      ),
     ],
   ];
 }
@@ -77,7 +87,7 @@ class ImpostorOptionsView extends StatelessWidget {
   final ValueChanged<int> onCount;
   final ValueChanged<bool> onSeesCategory;
   final ValueChanged<bool> onRandomStart;
-  final void Function(String name, bool selected) onCategory;
+  final void Function(String id, bool selected) onCategory;
 
   @override
   Widget build(BuildContext context) {
@@ -87,32 +97,32 @@ class ImpostorOptionsView extends StatelessWidget {
         SettingsGroup(
           children: [
             AppStepper(
-              label: 'Anzahl Impostor',
+              label: texts.impostorCount,
               value: form.impostorCount,
               min: 1,
               max: form.maxImpostorCount,
               onStep: onCount,
             ),
-            AppCheck(value: form.seesCategory, onChanged: onSeesCategory, label: 'Impostor sieht die Kategorie'),
-            AppCheck(value: form.randomStartPlayer, onChanged: onRandomStart, label: 'Startspieler auslosen'),
+            AppCheck(value: form.seesCategory, onChanged: onSeesCategory, label: texts.impostorSeesCategory),
+            AppCheck(value: form.randomStartPlayer, onChanged: onRandomStart, label: texts.randomStartPlayer),
           ],
         ),
         SettingsGroup(
           children: [
-            const Text('Kategorien', style: TextStyle(fontWeight: FontWeight.w700)),
+            Text(texts.categories, style: const TextStyle(fontWeight: FontWeight.w700)),
             AutoGrid(
               minWidth: 152,
               children: [
-                for (final name in form.allCategories)
+                for (final id in form.allCategories)
                   AppCheck(
-                    key: ValueKey(name),
-                    value: selected.contains(name),
+                    key: ValueKey(id),
+                    value: selected.contains(id),
                     bold: false,
-                    label: name,
+                    label: form.nameOf(id),
                     // Die letzte angekreuzte Kategorie lässt sich nicht abwählen, ohne Kategorie gäbe es kein Wort
-                    onChanged: selected.contains(name) && selected.length == 1
+                    onChanged: selected.contains(id) && selected.length == 1
                         ? null
-                        : (value) => onCategory(name, value),
+                        : (value) => onCategory(id, value),
                   ),
               ],
             ),
@@ -143,9 +153,12 @@ class WerwolfForm {
   List<List<Object>> get summary {
     final roles = selectedRoles.map((id) => gameData.roleById(id).name).join(', ');
     return [
-      ['Werwölfe: ', Strong('$effectiveWerewolfCount${werewolfCount == null ? ' (automatisch)' : ''}')],
-      ['Sonderrollen: ', Strong(roles.isEmpty ? 'keine' : roles)],
-      if (hostIsGameMaster == true) ['Die Spielleitung spielt nicht mit.'],
+      [
+        '${texts.werewolves}: ',
+        Strong(werewolfCount == null ? texts.werewolvesAuto(effectiveWerewolfCount) : '$effectiveWerewolfCount'),
+      ],
+      ['${texts.specialRoles}: ', Strong(roles.isEmpty ? texts.none : roles)],
+      if (hostIsGameMaster == true) [texts.gameMasterSitsOut],
     ];
   }
 }
@@ -176,30 +189,30 @@ class WerwolfOptionsView extends StatelessWidget {
         if (gameMaster != null)
           SettingsGroup(
             children: [
-              AppCheck(value: gameMaster, onChanged: onGameMaster, label: 'Ich leite das Spiel und spiele nicht mit'),
-              const Hint('Die Spielleitung sieht dann alle Rollen.'),
+              AppCheck(value: gameMaster, onChanged: onGameMaster, label: texts.iAmGameMaster),
+              Hint(texts.gameMasterSeesRoles),
             ],
           ),
         SettingsGroup(
           children: [
             AppStepper(
-              label: 'Werwölfe',
+              label: texts.werewolves,
               value: form.effectiveWerewolfCount,
               min: 1,
               max: maxPlayers - 1,
               onStep: onCount,
             ),
             form.werewolfCount == null
-                ? const Hint('Automatisch: 1 Werwolf pro 4 Spieler.')
+                ? Hint(texts.werewolvesAutoHint)
                 : Align(
                     alignment: Alignment.centerLeft,
-                    child: AppButton('Wieder automatisch', small: true, onPressed: onAuto),
+                    child: AppButton(texts.werewolvesBackToAuto, small: true, onPressed: onAuto),
                   ),
           ],
         ),
         SettingsGroup(
           children: [
-            const Text('Sonderrollen', style: TextStyle(fontWeight: FontWeight.w700)),
+            Text(texts.specialRoles, style: const TextStyle(fontWeight: FontWeight.w700)),
             for (final team in gameData.teamNames.entries)
               Container(
                 key: ValueKey(team.key),
@@ -229,7 +242,7 @@ class WerwolfOptionsView extends StatelessWidget {
                   ],
                 ),
               ),
-            const Hint('Jede Rolle gibt es einmal. Alle übrigen Spieler sind Dorfbewohner.'),
+            Hint(texts.specialRolesHint),
           ],
         ),
       ],
@@ -243,9 +256,9 @@ List<List<Object>> tabuSummary({
   required int teamCount,
   required bool autoTeams,
 }) => [
-  ['Sekunden pro Zug: ', Strong('$turnSeconds')],
-  ['Punkte bis zum Sieg: ', Strong('$targetScore')],
-  ['Teams: ', Strong('$teamCount'), ', ${autoTeams ? 'automatisch gemischt' : 'selbst gewählt'}'],
+  ['${texts.turnSeconds}: ', Strong('$turnSeconds')],
+  ['${texts.targetScore}: ', Strong('$targetScore')],
+  ['${texts.teams}: ', Strong('$teamCount'), ', ${autoTeams ? texts.teamsMixed : texts.teamsChosen}'],
 ];
 
 class TabuOptionsView extends StatelessWidget {
@@ -276,14 +289,14 @@ class TabuOptionsView extends StatelessWidget {
       SettingsGroup(
         children: [
           AppStepper(
-            label: 'Sekunden pro Zug',
+            label: texts.turnSeconds,
             value: turnSeconds,
             min: Tabu.minTurnSeconds,
             max: Tabu.maxTurnSeconds,
             onStep: onTurnSeconds,
           ),
           AppStepper(
-            label: 'Punkte bis zum Sieg',
+            label: texts.targetScore,
             value: targetScore,
             min: Tabu.minTargetScore,
             max: Tabu.maxTargetScore,
@@ -293,12 +306,10 @@ class TabuOptionsView extends StatelessWidget {
       ),
       SettingsGroup(
         children: [
-          AppStepper(label: 'Teams', value: teamCount, min: Tabu.minTeams, max: Tabu.maxTeams, onStep: onTeamCount),
-          AppCheck(value: autoTeams, onChanged: onAutoTeams, label: 'Teams automatisch mischen'),
+          AppStepper(label: texts.teams, value: teamCount, min: Tabu.minTeams, max: Tabu.maxTeams, onStep: onTeamCount),
+          AppCheck(value: autoTeams, onChanged: onAutoTeams, label: texts.teamsAutoMix),
           Hint(
-            autoTeams
-                ? 'Beim Start werden die Teams zufällig und gleich groß gemischt.'
-                : 'Jeder wählt sein Team selbst.',
+            autoTeams ? texts.teamsAutoMixHint : texts.teamsChosenHint,
           ),
         ],
       ),
@@ -316,13 +327,13 @@ class NobodyIsPerfectOptionsView extends StatelessWidget {
   Widget build(BuildContext context) => SettingsGroup(
     children: [
       AppStepper(
-        label: 'Fragen',
+        label: texts.questions,
         value: questionCount,
         min: NobodyIsPerfectRules.minQuestions,
         max: NobodyIsPerfectRules.maxQuestions,
         onStep: onCount,
       ),
-      const Hint('Richtig getippt: 1 Punkt. Für jeden, der auf deine erfundene Antwort hereinfällt: 1 Punkt.'),
+      Hint(texts.nobodyIsPerfectScoringHint),
     ],
   );
 }

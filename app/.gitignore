@@ -49,3 +49,6 @@ app.*.map.json
 
 # Kopien aus dem Rest des Projekts, siehe tool/sync_assets.dart
 /assets/game/
+
+# Erzeugt Flutter aus lib/l10n/*.arb (flutter pub get, run, test und build)
+/lib/l10n/app_localizations*.dart

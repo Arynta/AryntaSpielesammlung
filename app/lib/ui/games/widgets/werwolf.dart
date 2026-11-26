@@ -3,6 +3,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../core/view_model/app_controller.dart';
 import '../../../domain/models/models.dart';
+import '../../../l10n/l10n.dart';
 import '../../core/widgets/players.dart';
 import '../../core/widgets/shared.dart';
 import '../../core/widgets/widgets.dart';
@@ -12,11 +13,9 @@ List<Widget> werwolfView(AppController controller, RoomView room, WerwolfView we
   final role = werwolf.role;
   return [
     PhaseHead(
-      label: 'Werwolf',
-      title: '${night ? 'Nacht' : 'Tag'} ${room.round}',
-      lead: night
-          ? 'Alle schließen die Augen. Die Spielleitung ruft die Rollen nacheinander auf.'
-          : 'Diskutiert, wer ein Werwolf sein könnte, und stimmt ab.',
+      label: texts.werwolf,
+      title: night ? texts.werwolfNight(room.round) : texts.werwolfDay(room.round),
+      lead: night ? texts.werwolfNightLead : texts.werwolfDayLead,
     ),
     if (werwolf.gameMaster)
       RoleOverview(
@@ -27,17 +26,17 @@ List<Widget> werwolfView(AppController controller, RoomView room, WerwolfView we
       SecretCard(
         key: const ValueKey('secret'),
         tone: CardTone.forTeam(role.team),
-        what: 'um deine Rolle zu sehen',
+        what: texts.toSeeYourRole,
         content: RoleCardContent(role: role, knownWolves: werwolf.knownWolves, leftoverRoles: werwolf.leftoverRoles),
       ),
     PlayerList(room: room),
     ActionColumn(
       children: [
         if (room.you.host) ...[
-          AppButton.primary(night ? 'Weiter zum Tag' : 'Weiter zur Nacht', onPressed: controller.nextPhase),
-          AppButton.quiet('Spiel beenden', onPressed: controller.backToLobby),
+          AppButton.primary(night ? texts.toDay : texts.toNight, onPressed: controller.nextPhase),
+          AppButton.quiet(texts.endGame, onPressed: controller.backToLobby),
         ] else
-          AppButton.quiet('Raum verlassen', onPressed: controller.leave),
+          AppButton.quiet(texts.leaveRoom, onPressed: controller.leave),
       ],
     ),
   ];

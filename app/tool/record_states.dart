@@ -90,17 +90,21 @@ Future<void> main(List<String> args) async {
   all = [for (final n in names) await Client.connect(url, n)];
   final [host, ben, ...rest] = all;
 
-  await act(host, ClientMessage.create(host.name));
+  await act(host, ClientMessage.create(host.name, Language.de));
   for (final c in [ben, ...rest]) {
-    await act(c, ClientMessage.join(host.code, c.name));
+    await act(c, ClientMessage.join(host.code, c.name, Language.de));
   }
-  await act(ben, ClientMessage.rejoin(host.code, ben.secret));
+  await act(ben, ClientMessage.rejoin(host.code, ben.secret, Language.de));
+  // Jeder sieht die Lobby in seiner Sprache
+  await act(ben, ClientMessage.setLanguage(Language.en));
+  check(ben.room.games.first.name == 'Werewolf' && host.room.games.first.name == 'Werwolf', 'Sprache pro Spieler');
+  await act(ben, ClientMessage.setLanguage(Language.de));
   await act(host, ClientMessage.setPlayerLimit(8));
   check(host.room.playerLimit.value == 8, 'Spielerlimit');
 
   // ---- Impostor ----
   await act(host, ClientMessage.setImpostorOptions(impostorCount: 1, randomStartPlayer: true));
-  await act(host, ClientMessage.setImpostorCategories(['Tiere', 'Orte']));
+  await act(host, ClientMessage.setImpostorCategories(['animals', 'places']));
   await act(host, ClientMessage.configureImpostor(impostorSeesCategory: true, customWord: ''));
   keep('lobby_impostor_host', host);
   keep('lobby_impostor_guest', ben);

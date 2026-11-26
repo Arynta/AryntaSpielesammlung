@@ -3,6 +3,7 @@ import 'package:flutter/gestures.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../../data/services/device/device.dart' as device;
+import '../../../l10n/l10n.dart';
 import '../../core/themes/theme.dart';
 import '../../core/widgets/widgets.dart';
 
@@ -38,7 +39,7 @@ class LegalScaffold extends StatelessWidget {
                         alignment: Alignment.centerLeft,
                         child: Builder(
                           builder: (context) => LinkText(
-                            'Zurück zum Spiel',
+                            texts.backToGame,
                             onTap: () => Navigator.of(context).popUntil((route) => route.isFirst),
                           ),
                         ),
@@ -158,6 +159,6 @@ class LegalBullets extends StatelessWidget {
 LegalLink mailLink(BuildContext context) => LegalLink(_mail, () async {
   final messenger = ScaffoldMessenger.of(context);
   if (!await device.writeMail(_mail)) {
-    messenger.showSnackBar(const SnackBar(content: Text('E-Mail-Adresse kopiert')));
+    messenger.showSnackBar(SnackBar(content: Text(texts.emailCopied)));
   }
 });

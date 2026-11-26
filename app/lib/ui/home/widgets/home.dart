@@ -7,6 +7,7 @@ import '../../../data/services/connection.dart';
 import '../../core/widgets/showcase.dart';
 import '../../core/themes/theme.dart';
 import '../../core/widgets/widgets.dart';
+import '../../../l10n/l10n.dart';
 
 class _UpperCase extends TextInputFormatter {
   @override
@@ -26,7 +27,7 @@ List<Widget> homeView(BuildContext context, AppController controller) {
     GameHero(
       key: const ValueKey('home-head'),
       title: 'Arynta',
-      text: 'Spieleabend mit Freunden. Jeder spielt am eigenen Handy, gesprochen wird am Tisch.',
+      text: texts.homeIntro,
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 448),
         child: Gap(
@@ -34,17 +35,17 @@ List<Widget> homeView(BuildContext context, AppController controller) {
           children: [
             AppField(
               key: const ValueKey('name'),
-              label: 'Dein Name',
+              label: texts.yourName,
               controller: controller.nameInput,
               focusNode: controller.nameFocus,
-              hint: 'z. B. Anna',
+              hint: texts.yourNameHint,
               maxLength: 20,
               capitalization: TextCapitalization.words,
               autofillHints: const [AutofillHints.nickname],
               onSubmitted: controller.submitName,
             ),
-            AppButton.primary('Neuen Raum erstellen', onPressed: online ? controller.create : null),
-            or('oder einem Raum beitreten'),
+            AppButton.primary(texts.createRoom, onPressed: online ? controller.create : null),
+            or(texts.orJoinRoom),
             Row(
               key: const ValueKey('join'),
               crossAxisAlignment: CrossAxisAlignment.end,
@@ -52,7 +53,7 @@ List<Widget> homeView(BuildContext context, AppController controller) {
               children: [
                 Expanded(
                   child: AppField(
-                    label: 'Raumcode',
+                    label: texts.roomCode,
                     controller: controller.codeInput,
                     hint: 'K7QX',
                     maxLength: 4,
@@ -63,7 +64,7 @@ List<Widget> homeView(BuildContext context, AppController controller) {
                     onSubmitted: online ? controller.join : null,
                   ),
                 ),
-                AppButton('Beitreten', onPressed: online ? controller.join : null),
+                AppButton(texts.join, onPressed: online ? controller.join : null),
               ],
             ),
           ],
@@ -75,6 +76,6 @@ List<Widget> homeView(BuildContext context, AppController controller) {
 
 List<Widget> reconnectingView(AppController controller) => [
   const ScreenTitle('Arynta'),
-  Lead.rich(['Du kommst zurück in Raum ', Strong(controller.session!.code), ' …']),
-  AppButton.quiet('Abbrechen', onPressed: controller.leave),
+  Lead.rich([texts.rejoiningBefore, Strong(controller.session!.code), texts.rejoiningAfter]),
+  AppButton.quiet(texts.cancel, onPressed: controller.leave),
 ];

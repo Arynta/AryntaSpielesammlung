@@ -65,7 +65,7 @@ void main() {
     await tap(tester, find.text('Essen und Trinken'));
     expect(app.link.sent.last, {
       'type': 'setImpostorCategories',
-      'categories': ['Tiere', 'Essen und Trinken', 'Orte'],
+      'categories': ['animals', 'food', 'places'],
     });
   });
 

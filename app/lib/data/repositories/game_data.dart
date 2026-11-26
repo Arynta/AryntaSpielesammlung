@@ -1,10 +1,11 @@
 // Wörter und Rollen kommen aus denselben Dateien wie im Backend, damit es nur eine Liste gibt
-// (tool/sync_assets.dart kopiert sie nach assets/game/).
+// (tool/sync_assets.dart kopiert sie nach assets/game/). Jede Datei gibt es auf Deutsch und mit -en auf Englisch.
 import 'dart:convert';
 
 import 'package:flutter/services.dart';
 
 import '../../domain/models/models.dart';
+import '../../l10n/l10n.dart';
 
 class RoleData {
   RoleData.fromJson(Json j)
@@ -27,7 +28,13 @@ class RoleData {
 }
 
 class WordCategory {
-  WordCategory.fromJson(Json j) : name = j['name'] as String, words = List<String>.from(j['words'] as List);
+  WordCategory.fromJson(Json j)
+    : id = j['id'] as String,
+      name = j['name'] as String,
+      words = List<String>.from(j['words'] as List);
+
+  /// Gleich in allen Sprachen.
+  final String id;
   final String name;
   final List<String> words;
 }
@@ -54,7 +61,9 @@ class GameData {
   final List<TabuCard> tabuCards;
   final List<NobodyIsPerfectQuestion> questions;
 
-  List<String> get categoryNames => [for (final c in categories) c.name];
+  List<String> get categoryIds => [for (final c in categories) c.id];
+
+  String categoryName(String id) => categories.firstWhere((c) => c.id == id).name;
 
   /// Rollen zum Ankreuzen. Dorfbewohner füllen auf, Werwölfe werden gezählt.
   List<RoleData> get specialRoles => [
@@ -74,20 +83,28 @@ class GameData {
   );
 
   /// [read] liefert den Inhalt einer Datei aus assets/game/.
-  static Future<GameData> load([Future<String> Function(String file)? read]) async {
+  static Future<GameData> load(Language language, [Future<String> Function(String file)? read]) async {
     final load = read ?? (String file) => rootBundle.loadString('assets/game/$file');
-    Future<Json> json(String file) async => jsonDecode(await load(file)) as Json;
+    final suffix = language == Language.de ? '' : '-${language.wire}';
+    Future<Json> json(String name) async => jsonDecode(await load('$name$suffix.json')) as Json;
     return GameData(
-      roleFile: await json('werwolf-roles.json'),
-      wordFile: await json('impostor-words.json'),
-      cardFile: await json('tabu-cards.json'),
-      questionFile: await json('nobody-is-perfect-questions.json'),
+      roleFile: await json('werwolf-roles'),
+      wordFile: await json('impostor-words'),
+      cardFile: await json('tabu-cards'),
+      questionFile: await json('nobody-is-perfect-questions'),
     );
   }
+
+  static Future<Map<Language, GameData>> loadAll([Future<String> Function(String file)? read]) async => {
+    for (final language in Language.values) language: await load(language, read),
+  };
 }
 
-/// Wird beim Start einmal gefüllt (main.dart bzw. Tests).
-late GameData gameData;
+/// Spieldaten je Sprache. Wird beim Start einmal gefüllt (main.dart bzw. Tests).
+late Map<Language, GameData> gameDataByLanguage;
+
+/// Daten in der Sprache der Oberfläche. Danach richten sich Rollen, Wörter und Karten im lokalen Modus.
+GameData get gameData => gameDataByLanguage[appLanguage]!;
 
 const villager = 'DORFBEWOHNER';
 const werewolf = 'WERWOLF';
@@ -114,7 +131,6 @@ const maxCustomWordLength = 30;
 
 // Gleiche Werte wie im Backend (TabuOptions, TabuGame)
 abstract final class Tabu {
-  static const teamNames = ['Team Rot', 'Team Blau', 'Team Grün', 'Team Gelb'];
   static const minTurnSeconds = 30;
   static const maxTurnSeconds = 180;
   static const turnSecondsStep = 15;

@@ -2,8 +2,8 @@
 import 'package:material_ui/material_ui.dart';
 
 import '../../core/view_model/app_controller.dart';
-import '../../../data/repositories/game_data.dart';
 import '../../../domain/models/models.dart';
+import '../../../l10n/l10n.dart';
 import '../../core/widgets/players.dart';
 import '../../core/widgets/shared.dart';
 import '../../core/widgets/widgets.dart';
@@ -26,7 +26,7 @@ class TeamChoice extends StatelessWidget {
     return Gap(
       spacing: 8,
       children: [
-        const SectionTitle('Teams'),
+        SectionTitle(texts.teams),
         AutoGrid(
           minWidth: 144,
           spacing: 12,
@@ -41,7 +41,7 @@ class TeamChoice extends StatelessWidget {
                 child: Gap(
                   spacing: 8,
                   children: [
-                    SectionTitle(Tabu.teamNames[team], count: '${settings.teams[team].length}'),
+                    SectionTitle(tabuTeamNames[team], count: '${settings.teams[team].length}'),
                     Gap(
                       spacing: 0,
                       children: [
@@ -51,11 +51,11 @@ class TeamChoice extends StatelessWidget {
                             child: Row(
                               spacing: 6,
                               children: [
-                                Expanded(child: Text('${room.nameOf(id)}${id == room.you.id ? ' (du)' : ''}')),
+                                Expanded(child: Text('${room.nameOf(id)}${id == room.you.id ? ' (${texts.noteYou})' : ''}')),
                                 if (room.you.host)
                                   IconSquare(
                                     icon: Icons.swap_horiz,
-                                    semanticLabel: '${room.nameOf(id)} ins nächste Team',
+                                    semanticLabel: texts.moveToNextTeam(room.nameOf(id)),
                                     onPressed: () => controller.moveToNextTeam(id),
                                   ),
                               ],
@@ -64,13 +64,13 @@ class TeamChoice extends StatelessWidget {
                       ],
                     ),
                     if (!settings.teams[team].contains(room.you.id))
-                      AppButton('Hier rein', small: true, onPressed: () => controller.chooseTeam(team)),
+                      AppButton(texts.joinThisTeam, small: true, onPressed: () => controller.chooseTeam(team)),
                   ],
                 ),
               ),
           ],
         ),
-        if (unassigned.isNotEmpty) Hint('Noch ohne Team: ${unassigned.join(', ')}'),
+        if (unassigned.isNotEmpty) Hint(texts.withoutTeam(unassigned.join(', '))),
       ],
     );
   }
@@ -118,15 +118,15 @@ class TurnButtons extends StatelessWidget {
     spacing: 12,
     children: [
       Expanded(
-        child: AppButton.primary('Richtig', icon: Icons.check, onPressed: onCorrect),
+        child: AppButton.primary(texts.correct, icon: Icons.check, onPressed: onCorrect),
       ),
-      Expanded(child: AppButton('Überspringen', onPressed: onSkip)),
+      Expanded(child: AppButton(texts.skip, onPressed: onSkip)),
     ],
   );
 }
 
 List<Widget> tabuView(AppController controller, RoomView room, TabuView game) {
-  final label = 'Tabu · Zug ${room.round}';
+  final label = texts.tabuTurnLabel(room.round);
   final teamNames = [for (final t in game.teams) t.name];
   final scoreboard = Scoreboard(
     teams: [for (final t in game.teams) (name: t.name, score: t.score)],
@@ -134,15 +134,15 @@ List<Widget> tabuView(AppController controller, RoomView room, TabuView game) {
     targetScore: game.targetScore,
   );
   final leave = endOrLeave(controller, room);
-  final lastTurn = TurnResults(title: 'Letzter Zug', results: game.lastTurn, teamNames: teamNames);
+  final lastTurn = TurnResults(title: texts.lastTurn, results: game.lastTurn, teamNames: teamNames);
 
   final winner = game.winnerTeam;
   if (winner != null) {
     return [
       GameLabel(label),
       PhaseHead(
-        title: '${teamNames[winner]} gewinnt!',
-        lead: game.yourTeam == winner ? 'Glückwunsch, ihr habt es geschafft.' : 'Knapp daneben ist auch vorbei.',
+        title: texts.wins(teamNames[winner]),
+        lead: game.yourTeam == winner ? texts.tabuYouWon : texts.tabuYouLost,
       ),
       scoreboard,
       if (game.lastTurn.isNotEmpty) lastTurn,
@@ -150,8 +150,8 @@ List<Widget> tabuView(AppController controller, RoomView room, TabuView game) {
         children: afterRound(
           controller,
           room,
-          againLabel: 'Nochmal spielen',
-          waitingText: 'Alle sind bereit. Die Spielleitung kann neu starten.',
+          againLabel: texts.playAgain,
+          waitingText: texts.allReadyHostCanRestart,
         ),
       ),
     ];
@@ -167,17 +167,17 @@ List<Widget> tabuView(AppController controller, RoomView room, TabuView game) {
     return [
       GameLabel(label),
       PhaseHead(
-        title: '${teamNames[game.currentTeam]} ist dran',
+        title: texts.isUp(teamNames[game.currentTeam]),
         leadParts: youExplain
-            ? ['Du erklärst! Starte die Uhr, wenn dein Team bereit ist.']
+            ? [texts.youExplain]
             : youWatch
-            ? ['Du passt auf $explainer auf und hast den Buzzer.']
-            : [Strong(explainer), ' erklärt, ', Strong(watcher), ' passt auf.'],
+            ? [texts.youWatch(explainer)]
+            : [Strong(explainer), texts.explainsComma, Strong(watcher), texts.watchesSuffix],
       ),
       if (youExplain)
-        ActionColumn(children: [AppButton.primary('Uhr starten', onPressed: controller.startTurn)])
+        ActionColumn(children: [AppButton.primary(texts.startClock, onPressed: controller.startTurn)])
       else if (room.you.host && !explainerOnline)
-        ActionColumn(children: [AppButton('Für $explainer starten', onPressed: controller.startTurn)]),
+        ActionColumn(children: [AppButton(texts.startFor(explainer), onPressed: controller.startTurn)]),
       scoreboard,
       if (game.lastTurn.isNotEmpty) lastTurn,
       ActionColumn(children: [leave]),
@@ -193,13 +193,13 @@ List<Widget> tabuView(AppController controller, RoomView room, TabuView game) {
       TurnButtons(onCorrect: controller.wordCorrect, onSkip: controller.wordSkip),
     ] else if (youWatch && card != null) ...[
       ForbiddenCard(card),
-      AppButton('Verboten!', kind: ButtonStyleKind.danger, onPressed: controller.buzz),
-      Hint('Drück, wenn $explainer ein verbotenes Wort, einen Teil davon oder eine Geste benutzt.'),
+      AppButton(texts.forbidden, kind: ButtonStyleKind.danger, onPressed: controller.buzz),
+      Hint(texts.buzzWhen(explainer)),
     ] else if (game.yourTeam == game.currentTeam)
-      TurnText(['Rate mit! ', Strong(explainer), ' erklärt.'])
+      TurnText([texts.guessAlong, Strong(explainer), texts.explainsSuffix])
     else
-      TurnText(['${teamNames[game.currentTeam]} rät gerade. ', Strong(watcher), ' passt auf.']),
-    if (game.turnResults.isNotEmpty) TurnResults(title: 'Dieser Zug', results: game.turnResults, teamNames: teamNames),
+      TurnText([texts.teamIsGuessing(teamNames[game.currentTeam]), Strong(watcher), texts.watchesSuffix]),
+    if (game.turnResults.isNotEmpty) TurnResults(title: texts.thisTurn, results: game.turnResults, teamNames: teamNames),
     scoreboard,
     ActionColumn(children: [leave]),
   ];

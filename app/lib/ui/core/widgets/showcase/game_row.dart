@@ -3,6 +3,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../../../data/repositories/game_data.dart';
 import '../../../../domain/models/models.dart';
+import '../../../../l10n/l10n.dart';
 import '../../themes/theme.dart';
 import '../widgets.dart';
 import 'showcase_layout.dart';
@@ -68,7 +69,9 @@ class _Poster extends StatelessWidget {
       radius: 6,
       selected: selected,
       onPressed: onPressed,
-      semanticLabel: locked ? '${game.name}, bald verfügbar' : '${game.name}, ab ${game.minPlayers} Spielern',
+      semanticLabel: locked
+          ? '${game.name}, ${texts.comingSoon}'
+          : '${game.name}, ${texts.minPlayers(game.minPlayers)}',
       child: AnimatedScale(
         scale: selected ? 1.06 : 1,
         duration: context.motion(200),
@@ -135,7 +138,7 @@ class _LockedLabel extends StatelessWidget {
           style: display(width / 6, height: 1.05, color: Colors.white).copyWith(shadows: const [Shadow(blurRadius: 8)]),
         ),
         Text(
-          'Bald verfügbar',
+          texts.comingSoonTitle,
           textAlign: TextAlign.center,
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: width / 11),
         ),

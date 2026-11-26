@@ -4,6 +4,7 @@ import 'package:material_ui/material_ui.dart';
 import 'view_model/app_controller.dart';
 import '../../data/services/connection.dart';
 import '../legal/widgets/legal.dart';
+import '../../l10n/l10n.dart';
 import 'themes/theme.dart';
 import 'widgets/widgets.dart';
 
@@ -22,9 +23,7 @@ class StatusBar extends StatelessWidget {
         color: p.accent,
         padding: EdgeInsets.fromLTRB(16, 11 + MediaQuery.paddingOf(context).top, 16, 11),
         child: Text(
-          status == ConnectionStatus.waking
-              ? 'Der Server wird geweckt. Beim ersten Aufruf kann das bis zu einer Minute dauern.'
-              : 'Verbindung unterbrochen. Ich verbinde neu …',
+          status == ConnectionStatus.waking ? texts.statusWaking : texts.statusReconnecting,
           textAlign: TextAlign.center,
           style: TextStyle(color: p.onAccent, fontSize: 15),
         ),
@@ -81,9 +80,9 @@ class Footer extends StatelessWidget {
         spacing: 20,
         runSpacing: 4,
         children: [
-          link('Impressum', () => Navigator.of(context).pushNamed(impressumRoute)),
-          link('Datenschutz', () => Navigator.of(context).pushNamed(datenschutzRoute)),
-          link('Meine Daten löschen', controller.forgetDevice),
+          link(texts.footerImprint, () => Navigator.of(context).pushNamed(impressumRoute)),
+          link(texts.footerPrivacy, () => Navigator.of(context).pushNamed(datenschutzRoute)),
+          link(texts.footerForget, controller.forgetDevice),
         ],
       ),
     );

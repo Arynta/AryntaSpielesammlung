@@ -12,10 +12,11 @@ import '../../core/widgets/shared.dart';
 import '../../core/widgets/showcase.dart';
 import '../../core/themes/theme.dart';
 import '../../core/widgets/widgets.dart';
+import '../../../l10n/l10n.dart';
 
 List<Widget> lobbyView(BuildContext context, AppController controller, RoomView room) {
   final waitHint = room.canStart && !room.you.host
-      ? 'Alle sind bereit. Die Spielleitung kann starten.'
+      ? texts.allReadyHostCanStart
       : room.startHint;
   final games = [
     for (final g in room.games) (type: g.type, name: g.name, description: g.description, minPlayers: g.minPlayers),
@@ -26,7 +27,7 @@ List<Widget> lobbyView(BuildContext context, AppController controller, RoomView 
     GameHero(
       title: game.name,
       text: game.description,
-      meta: 'ab ${game.minPlayers} Spielern',
+      meta: texts.minPlayers(game.minPlayers),
       game: game.type,
       count: games.length,
       index: index,
@@ -51,9 +52,9 @@ List<Widget> lobbyView(BuildContext context, AppController controller, RoomView 
           children: [
             ReadyButton(controller, room),
             if (room.you.host)
-              AppButton.primary('Spiel starten', onPressed: room.canStart ? controller.startGame : null),
+              AppButton.primary(texts.startGame, onPressed: room.canStart ? controller.startGame : null),
             if (waitHint != null) Hint(waitHint),
-            AppButton.quiet('Raum verlassen', onPressed: controller.leave),
+            AppButton.quiet(texts.leaveRoom, onPressed: controller.leave),
           ],
         ),
       ],
@@ -78,7 +79,7 @@ class _RoomCode extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Raumcode', style: TextStyle(color: p.muted)),
+          Text(texts.roomCode, style: TextStyle(color: p.muted)),
           Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             spacing: 16,
@@ -94,7 +95,7 @@ class _RoomCode extends StatelessWidget {
                   ),
                 ),
               ),
-              AppButton('Link teilen', small: true, onPressed: controller.shareRoom),
+              AppButton(texts.shareLink, small: true, onPressed: controller.shareRoom),
             ],
           ),
         ],
@@ -126,8 +127,8 @@ class _Settings extends StatelessWidget {
         ),
         child: Row(
           children: [
-            const Expanded(
-              child: Text('Spieleinstellungen', style: TextStyle(fontWeight: FontWeight.w700)),
+            Expanded(
+              child: Text(texts.gameSettings, style: const TextStyle(fontWeight: FontWeight.w700)),
             ),
             Chevron(open: open),
           ],
@@ -148,17 +149,17 @@ class _Settings extends StatelessWidget {
     if (!room.you.host) {
       return Row(
         children: [
-          const Expanded(
-            child: Text('Spielerlimit', style: TextStyle(fontWeight: FontWeight.w700)),
+          Expanded(
+            child: Text(texts.playerLimit, style: const TextStyle(fontWeight: FontWeight.w700)),
           ),
           Text('${limit.value}', style: const TextStyle(fontWeight: FontWeight.w700)),
         ],
       );
     }
     return AppStepper(
-      label: 'Spielerlimit',
-      lessLabel: 'Limit verringern',
-      moreLabel: 'Limit erhöhen',
+      label: texts.playerLimit,
+      lessLabel: texts.playerLimitLess,
+      moreLabel: texts.playerLimitMore,
       value: limit.value,
       min: limit.min,
       max: limit.max,
@@ -197,7 +198,7 @@ class _Settings extends StatelessWidget {
         final count = room.nobodyIsPerfectSettings.questionCount;
         if (!host) {
           return SettingsSummary([
-            ['Fragen: ', Strong('$count')],
+            ['${texts.questions}: ', Strong('$count')],
           ]);
         }
         return NobodyIsPerfectOptionsView(questionCount: count, onCount: controller.changeQuestionCount);
@@ -232,10 +233,11 @@ class _Settings extends StatelessWidget {
       seesCategory: s.impostorSeesCategory,
       randomStartPlayer: s.randomStartPlayer,
       allCategories: s.allCategories,
+      categoryNames: s.categoryNames,
       selectedCategories: s.selectedCategories,
       categoryHint: s.customWordSet
-          ? 'Gilt erst wieder, wenn kein eigenes Wort gesetzt ist.'
-          : 'Das Wort kommt zufällig aus den angekreuzten Kategorien.',
+          ? texts.categoriesCustomWordHint
+          : texts.categoriesHint,
     );
   }
 
@@ -254,19 +256,19 @@ class _Settings extends StatelessWidget {
           key: const ValueKey('custom-word'),
           children: [
             AppField(
-              label: 'Eigenes Wort (optional)',
+              label: texts.customWord,
               controller: controller.customWordInput,
-              hint: 'leer lassen = Wortliste',
+              hint: texts.customWordHint,
               maxLength: maxCustomWordLength,
               onSubmitted: controller.saveWord,
             ),
             Align(
               alignment: Alignment.centerLeft,
-              child: AppButton('Wort übernehmen', small: true, onPressed: controller.saveWord),
+              child: AppButton(texts.customWordSave, small: true, onPressed: controller.saveWord),
             ),
             if (customWord != null && customWord.isNotEmpty) ...[
-              Hint.rich(['Eigenes Wort: ', Strong(customWord), '. Du spielst die nächste Runde nicht mit.']),
-              AppButton.quiet('Wort entfernen, Wortliste nehmen', onPressed: controller.clearWord),
+              Hint.rich(['${texts.customWordLabel}: ', Strong(customWord), '. ${texts.customWordSitsOut}']),
+              AppButton.quiet(texts.customWordClear, onPressed: controller.clearWord),
             ],
           ],
         ),
@@ -276,6 +278,6 @@ class _Settings extends StatelessWidget {
 
   Widget _impostorSummary() => SettingsSummary([
     ..._impostorForm().summary,
-    if (room.impostorSettings.customWordSet) ['Die Spielleitung hat ein eigenes Wort gewählt und spielt nicht mit.'],
+    if (room.impostorSettings.customWordSet) [texts.customWordSummary],
   ]);
 }
