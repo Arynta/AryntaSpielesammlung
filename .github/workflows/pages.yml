@@ -1,13 +1,11 @@
-# Baut das Frontend und stellt es auf GitHub Pages.
-# Läuft bei jedem Push auf main (auch wenn sich Wörter oder Rollen ändern), oder von Hand unter Actions → "Run workflow".
-# Die Backend-Adresse kommt aus der Repo-Variable VITE_BACKEND_URL
-# (Settings → Secrets and variables → Actions → Variables).
+# Baut die Flutter-Seite und stellt sie auf GitHub Pages.
+# Die Backend-Adresse kommt aus der Repo-Variable VITE_BACKEND_URL.
 name: GitHub Pages
 
 on:
   push:
     branches: [main]
-    paths: ["frontend/**", "backend/src/main/resources/games/**", "assets/**", ".github/workflows/pages.yml"]
+    paths: ["app/**", "backend/src/main/resources/games/**", "assets/**", ".github/workflows/pages.yml"]
   workflow_dispatch:
 
 permissions:
@@ -24,21 +22,25 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: frontend
+        working-directory: app
     steps:
       - uses: actions/checkout@v5
-      - uses: actions/setup-node@v5
+      - uses: subosito/flutter-action@v2
         with:
-          node-version: 22
-      - run: npm install
-      - run: npm test
-      - run: npm run build
-        env:
-          VITE_BACKEND_URL: ${{ vars.VITE_BACKEND_URL }}
-      - uses: actions/configure-pages@v5
+          channel: stable
+          flutter-version: 3.50.0
+      - id: pages
+        uses: actions/configure-pages@v5
+      - run: flutter pub get
+      - run: dart run tool/sync_assets.dart
+      - run: flutter test
+      - run: >
+          flutter build web --release --no-web-resources-cdn
+          --base-href "${{ steps.pages.outputs.base_path }}/"
+          --dart-define=BACKEND_URL=${{ vars.VITE_BACKEND_URL }}
       - uses: actions/upload-pages-artifact@v4
         with:
-          path: frontend/dist
+          path: app/build/web
 
   deploy:
     needs: build
