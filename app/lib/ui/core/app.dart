@@ -7,6 +7,7 @@ import '../../data/repositories/game_data.dart';
 import '../local/view_model/local_controller.dart';
 import '../../domain/models/models.dart';
 import '../games/widgets/buzzer.dart';
+import '../games/widgets/geo_bingo.dart';
 import '../games/widgets/impostor.dart';
 import '../games/widgets/nobody_is_perfect.dart';
 import '../games/widgets/tabu.dart';
@@ -226,6 +227,7 @@ class GameScreen extends StatelessWidget {
     if (room.tabu case final tabu?) return tabuView(controller, room, tabu);
     if (room.nobodyIsPerfect case final game?) return nobodyIsPerfectView(controller, room, game);
     if (room.buzzer case final buzzer?) return buzzerView(controller, room, buzzer);
+    if (room.geoBingo case final geoBingo?) return geoBingoView(controller, room, geoBingo);
     if (room.impostor case final impostor?) return impostorView(controller, room, impostor);
     return lobbyView(context, controller, room);
   }

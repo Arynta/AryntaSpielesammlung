@@ -31,5 +31,9 @@ public enum Phase {
 
     // Buzzer
     /** Die Spieler drücken, die Spielleitung gibt wieder frei. */
-    BUZZER
+    BUZZER,
+
+    // Geo-Bingo
+    /** Alle suchen Motive und stimmen über Funde ab. Danach kommt RESULT. */
+    GEO_BINGO
 }

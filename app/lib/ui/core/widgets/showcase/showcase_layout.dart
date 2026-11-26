@@ -22,6 +22,7 @@ const gameTints = {
   GameType.tabu: Color(0xFFA6561C),
   GameType.nobodyIsPerfect: Color(0xFF1F6B57),
   GameType.buzzer: Color(0xFF7A2468),
+  GameType.geoBingo: Color(0xFF2F6B3A),
 };
 
 /// Lässt das Bild ab [from] auf dem Anteil [share] ins Dunkle auslaufen, damit Titel und Spielereihe lesbar bleiben.

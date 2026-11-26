@@ -88,6 +88,21 @@ class DatenschutzScreen extends StatelessWidget {
               'Drittanbieter.',
         ]),
       ]),
+      const LegalSection('Straßenbilder bei Geo-Bingo', [
+        LegalText([
+          'Nur wenn du ',
+          Strong('Geo-Bingo'),
+          ' spielst, lädt dein Browser Straßenbilder direkt von ',
+          Strong('Mapillary'),
+          ' (gehört zu Meta Platforms Inc., USA). Dabei erhält Mapillary technisch bedingt deine IP-Adresse, '
+              'Datum, Uhrzeit, Browserkennung und welche Bilder du ansiehst. Die Software für die Anzeige liegt '
+              'auf dieser Seite und wird nicht von Mapillary geladen.',
+        ]),
+        LegalText([
+          'Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO. Unser berechtigtes Interesse ist, das Spiel mit '
+              'Straßenbildern anbieten zu können. Für die Übermittlung in die USA gilt das oben zum Hosting Gesagte.',
+        ]),
+      ]),
       Builder(
         builder: (context) => LegalSection('Deine Rechte', [
           const LegalText(['Du hast das Recht auf']),

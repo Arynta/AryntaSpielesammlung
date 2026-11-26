@@ -141,6 +141,7 @@ Widget _gameSettings(LocalController local) {
       );
     case GameType.werwolf:
     case GameType.buzzer:
+    case GameType.geoBingo:
       return WerwolfOptionsView(
         form: WerwolfForm(
           werewolfCount: setup.werewolfCount,

@@ -54,6 +54,9 @@ public class Room {
     /** Nobody-is-Perfect-Fragen, die in diesem Raum schon dran waren. */
     private final List<String> usedQuestions = new ArrayList<>();
     private boolean buzzerLockout = true;
+    private GeoBingoOptions geoBingoOptions = GeoBingoOptions.DEFAULT;
+    /** Geo-Bingo-Orte, die in diesem Raum schon dran waren. */
+    private final List<String> usedPlaces = new ArrayList<>();
     /** {@code null}, solange alle in der Lobby sind. */
     private Game game;
     private int nextPlayerNumber = 1;
@@ -186,6 +189,9 @@ public class Room {
         if (game instanceof NobodyIsPerfectGame nobodyIsPerfect) {
             nobodyIsPerfect.closeStageIfComplete();
         }
+        if (game instanceof GeoBingoGame geoBingo) {
+            geoBingo.resolveCompleteClaims();
+        }
         touch();
     }
 
@@ -307,6 +313,17 @@ public class Room {
         touch();
     }
 
+    public synchronized void configureGeoBingo(String requesterId, int minutes) {
+        requireHost(requesterId);
+        requireLobby();
+        GeoBingoOptions options = new GeoBingoOptions(minutes);
+        if (!options.equals(geoBingoOptions)) {
+            geoBingoOptions = options;
+            resetReady();
+        }
+        touch();
+    }
+
     /** Jeder wählt sein Team selbst. Der Host darf auch andere verschieben ({@code targetId}). */
     public synchronized void chooseTeam(String requesterId, String targetId, int team) {
         require(requesterId);
@@ -340,6 +357,7 @@ public class Room {
             case TABU -> new TabuGame(tabuTeams(random), tabuOptions, random);
             case NOBODY_IS_PERFECT -> newNobodyIsPerfect(random);
             case BUZZER -> new BuzzerGame(playersExcept(hostId), buzzerLockout);
+            case GEO_BINGO -> newGeoBingo(1, random);
         };
         resetReady();
         touch();
@@ -376,6 +394,7 @@ public class Room {
             case ImpostorGame impostor -> newImpostorRound(impostor.round() + 1, random);
             case TabuGame ignored -> new TabuGame(tabuTeams(random), tabuOptions, random);
             case NobodyIsPerfectGame ignored -> newNobodyIsPerfect(random);
+            case GeoBingoGame geoBingo -> newGeoBingo(geoBingo.round() + 1, random);
             case WerwolfGame ignored -> throw new GameException("Das geht in diesem Spiel gerade nicht.");
             case BuzzerGame ignored -> throw new GameException("Das geht in diesem Spiel gerade nicht.");
         };
@@ -430,6 +449,44 @@ public class Room {
         requireHost(requesterId);
         requireGame(BuzzerGame.class).release();
         touch();
+    }
+
+    // ---- Geo-Bingo -----------------------------------------------------
+
+    public synchronized void claimGeoBingoField(String requesterId, int field, GeoBingoGame.Spot spot) {
+        require(requesterId);
+        runningGeoBingo().claim(requesterId, field, spot, clock.instant());
+        touch();
+    }
+
+    public synchronized void voteGeoBingo(String requesterId, String claimId, boolean accept) {
+        require(requesterId);
+        runningGeoBingo().vote(requesterId, claimId, accept);
+        touch();
+    }
+
+    /** Für die Uhr im Server: beendet Abstimmungen und das Spiel pünktlich. {@code true}, wenn sich etwas geändert hat. */
+    public synchronized boolean expireGeoBingo() {
+        return game instanceof GeoBingoGame geoBingo && geoBingo.expire(clock.instant());
+    }
+
+    /** Wann sich im laufenden Geo-Bingo als Nächstes von selbst etwas ändert. */
+    public synchronized Optional<Instant> geoBingoDeadline() {
+        return game instanceof GeoBingoGame geoBingo ? Optional.ofNullable(geoBingo.nextDeadline()) : Optional.empty();
+    }
+
+    /** Erst abgelaufene Fristen abarbeiten, damit niemand nach Spielende noch etwas meldet. */
+    private GeoBingoGame runningGeoBingo() {
+        GeoBingoGame geoBingo = requireGame(GeoBingoGame.class);
+        geoBingo.expire(clock.instant());
+        return geoBingo;
+    }
+
+    private GeoBingoGame newGeoBingo(int round, RandomGenerator random) {
+        GeoBingoData.Place place = GeoBingoData.pickPlace(usedPlaces, random);
+        usedPlaces.add(place.name());
+        List<String> board = GeoBingoData.pickMotifs(GeoBingoGame.SIZE * GeoBingoGame.SIZE, random);
+        return new GeoBingoGame(List.copyOf(players.values()), place, board, geoBingoOptions, round, clock.instant());
     }
 
     // ---- Tabu ----------------------------------------------------
@@ -553,6 +610,7 @@ public class Room {
                 tabuSettings,
                 new RoomView.NobodyIsPerfectSettings(nobodyIsPerfectOptions.questionCount()),
                 new RoomView.BuzzerSettings(buzzerLockout),
+                new RoomView.GeoBingoSettings(geoBingoOptions.minutes(), GeoBingoOptions.MIN_MINUTES, GeoBingoOptions.MAX_MINUTES),
                 new RoomView.PlayerLimit(playerLimit, lowestPlayerLimit(), MAX_PLAYERS),
                 phase(),
                 round(),
@@ -565,7 +623,8 @@ public class Room {
                 game instanceof ImpostorGame impostor ? impostor.viewFor(me.id()) : null,
                 game instanceof TabuGame tabu ? tabu.viewFor(me.id(), clock.instant()) : null,
                 game instanceof NobodyIsPerfectGame nobodyIsPerfect ? nobodyIsPerfect.viewFor(me.id()) : null,
-                game instanceof BuzzerGame buzzer ? buzzer.viewFor(me.id(), isHost) : null);
+                game instanceof BuzzerGame buzzer ? buzzer.viewFor(me.id(), isHost) : null,
+                game instanceof GeoBingoGame geoBingo ? geoBingo.viewFor(me.id(), clock.instant()) : null);
     }
 
     // ---- Hilfsmethoden -------------------------------------------------
@@ -584,7 +643,7 @@ public class Room {
             case WERWOLF -> RoleDistribution.problem(playing, werewolfCount, werwolfRoles);
             case IMPOSTOR -> impostorOptions.problem(playing);
             case TABU -> tabuProblem();
-            case NOBODY_IS_PERFECT, BUZZER -> null;
+            case NOBODY_IS_PERFECT, BUZZER, GEO_BINGO -> null;
         };
         if (settingsProblem != null) {
             return settingsProblem;
@@ -610,7 +669,7 @@ public class Room {
             case IMPOSTOR -> customWord != null;
             case WERWOLF -> werwolfHostIsGameMaster;
             case BUZZER -> true;
-            case TABU, NOBODY_IS_PERFECT -> false;
+            case TABU, NOBODY_IS_PERFECT, GEO_BINGO -> false;
         };
     }
 

@@ -7,7 +7,7 @@ import java.util.List;
  * Das, was ein bestimmter Spieler vom Raum sehen darf.
  * Jeder Spieler bekommt seine eigene Ansicht, damit Rollen und Wörter geheim bleiben.
  *
- * <p>{@code werwolf}, {@code impostor}, {@code tabu}, {@code nobodyIsPerfect} bzw. {@code buzzer} ist nur gefüllt, solange das jeweilige Spiel läuft.
+ * <p>{@code werwolf}, {@code impostor}, {@code tabu}, {@code nobodyIsPerfect}, {@code buzzer} bzw. {@code geoBingo} ist nur gefüllt, solange das jeweilige Spiel läuft.
  */
 public record RoomView(
         String code,
@@ -18,6 +18,7 @@ public record RoomView(
         TabuSettings tabuSettings,
         NobodyIsPerfectSettings nobodyIsPerfectSettings,
         BuzzerSettings buzzerSettings,
+        GeoBingoSettings geoBingoSettings,
         PlayerLimit playerLimit,
         Phase phase,
         int round,
@@ -30,7 +31,8 @@ public record RoomView(
         ImpostorView impostor,
         TabuView tabu,
         NobodyIsPerfectView nobodyIsPerfect,
-        BuzzerView buzzer
+        BuzzerView buzzer,
+        GeoBingoView geoBingo
 ) {
 
     /** Öffentliche Infos über einen Mitspieler (ohne Rolle!). */
@@ -152,6 +154,39 @@ public record RoomView(
 
     /** Die ganze Reihenfolge ({@code presses}) sieht nur die Spielleitung, Spieler nur ihren Platz. */
     public record BuzzerView(boolean lockout, List<BuzzerPress> presses, Integer yourRank, boolean canPress) {
+    }
+
+    public record GeoBingoSettings(int minutes, int minMinutes, int maxMinutes) {
+    }
+
+    /** {@code fields}: bestätigte Felder der Karte (0 bis 8, zeilenweise). */
+    public record GeoBingoScore(String playerId, List<Integer> fields) {
+    }
+
+    /**
+     * Ein Fund, über den gerade abgestimmt wird. {@code imageId}, {@code x}, {@code y} und {@code zoom}
+     * zeigen genau die gemeldete Ansicht. {@code yourVote} ist {@code null}, solange man nicht abgestimmt hat.
+     */
+    public record GeoBingoClaim(String id, String playerId, int field, String imageId, double x, double y, double zoom,
+                                long remainingMs, List<String> votedIds, Boolean yourVote) {
+    }
+
+    /**
+     * {@code lat}/{@code lng}: Mittelpunkt, um den die App das Startbild sucht. {@code winnerIds} ist erst
+     * am Ende gefüllt, {@code winningLine} nur, wenn jemand eine Reihe voll hat.
+     */
+    public record GeoBingoView(
+            String place,
+            double lat,
+            double lng,
+            List<String> board,
+            long remainingMs,
+            List<GeoBingoScore> scores,
+            List<GeoBingoClaim> claims,
+            List<GeoBingoGame.Decision> decisions,
+            List<String> winnerIds,
+            List<Integer> winningLine
+    ) {
     }
 
     /** Aktuelles Limit und in welchem Bereich der Host es gerade einstellen darf. */

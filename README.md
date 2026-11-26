@@ -84,6 +84,12 @@ Das Backend muss laufen. Mit `--web-port 5173` passt die Adresse zur Voreinstell
 `ALLOWED_ORIGINS`. Eine andere Backend-Adresse setzt du mit
 `--dart-define=BACKEND_URL=wss://…/ws`.
 
+Geo-Bingo braucht für die Straßenbilder einen kostenlosen Client-Schlüssel von
+[mapillary.com/developer](https://www.mapillary.com/developer):
+`--dart-define=MAPILLARY_TOKEN=MLY|…`. Ohne Schlüssel läuft alles andere, Geo-Bingo
+zeigt dann nur einen Hinweis. Der Viewer (MapillaryJS 4.1.2, MIT-Lizenz) liegt in
+`app/web/mapillary/` und wird erst geladen, wenn jemand Geo-Bingo spielt.
+
 Release für den Browser:
 
 ```bash
@@ -122,6 +128,7 @@ bei Flutter Web die Bedienhilfen erst über den unsichtbaren Knopf der Seite ein
 3. **Frontend auf GitHub Pages:** Unter Settings → Pages als Quelle "GitHub Actions"
    wählen. Unter Settings → Secrets and variables → Actions → Variables die Variable
    `VITE_BACKEND_URL` anlegen, z. B. `wss://arynta-spielesammlung.onrender.com/ws`.
+   Für Geo-Bingo dort auch `MAPILLARY_TOKEN` mit dem Mapillary-Client-Schlüssel anlegen.
    Der Workflow `.github/workflows/pages.yml` baut und veröffentlicht das Frontend bei
    jedem Push auf `main`, der das Frontend, die Spieldaten oder die Bilder ändert.
 4. Bei Render unter Environment `ALLOWED_ORIGINS` auf die Adresse des Frontends

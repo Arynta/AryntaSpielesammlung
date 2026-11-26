@@ -26,6 +26,9 @@ import java.util.List;
  *   <li>{@code skipWaiting}, {@code nextQuestion}: keine Felder</li>
  *   <li>{@code configureBuzzer}: lockout</li>
  *   <li>{@code pressBuzzer}, {@code releaseBuzzer}: keine Felder</li>
+ *   <li>{@code configureGeoBingo}: minutes</li>
+ *   <li>{@code claimGeoBingoField}: field, imageId, x, y, zoom (die gemeldete Ansicht)</li>
+ *   <li>{@code voteGeoBingo}: claimId, accept</li>
  *   <li>{@code leave}, {@code start}, {@code nextPhase}, {@code startVoting}, {@code nextRound},
  *       {@code backToLobby}, {@code ping}: keine Felder</li>
  * </ul>
@@ -55,6 +58,14 @@ public record ClientMessage(
         Integer questionCount,
         String answer,
         String choice,
-        Boolean lockout
+        Boolean lockout,
+        Integer minutes,
+        Integer field,
+        String imageId,
+        Double x,
+        Double y,
+        Double zoom,
+        String claimId,
+        Boolean accept
 ) {
 }

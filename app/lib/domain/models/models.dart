@@ -7,4 +7,5 @@ export 'room.dart';
 export 'werwolf.dart';
 export 'nobody_is_perfect.dart';
 export 'buzzer.dart';
+export 'geo_bingo.dart';
 export 'messages.dart';

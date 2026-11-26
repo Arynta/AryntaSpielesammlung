@@ -190,6 +190,42 @@ void main() {
     expect(app.link.types.where((t) => t == 'pressBuzzer'), hasLength(1));
   });
 
+  // Die Spieluhr tickt ständig, deshalb pump statt pumpAndSettle
+  testWidgets('Geo-Bingo: abstimmen schickt die Stimme, eigene Meldung sperrt die Karte', (tester) async {
+    final app = await pumpApp(tester);
+    final vote = fixtures['geo_bingo_vote']!;
+    app.show(vote);
+    await tester.pump();
+    final claimId = ((vote['geoBingo'] as Json)['claims'] as List).single['id'];
+    await tester.ensureVisible(button('Ja, stimmt'));
+    await tester.tap(button('Ja, stimmt'));
+    expect(app.link.sent.last, {'type': 'voteGeoBingo', 'claimId': claimId, 'accept': true});
+
+    app.show(fixtures['geo_bingo_claimer']!);
+    await tester.pump();
+    expect(find.text('Ja, stimmt'), findsNothing);
+    final board = ((fixtures['geo_bingo_claimer']!['geoBingo'] as Json)['board'] as List).cast<String>();
+    final tiles = tester.widgetList<Pressable>(
+      find.byWidgetPredicate((w) => w is Pressable && board.any((m) => w.semanticLabel?.startsWith(m) ?? false)),
+    );
+    expect(tiles, hasLength(9));
+    expect(tiles.where((t) => t.onPressed != null), isEmpty);
+  });
+
+  testWidgets('Geo-Bingo: ohne geladenes Straßenbild wird nichts gemeldet', (tester) async {
+    final app = await pumpApp(tester);
+    final start = fixtures['geo_bingo_start']!;
+    app.show(start);
+    await tester.pump();
+    final motif = ((start['geoBingo'] as Json)['board'] as List).first as String;
+    final tile = find.byWidgetPredicate((w) => w is Pressable && w.semanticLabel == motif);
+    await tester.ensureVisible(tile);
+    await tester.tap(tile);
+    await tester.pump();
+    expect(app.link.types, isNot(contains('claimGeoBingoField')));
+    expect(app.controller.toast, 'Das Straßenbild ist noch nicht geladen.');
+  });
+
   testWidgets('Rückfrage: Nein bricht ab, Ja führt aus', (tester) async {
     final app = await pumpApp(tester);
     app.show(fixtures['buzzer_host_pressed']!);

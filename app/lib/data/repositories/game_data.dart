@@ -105,6 +105,7 @@ const minPlayers = {
   GameType.tabu: 4,
   GameType.nobodyIsPerfect: 3,
   GameType.buzzer: 2,
+  GameType.geoBingo: 2,
 };
 const maxImpostorsOverall = maxPlayers ~/ 2 - 1;
 

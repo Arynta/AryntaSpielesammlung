@@ -6,7 +6,8 @@ enum GameType {
   impostor('IMPOSTOR'),
   tabu('TABU'),
   nobodyIsPerfect('NOBODY_IS_PERFECT'),
-  buzzer('BUZZER');
+  buzzer('BUZZER'),
+  geoBingo('GEO_BINGO');
 
   const GameType(this.wire);
   final String wire;
@@ -25,7 +26,8 @@ enum Phase {
   writing('WRITING'),
   guessing('GUESSING'),
   reveal('REVEAL'),
-  buzzer('BUZZER');
+  buzzer('BUZZER'),
+  geoBingo('GEO_BINGO');
 
   const Phase(this.wire);
   final String wire;

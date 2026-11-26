@@ -69,9 +69,12 @@ class ForbiddenCard extends StatelessWidget {
 
 /// Uhr, die jede Viertelsekunde weiterzählt.
 class Countdown extends StatefulWidget {
-  const Countdown(this.deadline, {super.key});
+  const Countdown(this.deadline, {super.key, this.clock = false});
 
   final DateTime deadline;
+
+  /// Als Minuten und Sekunden (9:05) statt nur Sekunden.
+  final bool clock;
 
   @override
   State<Countdown> createState() => _CountdownState();
@@ -98,7 +101,7 @@ class _CountdownState extends State<Countdown> {
     final seconds = math.max(0, (widget.deadline.difference(DateTime.now()).inMilliseconds / 1000).ceil());
     final low = seconds <= 10;
     return Semantics(
-      label: 'Restzeit in Sekunden',
+      label: widget.clock ? 'Restzeit' : 'Restzeit in Sekunden',
       child: Container(
         constraints: const BoxConstraints(minWidth: 56),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
@@ -108,7 +111,7 @@ class _CountdownState extends State<Countdown> {
           borderRadius: BorderRadius.circular(999),
         ),
         child: Text(
-          '$seconds',
+          widget.clock ? '${seconds ~/ 60}:${(seconds % 60).toString().padLeft(2, '0')}' : '$seconds',
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 26,

@@ -6,6 +6,7 @@ import 'tabu.dart';
 import 'werwolf.dart';
 import 'nobody_is_perfect.dart';
 import 'buzzer.dart';
+import 'geo_bingo.dart';
 
 class PlayerView {
   PlayerView.fromJson(Json j)
@@ -64,6 +65,7 @@ class RoomView {
       tabuSettings = TabuSettings.fromJson(j['tabuSettings'] as Json),
       nobodyIsPerfectSettings = NobodyIsPerfectSettings.fromJson(j['nobodyIsPerfectSettings'] as Json),
       buzzerSettings = BuzzerSettings.fromJson(j['buzzerSettings'] as Json),
+      geoBingoSettings = GeoBingoSettings.fromJson(j['geoBingoSettings'] as Json),
       playerLimit = PlayerLimit.fromJson(j['playerLimit'] as Json),
       phase = Phase.parse(j['phase']),
       round = j['round'] as int,
@@ -76,7 +78,8 @@ class RoomView {
       impostor = parseOptional(j['impostor'], ImpostorView.fromJson),
       tabu = parseOptional(j['tabu'], TabuView.fromJson),
       nobodyIsPerfect = parseOptional(j['nobodyIsPerfect'], NobodyIsPerfectView.fromJson),
-      buzzer = parseOptional(j['buzzer'], BuzzerView.fromJson);
+      buzzer = parseOptional(j['buzzer'], BuzzerView.fromJson),
+      geoBingo = parseOptional(j['geoBingo'], GeoBingoView.fromJson);
   final String code;
   final GameType game;
   final List<GameOption> games;
@@ -85,6 +88,7 @@ class RoomView {
   final TabuSettings tabuSettings;
   final NobodyIsPerfectSettings nobodyIsPerfectSettings;
   final BuzzerSettings buzzerSettings;
+  final GeoBingoSettings geoBingoSettings;
   final PlayerLimit playerLimit;
   final Phase phase;
   final int round;
@@ -98,6 +102,7 @@ class RoomView {
   final TabuView? tabu;
   final NobodyIsPerfectView? nobodyIsPerfect;
   final BuzzerView? buzzer;
+  final GeoBingoView? geoBingo;
 
   /// Name zu einer Spieler-ID, "?" wenn es den Spieler nicht mehr gibt.
   String nameOf(String id) {

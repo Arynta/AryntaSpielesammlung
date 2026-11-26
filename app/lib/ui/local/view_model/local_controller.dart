@@ -194,6 +194,7 @@ class LocalController extends ChangeNotifier {
         _startPassing();
       case GameType.werwolf:
       case GameType.buzzer:
+      case GameType.geoBingo:
         werwolf = rules.dealWerwolf(setup.playerCount, setup.werewolfCount, setup.roles, _random);
         impostor = null;
         _startPassing();

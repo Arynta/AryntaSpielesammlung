@@ -1,6 +1,7 @@
 // Nachrichten vom Server und an den Server.
 import 'json.dart';
 import 'game.dart';
+import 'geo_bingo.dart';
 import 'room.dart';
 
 /// Was der Server schickt.
@@ -105,6 +106,11 @@ class ClientMessage {
   ClientMessage.configureBuzzer(bool lockout) : this._('configureBuzzer', {'lockout': lockout});
   ClientMessage.pressBuzzer() : this._('pressBuzzer');
   ClientMessage.releaseBuzzer() : this._('releaseBuzzer');
+  ClientMessage.configureGeoBingo(int minutes) : this._('configureGeoBingo', {'minutes': minutes});
+  ClientMessage.claimGeoBingoField(int field, GeoBingoSpot spot)
+    : this._('claimGeoBingoField', {'field': field, 'imageId': spot.imageId, 'x': spot.x, 'y': spot.y, 'zoom': spot.zoom});
+  ClientMessage.voteGeoBingo(String claimId, bool accept)
+    : this._('voteGeoBingo', {'claimId': claimId, 'accept': accept});
   ClientMessage.nextRound() : this._('nextRound');
   ClientMessage.backToLobby() : this._('backToLobby');
   ClientMessage.ping() : this._('ping');

@@ -5,6 +5,7 @@ import '../../core/view_model/app_controller.dart';
 import '../../../data/repositories/game_data.dart';
 import '../../../domain/models/models.dart';
 import '../../games/widgets/buzzer.dart';
+import '../../games/widgets/geo_bingo.dart';
 import '../../games/widgets/tabu.dart';
 import '../../core/widgets/players.dart';
 import '../../core/widgets/shared.dart';
@@ -198,6 +199,8 @@ class _Settings extends StatelessWidget {
         return NobodyIsPerfectOptionsView(questionCount: count, onCount: controller.changeQuestionCount);
       case GameType.buzzer:
         return BuzzerSettingsView(controller: controller, room: room);
+      case GameType.geoBingo:
+        return GeoBingoSettingsView(controller: controller, room: room);
       case GameType.werwolf:
         final s = room.werwolfSettings;
         final form = WerwolfForm(

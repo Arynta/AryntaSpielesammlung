@@ -244,6 +244,30 @@ Future<void> main(List<String> args) async {
   await act(host, ClientMessage.releaseBuzzer());
   await act(host, ClientMessage.backToLobby());
 
+  // ---- Geo-Bingo ----
+  await act(host, ClientMessage.selectGame(GameType.geoBingo));
+  await act(host, ClientMessage.configureGeoBingo(15));
+  keep('lobby_geo_bingo_host', host);
+  keep('lobby_geo_bingo_guest', ben);
+  await readyAll();
+  await act(host, ClientMessage.start());
+  keep('geo_bingo_start', ben);
+  for (final field in [0, 1, 2]) {
+    await act(ben, ClientMessage.claimGeoBingoField(field, const GeoBingoSpot(imageId: '123', x: 0.4, y: 0.5, zoom: 1)));
+    if (field == 1) {
+      keep('geo_bingo_claimer', ben);
+      keep('geo_bingo_vote', host);
+    }
+    final claimId = host.room.geoBingo!.claims.single.id;
+    for (final c in all.where((c) => c != ben)) {
+      await act(c, ClientMessage.voteGeoBingo(claimId, true));
+    }
+  }
+  check(host.room.phase == Phase.result, 'Geo-Bingo-Reihe');
+  keep('geo_bingo_over_host', host);
+  keep('geo_bingo_over_guest', ben);
+  await act(host, ClientMessage.backToLobby());
+
   // ---- Entfernen und Verlassen ----
   final last = all.last;
   await host.settle();

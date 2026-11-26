@@ -2,6 +2,7 @@ package de.kruschinski.werwolf.ws;
 
 import de.kruschinski.werwolf.game.GameException;
 import de.kruschinski.werwolf.game.GameType;
+import de.kruschinski.werwolf.game.GeoBingoGame;
 import de.kruschinski.werwolf.game.Player;
 import de.kruschinski.werwolf.game.Room;
 import de.kruschinski.werwolf.game.RoomRegistry;
@@ -188,6 +189,28 @@ public class GameSocketHandler extends TextWebSocketHandler {
                     (room, playerId) -> room.configureBuzzer(playerId, Boolean.TRUE.equals(msg.lockout())));
             case "pressBuzzer" -> withRoom(session, Room::pressBuzzer);
             case "releaseBuzzer" -> withRoom(session, Room::releaseBuzzer);
+            case "configureGeoBingo" -> {
+                if (msg.minutes() == null) {
+                    throw new GameException("Bitte gib die Spielzeit an.");
+                }
+                withRoom(session, (room, playerId) -> room.configureGeoBingo(playerId, msg.minutes()));
+            }
+            case "claimGeoBingoField" -> {
+                if (msg.field() == null || msg.x() == null || msg.y() == null || msg.zoom() == null) {
+                    throw new GameException("Bitte melde ein Feld mit der Ansicht, auf der man es sieht.");
+                }
+                GeoBingoGame.Spot spot = new GeoBingoGame.Spot(msg.imageId(), msg.x(), msg.y(), msg.zoom());
+                withRoom(session, (room, playerId) -> {
+                    room.claimGeoBingoField(playerId, msg.field(), spot);
+                    scheduleGeoBingo(room);
+                });
+            }
+            case "voteGeoBingo" -> {
+                if (msg.accept() == null) {
+                    throw new GameException("Bitte stimme mit Ja oder Nein.");
+                }
+                withRoom(session, (room, playerId) -> room.voteGeoBingo(playerId, msg.claimId(), msg.accept()));
+            }
             case "setPlayerLimit" -> {
                 if (msg.playerLimit() == null) {
                     throw new GameException("Bitte gib ein Spielerlimit an.");
@@ -199,11 +222,17 @@ public class GameSocketHandler extends TextWebSocketHandler {
                 sendOff(room, msg.targetId());
             });
 
-            case "start" -> withRoom(session, (room, playerId) -> room.start(playerId, rooms.random()));
+            case "start" -> withRoom(session, (room, playerId) -> {
+                room.start(playerId, rooms.random());
+                scheduleGeoBingo(room);
+            });
             case "nextPhase" -> withRoom(session, Room::nextPhase);
             case "startVoting" -> withRoom(session, Room::startVoting);
             case "vote" -> withRoom(session, (room, playerId) -> room.vote(playerId, msg.targetId()));
-            case "nextRound" -> withRoom(session, (room, playerId) -> room.nextRound(playerId, rooms.random()));
+            case "nextRound" -> withRoom(session, (room, playerId) -> {
+                room.nextRound(playerId, rooms.random());
+                scheduleGeoBingo(room);
+            });
             case "backToLobby" -> withRoom(session, Room::backToLobby);
 
             default -> throw new GameException("Unbekannte Aktion: " + type);
@@ -238,6 +267,19 @@ public class GameSocketHandler extends TextWebSocketHandler {
                 broadcast(room);
             }
         }, endsAt));
+    }
+
+    /**
+     * Weckt sich zur nächsten Geo-Bingo-Frist (Abstimmung oder Spielende). Jede Meldung plant ihre eigene
+     * Frist, doppelte Weckrufe schaden nicht, weil {@link Room#expireGeoBingo()} dann nichts ändert.
+     */
+    private void scheduleGeoBingo(Room room) {
+        room.geoBingoDeadline().ifPresent(at -> scheduler.schedule(() -> {
+            if (room.expireGeoBingo()) {
+                broadcast(room);
+                scheduleGeoBingo(room);
+            }
+        }, at));
     }
 
     private static GameType parseGameType(String raw) {

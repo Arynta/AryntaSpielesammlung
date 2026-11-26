@@ -6,6 +6,7 @@ import 'package:flutter/widgets.dart';
 import '../../../data/services/device/device.dart' as device;
 import '../../../data/services/storage/storage_base.dart';
 import '../../../data/services/connection.dart';
+import '../../../data/services/street_view/street_view_controller.dart';
 import '../../../data/repositories/game_data.dart';
 import '../../local/view_model/local_controller.dart';
 import '../../../domain/models/models.dart';
@@ -56,6 +57,13 @@ class AppController extends ChangeNotifier {
 
   /// Tabu: wann der laufende Zug endet (Uhr dieses Handys).
   DateTime? turnDeadline;
+
+  /// Geo-Bingo: Spielende und Ende jeder Abstimmung (Claim-ID → Zeitpunkt), ebenfalls nach der Uhr dieses Handys.
+  DateTime? geoBingoDeadline;
+  Map<String, DateTime> voteDeadlines = const {};
+
+  /// Geo-Bingo: der eigene Straßenbild-Viewer, aus dem ein Fund gemeldet wird.
+  final streetView = StreetViewController();
 
   /// Gesetzt, solange man ohne Server mit einem Handy spielt.
   LocalController? local;
@@ -127,6 +135,10 @@ class AppController extends ChangeNotifier {
         turnDeadline = tabu != null && state.phase == Phase.turn
             ? DateTime.now().add(Duration(milliseconds: tabu.remainingMs))
             : null;
+        final geoBingo = state.phase == Phase.geoBingo ? state.geoBingo : null;
+        DateTime inMs(int ms) => DateTime.now().add(Duration(milliseconds: ms));
+        geoBingoDeadline = geoBingo == null ? null : inMs(geoBingo.remainingMs);
+        voteDeadlines = {for (final c in geoBingo?.claims ?? const <GeoBingoClaim>[]) c.id: inMs(c.remainingMs)};
       case LeftRoom():
         _forgetRoom();
       case Kicked():
@@ -360,6 +372,12 @@ class AppController extends ChangeNotifier {
 
   void setBuzzerLockout(bool lockout) => _send(ClientMessage.configureBuzzer(lockout));
 
+  /// In Schritten von 5 Minuten.
+  void changeGeoBingoMinutes(int step) {
+    final current = room?.geoBingoSettings;
+    if (current != null) _send(ClientMessage.configureGeoBingo(current.minutes + step * 5));
+  }
+
   Future<void> shareRoom() async {
     final code = room?.code;
     if (code == null) return;
@@ -406,6 +424,18 @@ class AppController extends ChangeNotifier {
   void nextQuestion() => _send(ClientMessage.nextQuestion());
   void pressBuzzer() => _send(ClientMessage.pressBuzzer());
   void releaseBuzzer() => _send(ClientMessage.releaseBuzzer());
+
+  /// Meldet das Feld mit genau der Ansicht, die man gerade im eigenen Straßenbild sieht.
+  Future<void> claimGeoBingoField(int field) async {
+    final spot = await streetView.currentSpot();
+    if (spot == null) {
+      showToast('Das Straßenbild ist noch nicht geladen.');
+      return;
+    }
+    _send(ClientMessage.claimGeoBingoField(field, spot));
+  }
+
+  void voteGeoBingo(String claimId, bool accept) => _send(ClientMessage.voteGeoBingo(claimId, accept));
   void nextRound() => _send(ClientMessage.nextRound());
 
   Future<void> backToLobby() async {
