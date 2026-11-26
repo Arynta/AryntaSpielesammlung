@@ -9,9 +9,21 @@
     },
     {
       "name": "backend",
-      "runtimeExecutable": "C:/Users/Richa/AppData/Local/Temp/claude/C--Projekte-Webseite-Spielesammlung/b4ccd88f-3bb0-4a97-8a4b-68056a806775/scratchpad/tools/jdk/jdk-21.0.13+9/bin/java.exe",
-      "runtimeArgs": ["-jar", "backend/target/app.jar", "--app.allowed-origins=http://localhost:4173"],
+      "runtimeExecutable": "C:/Users/Richa/.jdks/temurin-21.0.12.1/bin/java.exe",
+      "runtimeArgs": ["-jar", "backend/target/app.jar", "--app.allowed-origins=http://localhost:4173,http://localhost:5173"],
       "port": 8080
+    },
+    {
+      "name": "app-web",
+      "runtimeExecutable": "cmd",
+      "runtimeArgs": ["/c", "cd app && flutter run -d web-server --web-port 5173"],
+      "port": 5173
+    },
+    {
+      "name": "app-build",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["--yes", "http-server", "app/build/web", "-p", "5180", "-c-1", "--silent"],
+      "port": 5180
     }
   ]
 }
