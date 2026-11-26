@@ -10,7 +10,8 @@ wird. Der läuft komplett im Browser.
 ```
 ├── backend/     Spring Boot 4 (Java 21), WebSocket unter /ws
 │   └── src/main/resources/games/   Rollen, Wörter, Tabu-Karten, Fragen (JSON)
-├── frontend/    Vite + TypeScript, ohne Framework
+├── frontend/    Vite + TypeScript, ohne Framework (ist online)
+├── app/         Dieselbe Oberfläche in Flutter (noch nicht online, siehe unten)
 ├── assets/      Bilder (Werwolf-Karte)
 ├── render.yaml  Deployment des Backends auf Render (Free)
 └── devserver.bat  Startet den Frontend-Dev-Server unter Windows
@@ -61,6 +62,54 @@ z. B. `VITE_BACKEND_URL=ws://192.168.0.23:8080/ws`, und beim Backend
 `ALLOWED_ORIGINS=http://192.168.0.23:5173` setzen.
 
 Zum Testen mit mehreren Spielern reichen mehrere private Browserfenster.
+
+## Flutter-Version (`app/`)
+
+Die Seite wird gerade nach Flutter übertragen. Online ist weiterhin `frontend/`. Bis zur
+Umstellung gehören Änderungen an der Oberfläche in beide Ordner.
+
+Spieldaten und die Werwolf-Karte bleiben, wo sie sind. Ein Skript kopiert sie vor dem
+Starten, Testen und Bauen nach `app/assets/game/` (steht in `.gitignore`). Nach einer
+Änderung an den JSON-Dateien also erneut aufrufen:
+
+```bash
+cd app
+flutter pub get
+dart run tool/sync_assets.dart
+flutter run -d chrome --web-port 5173
+```
+
+Das Backend muss laufen. Mit `--web-port 5173` passt die Adresse zur Voreinstellung von
+`ALLOWED_ORIGINS`. Eine andere Backend-Adresse setzt du mit
+`--dart-define=BACKEND_URL=wss://…/ws`.
+
+Release für den Browser:
+
+```bash
+flutter build web --release --no-web-resources-cdn --dart-define=BACKEND_URL=wss://…/ws
+```
+
+`--no-web-resources-cdn` legt Flutters Zeichen-Engine mit in den Build, damit die Seite
+nichts von Google nachlädt. Liegt sie in einem Unterordner (GitHub Pages), kommt noch
+`--base-href /Ordnername/` dazu.
+
+Tests:
+
+```bash
+flutter test
+```
+
+`test/views_test.dart` arbeitet mit Server-Antworten aus `test/fixtures/states.json`.
+Ändert sich das Protokoll, erzeugst du sie bei laufendem Backend neu. Das Skript spielt
+dabei alle Spiele einmal durch:
+
+```bash
+dart run tool/record_states.dart ws://localhost:8080/ws
+```
+
+Noch offen: Emoji und nicht-lateinische Schriften (z. B. Kyrillisch) erscheinen als
+Kästchen, weil die Seite keine Ersatzschriften von Google nachlädt. Screenreader müssen
+bei Flutter Web die Bedienhilfen erst über den unsichtbaren Knopf der Seite einschalten.
 
 ## Kostenlos online stellen
 

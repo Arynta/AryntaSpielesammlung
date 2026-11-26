@@ -1,0 +1,6 @@
+/* Hintergrundfarbe, solange Flutter noch lädt, damit es nicht weiß aufblitzt */
+html,
+body {
+  margin: 0;
+  background: #2f2747;
+}

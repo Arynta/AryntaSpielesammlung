@@ -1,0 +1,60 @@
+name: arynta
+description: "Arynta Spielesammlung: Spieleabend mit Freunden am eigenen Handy."
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.14.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  material_ui: ^1.1.0
+  web: ^1.1.2
+  web_socket_channel: ^3.0.3
+  http: ^1.6.0
+  shared_preferences: ^2.5.6
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    # Kopien aus dem Backend- und Bilder-Ordner, siehe tool/sync_assets.dart
+    - assets/game/
+    - assets/fonts/atkinson-hyperlegible-OFL.txt
+    - assets/fonts/grenze-OFL.txt
+
+  # Die latin-ext-Dateien sind eigene Familien und dienen als Ersatz für Zeichen wie ł oder š.
+  fonts:
+    - family: Atkinson Hyperlegible
+      fonts:
+        - asset: assets/fonts/atkinson-hyperlegible-latin-400.ttf
+          weight: 400
+        - asset: assets/fonts/atkinson-hyperlegible-latin-700.ttf
+          weight: 700
+    - family: Atkinson Hyperlegible Ext
+      fonts:
+        - asset: assets/fonts/atkinson-hyperlegible-latin-ext-400.ttf
+          weight: 400
+        - asset: assets/fonts/atkinson-hyperlegible-latin-ext-700.ttf
+          weight: 700
+    - family: Grenze
+      fonts:
+        - asset: assets/fonts/grenze-latin-800.ttf
+          weight: 800
+    - family: Grenze Ext
+      fonts:
+        - asset: assets/fonts/grenze-latin-ext-800.ttf
+          weight: 800
+    # Flutter Web lädt "Roboto" sonst von Google nach. Das widerspräche der Datenschutzerklärung.
+    - family: Roboto
+      fonts:
+        - asset: assets/fonts/atkinson-hyperlegible-latin-400.ttf
+          weight: 400
+        - asset: assets/fonts/atkinson-hyperlegible-latin-700.ttf
+          weight: 700
