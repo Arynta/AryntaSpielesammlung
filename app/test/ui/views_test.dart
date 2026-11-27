@@ -69,6 +69,31 @@ void main() {
     });
   });
 
+  testWidgets('Lobby: Host stellt Geo-Bingo-Kartengröße und eigene Begriffe ein', (tester) async {
+    final app = await pumpApp(tester);
+    app.show(fixtures['lobby_geo_bingo_host']!);
+    app.controller.setSettingsOpen(true);
+    await tester.pumpAndSettle();
+
+    await tap(
+      tester,
+      find.byWidgetPredicate((w) => w is AppButton && w.label == '+' && (w.semanticLabel?.contains('Kartengröße') ?? false)),
+    );
+    expect(app.link.sent.last, {'type': 'configureGeoBingo', 'minutes': 15, 'size': 4});
+
+    final field = find.descendant(
+      of: find.byWidgetPredicate((w) => w is AppField && w.label == 'Eigene Begriffe'),
+      matching: find.byType(TextField),
+    );
+    await tester.ensureVisible(field);
+    await tester.enterText(field, '  Möwe ');
+    await tap(tester, button('Hinzufügen'));
+    expect(app.link.sent.last, {
+      'type': 'setGeoBingoMotifs',
+      'motifs': ['Möwe'],
+    });
+  });
+
   testWidgets('Lobby: Gäste sehen die Einstellungen, aber keine Knöpfe dafür', (tester) async {
     final app = await pumpApp(tester);
     app.show(fixtures['lobby_werwolf_guest']!);

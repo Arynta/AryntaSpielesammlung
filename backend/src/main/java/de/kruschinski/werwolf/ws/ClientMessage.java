@@ -27,7 +27,8 @@ import java.util.List;
  *   <li>{@code skipWaiting}, {@code nextQuestion}: keine Felder</li>
  *   <li>{@code configureBuzzer}: lockout</li>
  *   <li>{@code pressBuzzer}, {@code releaseBuzzer}: keine Felder</li>
- *   <li>{@code configureGeoBingo}: minutes</li>
+ *   <li>{@code configureGeoBingo}: minutes, size (Felder pro Reihe)</li>
+ *   <li>{@code setGeoBingoMotifs}: motifs (eigene Begriffe, leere Liste = nur Standardliste)</li>
  *   <li>{@code claimGeoBingoField}: field, imageId, x, y, zoom (die gemeldete Ansicht)</li>
  *   <li>{@code voteGeoBingo}: claimId, accept</li>
  *   <li>{@code leave}, {@code start}, {@code nextPhase}, {@code startVoting}, {@code nextRound},
@@ -61,6 +62,8 @@ public record ClientMessage(
         String choice,
         Boolean lockout,
         Integer minutes,
+        Integer size,
+        List<String> motifs,
         Integer field,
         String imageId,
         Double x,

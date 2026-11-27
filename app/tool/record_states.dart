@@ -251,7 +251,7 @@ Future<void> main(List<String> args) async {
 
   // ---- Geo-Bingo ----
   await act(host, ClientMessage.selectGame(GameType.geoBingo));
-  await act(host, ClientMessage.configureGeoBingo(15));
+  await act(host, ClientMessage.configureGeoBingo(15, 3));
   keep('lobby_geo_bingo_host', host);
   keep('lobby_geo_bingo_guest', ben);
   await readyAll();

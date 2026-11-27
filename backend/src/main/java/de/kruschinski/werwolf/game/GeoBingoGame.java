@@ -12,23 +12,19 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Predicate;
+import java.util.stream.IntStream;
 
 /**
- * Geo-Bingo: Alle laufen durch Straßenbilder derselben Stadt und suchen die Motive ihrer 3×3-Karte.
+ * Geo-Bingo: Alle laufen durch Straßenbilder derselben Stadt und suchen die Motive ihrer Karte (3×3 bis 6×6).
  * Wer etwas findet, meldet die genaue Ansicht. Die anderen sehen dieselbe Stelle und stimmen ab.
  * Gewonnen hat, wer zuerst eine Reihe voll hat, sonst nach Ablauf der Zeit, wer die meisten Felder hat.
  * Nicht threadsicher, {@link Room} synchronisiert.
  */
 public final class GeoBingoGame implements Game {
 
-    public static final int SIZE = 3;
     public static final Duration VOTE_TIME = Duration.ofSeconds(20);
     private static final int MAX_DECISIONS = 5;
     private static final double MAX_ZOOM = 3;
-    private static final List<List<Integer>> LINES = List.of(
-            List.of(0, 1, 2), List.of(3, 4, 5), List.of(6, 7, 8),
-            List.of(0, 3, 6), List.of(1, 4, 7), List.of(2, 5, 8),
-            List.of(0, 4, 8), List.of(2, 4, 6));
 
     /**
      * Genau die Ansicht, die gemeldet wurde: Bild, Blickpunkt im Bild (0 bis 1) und Zoom. Bei Google ist
@@ -59,6 +55,8 @@ public final class GeoBingoGame implements Game {
     private final GeoBingoData.Place place;
     private final StreetViewSource source;
     private final List<String> board;
+    /** Felder, die zusammen eine volle Reihe ergeben: waagerecht, senkrecht und die beiden Diagonalen. */
+    private final List<List<Integer>> lines;
     private final int round;
     private final Instant endsAt;
     private final Map<String, Set<Integer>> found = new HashMap<>();
@@ -71,15 +69,33 @@ public final class GeoBingoGame implements Game {
 
     GeoBingoGame(List<Player> participants, GeoBingoData.Place place, StreetViewSource source, List<String> board,
                  GeoBingoOptions options, int round, Instant now) {
-        if (board.size() != SIZE * SIZE) {
-            throw new IllegalArgumentException("Die Karte braucht " + SIZE * SIZE + " Motive, nicht " + board.size());
+        int size = options.size();
+        if (board.size() != size * size) {
+            throw new IllegalArgumentException("Die Karte braucht " + size * size + " Motive, nicht " + board.size());
         }
         this.participants = List.copyOf(participants);
         this.place = place;
         this.source = source;
         this.board = List.copyOf(board);
+        this.lines = lines(size);
         this.round = round;
         this.endsAt = now.plus(Duration.ofMinutes(options.minutes()));
+    }
+
+    /** Felder sind zeilenweise nummeriert: Zeile {@code r}, Spalte {@code c} ist {@code r * size + c}. */
+    private static List<List<Integer>> lines(int size) {
+        List<List<Integer>> lines = new ArrayList<>();
+        for (int r = 0; r < size; r++) {
+            int row = r;
+            lines.add(IntStream.range(0, size).map(c -> row * size + c).boxed().toList());
+        }
+        for (int c = 0; c < size; c++) {
+            int column = c;
+            lines.add(IntStream.range(0, size).map(r -> r * size + column).boxed().toList());
+        }
+        lines.add(IntStream.range(0, size).map(i -> i * size + i).boxed().toList());
+        lines.add(IntStream.range(0, size).map(i -> i * size + size - 1 - i).boxed().toList());
+        return List.copyOf(lines);
     }
 
     @Override
@@ -211,7 +227,7 @@ public final class GeoBingoGame implements Game {
         }
         Set<Integer> fields = foundBy(claim.playerId());
         fields.add(claim.field());
-        LINES.stream().filter(fields::containsAll).findFirst().ifPresent(line -> {
+        lines.stream().filter(fields::containsAll).findFirst().ifPresent(line -> {
             winnerIds = List.of(claim.playerId());
             winningLine = line;
             phase = Phase.RESULT;

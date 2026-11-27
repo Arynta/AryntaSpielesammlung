@@ -7,6 +7,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -193,11 +194,85 @@ class GeoBingoTest {
         Room room = new Room("TEST", clock);
         room.addPlayer("Anna");
         room.selectGame("p1", GameType.GEO_BINGO);
-        room.configureGeoBingo("p1", 5);
+        room.configureGeoBingo("p1", 5, 3);
 
         assertEquals(5, room.viewFor("p1").geoBingoSettings().minutes());
-        assertThrows(GameException.class, () -> room.configureGeoBingo("p1", 4));
-        assertThrows(GameException.class, () -> room.configureGeoBingo("p1", 31));
+        assertThrows(GameException.class, () -> room.configureGeoBingo("p1", 4, 3));
+        assertThrows(GameException.class, () -> room.configureGeoBingo("p1", 31, 3));
+    }
+
+    // ---- Kartengröße und eigene Begriffe ----
+
+    /** Wie {@link #started()}, vorher stellt der Host Größe und eigene Begriffe ein. */
+    private Room started(int size, List<String> motifs) {
+        Room room = new Room("TEST", clock);
+        List.of("Anna", "Ben", "Cem").forEach(room::addPlayer);
+        room.selectGame("p1", GameType.GEO_BINGO);
+        room.configureGeoBingo("p1", 10, size);
+        room.setGeoBingoMotifs("p1", motifs);
+        room.players().forEach(p -> room.setReady(p.id(), true));
+        room.start("p1", new Random(1));
+        return room;
+    }
+
+    @Test
+    void kartengroesseIstEinstellbar() {
+        Room room = started(5, List.of());
+
+        assertEquals(25, view(room, "p1").board().size());
+        assertEquals(25, view(room, "p1").board().stream().distinct().count());
+        assertThrows(GameException.class, () -> new GeoBingoOptions(10, 2, List.of()));
+        assertThrows(GameException.class, () -> new GeoBingoOptions(10, 7, List.of()));
+    }
+
+    @Test
+    void sechsMalSechsReichtDieStandardliste() {
+        assertEquals(36, view(started(6, List.of()), "p1").board().size());
+    }
+
+    @Test
+    void vierMalVierGewinntMitVollerSpalte() {
+        Room room = started(4, List.of());
+        confirm(room, 1);
+        confirm(room, 5);
+        confirm(room, 9);
+        assertEquals(Phase.GEO_BINGO, room.phase());
+
+        confirm(room, 13);
+        assertEquals(List.of(1, 5, 9, 13), view(room, "p1").winningLine());
+    }
+
+    @Test
+    void eigeneBegriffeKommenAufDieKarteDerRestWirdAufgefuellt() {
+        Room room = started(3, List.of("Roter Briefkasten", "Möwe", "Brunnen"));
+        List<String> board = view(room, "p1").board();
+
+        assertEquals(9, board.size());
+        assertTrue(board.containsAll(List.of("Roter Briefkasten", "Möwe", "Brunnen")));
+        // „Brunnen“ steht auch in der Standardliste, darf aber nur einmal auf die Karte
+        assertEquals(9, board.stream().distinct().count());
+    }
+
+    @Test
+    void mehrEigeneBegriffeAlsFelderWerdenZufaelligAusgewaehlt() {
+        List<String> own = List.of("A1", "A2", "A3", "A4", "A5", "A6", "A7", "A8", "A9", "A10");
+        List<String> board = view(started(3, own), "p1").board();
+
+        assertTrue(own.containsAll(board));
+    }
+
+    @Test
+    void eigeneBegriffeWerdenGeprueft() {
+        Room room = new Room("TEST", clock);
+        room.addPlayer("Anna");
+        room.selectGame("p1", GameType.GEO_BINGO);
+
+        room.setGeoBingoMotifs("p1", List.of("  Möwe ", "", "Kirchturm"));
+        assertEquals(List.of("Möwe", "Kirchturm"), room.viewFor("p1").geoBingoSettings().motifs());
+        assertThrows(GameException.class, () -> room.setGeoBingoMotifs("p1", List.of("Möwe", "möwe")));
+        assertThrows(GameException.class, () -> room.setGeoBingoMotifs("p1", List.of("x".repeat(31))));
+        List<String> tooMany = IntStream.range(0, 37).mapToObj(i -> "B" + i).toList();
+        assertThrows(GameException.class, () -> room.setGeoBingoMotifs("p1", tooMany));
     }
 
     @Test

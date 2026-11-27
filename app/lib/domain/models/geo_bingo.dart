@@ -1,14 +1,27 @@
 // Geo-Bingo: Einstellung, Karte, Funde und Abstimmungen.
 import 'json.dart';
 
+/// [size]: Felder pro Reihe. [motifs]: eigene Begriffe des Hosts, den Rest füllt die Standardliste auf.
 class GeoBingoSettings {
   GeoBingoSettings.fromJson(Json j)
     : minutes = j['minutes'] as int,
       minMinutes = j['minMinutes'] as int,
-      maxMinutes = j['maxMinutes'] as int;
+      maxMinutes = j['maxMinutes'] as int,
+      size = j['size'] as int,
+      minSize = j['minSize'] as int,
+      maxSize = j['maxSize'] as int,
+      motifs = parseStrings(j['motifs']),
+      maxMotifs = j['maxMotifs'] as int,
+      maxMotifLength = j['maxMotifLength'] as int;
   final int minutes;
   final int minMinutes;
   final int maxMinutes;
+  final int size;
+  final int minSize;
+  final int maxSize;
+  final List<String> motifs;
+  final int maxMotifs;
+  final int maxMotifLength;
 }
 
 /// Woher die Straßenbilder einer Runde kommen. Google nur, solange das Tageslimit des Servers reicht.

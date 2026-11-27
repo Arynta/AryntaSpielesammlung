@@ -164,7 +164,9 @@ public record RoomView(
     public record BuzzerView(boolean lockout, List<BuzzerPress> presses, Integer yourRank, boolean canPress) {
     }
 
-    public record GeoBingoSettings(int minutes, int minMinutes, int maxMinutes) {
+    /** {@code size}: Felder pro Reihe. {@code motifs}: eigene Begriffe des Hosts. */
+    public record GeoBingoSettings(int minutes, int minMinutes, int maxMinutes, int size, int minSize, int maxSize,
+                                   List<String> motifs, int maxMotifs, int maxMotifLength) {
     }
 
     /** {@code fields}: bestätigte Felder der Karte (0 bis 8, zeilenweise). */

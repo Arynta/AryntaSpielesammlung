@@ -113,7 +113,9 @@ class ClientMessage {
   ClientMessage.configureBuzzer(bool lockout) : this._('configureBuzzer', {'lockout': lockout});
   ClientMessage.pressBuzzer() : this._('pressBuzzer');
   ClientMessage.releaseBuzzer() : this._('releaseBuzzer');
-  ClientMessage.configureGeoBingo(int minutes) : this._('configureGeoBingo', {'minutes': minutes});
+  ClientMessage.configureGeoBingo(int minutes, int size)
+    : this._('configureGeoBingo', {'minutes': minutes, 'size': size});
+  ClientMessage.setGeoBingoMotifs(List<String> motifs) : this._('setGeoBingoMotifs', {'motifs': motifs});
   ClientMessage.claimGeoBingoField(int field, GeoBingoSpot spot)
     : this._('claimGeoBingoField', {'field': field, 'imageId': spot.imageId, 'x': spot.x, 'y': spot.y, 'zoom': spot.zoom});
   ClientMessage.voteGeoBingo(String claimId, bool accept)

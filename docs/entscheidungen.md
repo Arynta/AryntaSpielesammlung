@@ -215,6 +215,13 @@ gebremst. Längere Codes wären sicherer, sind am Tisch aber schlechter vorzules
   Bingo-Karte liegt links in einer Leiste, die ein Griff am linken Rand ein- und ausklappt. Die
   Abstimmung erscheint unten als Karte, die Uhr oben rechts. Unten bleiben 40 px frei, weil Logo und
   Quellenangabe von Google bzw. Mapillary sichtbar bleiben müssen.
+- **Klicks durch die Leiste:** Flutter malt Leiste, Griff, Uhr und Abstimmung nur über das HTML des
+  Viewers. Ohne Gegenmaßnahme bekommt Google den Klick auch und läuft die Straße entlang. Darunter
+  liegt deshalb je ein leeres HTML-Element (`PointerShield`), das den Klick abfängt.
+- **Kartengröße und eigene Begriffe:** Der Host stellt 3×3 bis 6×6 ein und kann bis zu 36 eigene
+  Begriffe angeben. Eigene Begriffe kommen immer auf die Karte (bei zu vielen entscheidet der Zufall),
+  den Rest füllt die Standardliste auf, ohne doppelte Begriffe. Die Standardliste hat 40 Begriffe, das
+  reicht auch für 6×6. Gewonnen wird weiter mit einer vollen Reihe.
 - **Achtung, Ebenen:** Google setzt im Viewer hohe `z-index`-Werte. Ohne `isolation: isolate` am
   Container (`street_view_web.dart`) malen die sich über alles, was Flutter darüberlegt. Das sieht man
   erst mit echtem Bild, nicht mit Platzhalter-Schlüssel.

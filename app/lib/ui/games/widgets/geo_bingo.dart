@@ -1,5 +1,7 @@
 // Online-Ansichten für Geo-Bingo: Spielzeit in der Lobby, Ergebnis und die Bingo-Karte, die auch die
 // laufende Runde (geo_bingo_play.dart) zeigt.
+import 'dart:math';
+
 import 'package:material_ui/material_ui.dart';
 
 import '../../../domain/models/models.dart';
@@ -22,6 +24,8 @@ class GeoBingoSettingsView extends StatelessWidget {
     if (!room.you.host) {
       return SettingsSummary([
         ['${texts.playTime}: ', Strong(texts.minutes(s.minutes))],
+        ['${texts.geoBingoCard}: ', Strong('${s.size} × ${s.size}')],
+        if (s.motifs.isNotEmpty) ['${texts.geoBingoOwnMotifs}: ', Strong(s.motifs.join(', '))],
         [texts.geoBingoSource],
       ]);
     }
@@ -34,8 +38,79 @@ class GeoBingoSettingsView extends StatelessWidget {
           max: s.maxMinutes,
           onStep: controller.changeGeoBingoMinutes,
         ),
+        AppStepper(
+          label: texts.geoBingoCardSize,
+          value: s.size,
+          min: s.minSize,
+          max: s.maxSize,
+          onStep: controller.changeGeoBingoSize,
+        ),
         Hint(texts.geoBingoRules),
+        _OwnMotifs(controller: controller, settings: s),
         Hint(texts.geoBingoSource),
+      ],
+    );
+  }
+}
+
+/// Eigene Begriffe: eintippen, hinzufügen, mit X wieder entfernen.
+class _OwnMotifs extends StatefulWidget {
+  const _OwnMotifs({required this.controller, required this.settings});
+
+  final AppController controller;
+  final GeoBingoSettings settings;
+
+  @override
+  State<_OwnMotifs> createState() => _OwnMotifsState();
+}
+
+class _OwnMotifsState extends State<_OwnMotifs> {
+  final _focus = FocusNode();
+
+  @override
+  void dispose() {
+    _focus.dispose();
+    super.dispose();
+  }
+
+  /// Der Fokus bleibt im Feld, damit man mehrere Begriffe hintereinander eintippen kann.
+  void _add() {
+    widget.controller.addGeoBingoMotif();
+    _focus.requestFocus();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final controller = widget.controller;
+    final settings = widget.settings;
+    final full = settings.motifs.length >= settings.maxMotifs;
+    return Gap(
+      children: [
+        AppField(
+          label: texts.geoBingoOwnMotifs,
+          controller: controller.geoBingoMotifInput,
+          focusNode: _focus,
+          hint: texts.geoBingoOwnMotifHint,
+          maxLength: settings.maxMotifLength,
+          onSubmitted: full ? null : _add,
+        ),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: AppButton(texts.geoBingoAddMotif, small: true, onPressed: full ? null : _add),
+        ),
+        for (final motif in settings.motifs)
+          Row(
+            spacing: 10,
+            children: [
+              Expanded(child: Text(motif)),
+              IconSquare(
+                icon: Icons.close,
+                semanticLabel: texts.geoBingoRemoveMotif(motif),
+                onPressed: () => controller.removeGeoBingoMotif(motif),
+              ),
+            ],
+          ),
+        Hint(texts.geoBingoOwnMotifsInfo),
       ],
     );
   }
@@ -92,7 +167,7 @@ class GeoBingoScores extends StatelessWidget {
   );
 }
 
-/// Die 3×3-Karte von [playerId]. Mit [onClaim] kann man offene Felder melden.
+/// Die Karte von [playerId] (3×3 bis 6×6). Mit [onClaim] kann man offene Felder melden.
 class GeoBingoBoard extends StatelessWidget {
   const GeoBingoBoard({
     super.key,
@@ -112,6 +187,9 @@ class GeoBingoBoard extends StatelessWidget {
     final p = context.palette;
     final found = game.fieldsOf(playerId);
     final pending = game.claims.where((c) => c.playerId == playerId).firstOrNull?.field;
+    final size = sqrt(game.board.length).round();
+    // Größere Karten bekommen flachere Felder, damit sie in die Leiste passen
+    final tileHeight = 64.0 - (size - 3) * 8;
     Widget tile(int field) {
       final done = found.contains(field);
       final waiting = field == pending;
@@ -125,7 +203,7 @@ class GeoBingoBoard extends StatelessWidget {
             selected: done,
             onPressed: claim == null || done || pending != null ? null : () => claim(field),
             child: Container(
-              height: 64,
+              height: tileHeight,
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 color: done ? p.accent : p.surface,
@@ -155,8 +233,8 @@ class GeoBingoBoard extends StatelessWidget {
     return Gap(
       spacing: 8,
       children: [
-        for (var row = 0; row < 3; row++)
-          Row(spacing: 8, children: [for (var col = 0; col < 3; col++) tile(row * 3 + col)]),
+        for (var row = 0; row < size; row++)
+          Row(spacing: 8, children: [for (var col = 0; col < size; col++) tile(row * size + col)]),
       ],
     );
   }

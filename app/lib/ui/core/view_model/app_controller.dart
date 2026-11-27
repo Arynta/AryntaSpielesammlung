@@ -85,6 +85,9 @@ class AppController extends ChangeNotifier {
   /// Eigenes Impostor-Wort, das der Host gerade tippt, aber noch nicht übernommen hat.
   final customWordInput = TextEditingController();
 
+  /// Geo-Bingo: eigener Begriff, den der Host gerade tippt, bevor er ihn hinzufügt.
+  final geoBingoMotifInput = TextEditingController();
+
   /// Nobody is Perfect: was im Antwortfeld steht, noch nicht abgeschickt.
   final answerInput = TextEditingController();
 
@@ -107,6 +110,7 @@ class AppController extends ChangeNotifier {
     nameInput.dispose();
     codeInput.dispose();
     customWordInput.dispose();
+    geoBingoMotifInput.dispose();
     answerInput.dispose();
     nameFocus.dispose();
     language.dispose();
@@ -411,7 +415,27 @@ class AppController extends ChangeNotifier {
   /// In Schritten von 5 Minuten.
   void changeGeoBingoMinutes(int step) {
     final current = room?.geoBingoSettings;
-    if (current != null) _send(ClientMessage.configureGeoBingo(current.minutes + step * 5));
+    if (current != null) _send(ClientMessage.configureGeoBingo(current.minutes + step * 5, current.size));
+  }
+
+  /// Felder pro Reihe, 3×3 bis 6×6.
+  void changeGeoBingoSize(int step) {
+    final current = room?.geoBingoSettings;
+    if (current != null) _send(ClientMessage.configureGeoBingo(current.minutes, current.size + step));
+  }
+
+  /// Ob der Begriff doppelt oder zu viel ist, prüft der Server und meldet es.
+  void addGeoBingoMotif() {
+    final current = room?.geoBingoSettings;
+    final motif = geoBingoMotifInput.text.trim();
+    if (current == null || motif.isEmpty) return;
+    _send(ClientMessage.setGeoBingoMotifs([...current.motifs, motif]));
+    geoBingoMotifInput.clear();
+  }
+
+  void removeGeoBingoMotif(String motif) {
+    final current = room?.geoBingoSettings;
+    if (current != null) _send(ClientMessage.setGeoBingoMotifs([...current.motifs.where((m) => m != motif)]));
   }
 
   Future<void> shareRoom() async {

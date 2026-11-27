@@ -237,10 +237,16 @@ public class GameSocketHandler extends TextWebSocketHandler {
             case "pressBuzzer" -> withRoom(session, Room::pressBuzzer);
             case "releaseBuzzer" -> withRoom(session, Room::releaseBuzzer);
             case "configureGeoBingo" -> {
-                if (msg.minutes() == null) {
-                    throw new GameException("error.geoBingo.minutesMissing");
+                if (msg.minutes() == null || msg.size() == null) {
+                    throw new GameException("error.geoBingo.optionsMissing");
                 }
-                withRoom(session, (room, playerId) -> room.configureGeoBingo(playerId, msg.minutes()));
+                withRoom(session, (room, playerId) -> room.configureGeoBingo(playerId, msg.minutes(), msg.size()));
+            }
+            case "setGeoBingoMotifs" -> {
+                if (msg.motifs() == null) {
+                    throw new GameException("error.geoBingo.motifsMissing");
+                }
+                withRoom(session, (room, playerId) -> room.setGeoBingoMotifs(playerId, msg.motifs()));
             }
             case "claimGeoBingoField" -> {
                 if (msg.field() == null || msg.x() == null || msg.y() == null || msg.zoom() == null) {

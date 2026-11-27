@@ -347,10 +347,20 @@ public class Room {
         touch();
     }
 
-    public synchronized void configureGeoBingo(String requesterId, int minutes) {
+    public synchronized void configureGeoBingo(String requesterId, int minutes, int size) {
         requireHost(requesterId);
         requireLobby();
-        GeoBingoOptions options = new GeoBingoOptions(minutes);
+        changeGeoBingoOptions(geoBingoOptions.withTimeAndSize(minutes, size));
+    }
+
+    /** Eigene Begriffe für die Karte, die ganze Liste auf einmal. */
+    public synchronized void setGeoBingoMotifs(String requesterId, List<String> motifs) {
+        requireHost(requesterId);
+        requireLobby();
+        changeGeoBingoOptions(geoBingoOptions.withMotifs(motifs));
+    }
+
+    private void changeGeoBingoOptions(GeoBingoOptions options) {
         if (!options.equals(geoBingoOptions)) {
             geoBingoOptions = options;
             resetReady();
@@ -519,7 +529,8 @@ public class Room {
     private GeoBingoGame newGeoBingo(int round, RandomGenerator random) {
         GeoBingoData.Place place = GeoBingoData.pickPlace(contentLanguage(), usedPlaces, random);
         usedPlaces.add(place.name());
-        List<String> board = GeoBingoData.pickMotifs(contentLanguage(), GeoBingoGame.SIZE * GeoBingoGame.SIZE, random);
+        int size = geoBingoOptions.size();
+        List<String> board = GeoBingoData.pickMotifs(contentLanguage(), geoBingoOptions.motifs(), size * size, random);
         return new GeoBingoGame(List.copyOf(players.values()), place, streetViewSource(), board, geoBingoOptions,
                 round, clock.instant());
     }
@@ -662,7 +673,10 @@ public class Room {
                 tabuSettings,
                 new RoomView.NobodyIsPerfectSettings(nobodyIsPerfectOptions.questionCount()),
                 new RoomView.BuzzerSettings(buzzerLockout),
-                new RoomView.GeoBingoSettings(geoBingoOptions.minutes(), GeoBingoOptions.MIN_MINUTES, GeoBingoOptions.MAX_MINUTES),
+                new RoomView.GeoBingoSettings(geoBingoOptions.minutes(), GeoBingoOptions.MIN_MINUTES,
+                        GeoBingoOptions.MAX_MINUTES, geoBingoOptions.size(), GeoBingoOptions.MIN_SIZE,
+                        GeoBingoOptions.MAX_SIZE, geoBingoOptions.motifs(), GeoBingoOptions.MAX_MOTIFS,
+                        GeoBingoOptions.MAX_MOTIF_LENGTH),
                 new RoomView.PlayerLimit(playerLimit, lowestPlayerLimit(), MAX_PLAYERS),
                 phase(),
                 round(),
