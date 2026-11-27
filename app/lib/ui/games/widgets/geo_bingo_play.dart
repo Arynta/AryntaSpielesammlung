@@ -62,7 +62,11 @@ class _GeoBingoPlayState extends State<GeoBingoPlay> {
           ),
         ),
         if (deadline != null)
-          Positioned(top: _gap + safe.top, right: _gap + safe.right, child: Countdown(deadline, clock: true)),
+          Positioned(
+            top: _gap + safe.top,
+            right: _gap + safe.right,
+            child: PointerShield(child: Countdown(deadline, clock: true)),
+          ),
         // Eingeklappt schaut nur der Griff am linken Bildschirmrand heraus
         AnimatedPositioned(
           duration: context.motion(250),
@@ -78,9 +82,13 @@ class _GeoBingoPlayState extends State<GeoBingoPlay> {
               children: [
                 SizedBox(
                   width: panelWidth,
-                  child: _BoardPanel(controller: controller, room: room, game: game, canClaim: toVote == null),
+                  child: PointerShield(
+                    child: _BoardPanel(controller: controller, room: room, game: game, canClaim: toVote == null),
+                  ),
                 ),
-                _BoardHandle(open: _boardOpen, onPressed: () => setState(() => _boardOpen = !_boardOpen)),
+                PointerShield(
+                  child: _BoardHandle(open: _boardOpen, onPressed: () => setState(() => _boardOpen = !_boardOpen)),
+                ),
               ],
             ),
           ),
@@ -96,7 +104,9 @@ class _GeoBingoPlayState extends State<GeoBingoPlay> {
             child: Center(
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: _voteWidth),
-                child: _Vote(key: ValueKey(toVote.id), controller: controller, room: room, game: game, claim: toVote),
+                child: PointerShield(
+                  child: _Vote(key: ValueKey(toVote.id), controller: controller, room: room, game: game, claim: toVote),
+                ),
               ),
             ),
           ),
