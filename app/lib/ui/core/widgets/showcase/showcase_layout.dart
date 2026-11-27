@@ -25,19 +25,28 @@ const gameTints = {
   GameType.geoBingo: Color(0xFF2F6B3A),
 };
 
+/// Sichtbarkeit entlang des Auslaufs (Anteil am Auslauf → Deckkraft). Ein gerader Anstieg ab 0 zeichnet am Bildrand
+/// einen sichtbaren Strich, deshalb bleibt der Rand ganz durchsichtig und der Anstieg beginnt weich.
+const _fade = [(0.0, 0.0), (0.12, 0.0), (0.4, 0.25), (0.7, 0.7), (1.0, 1.0)];
+
 /// Lässt das Bild ab [from] auf dem Anteil [share] ins Dunkle auslaufen, damit Titel und Spielereihe lesbar bleiben.
 /// Mit [both] auch auf der Gegenseite.
-Widget fadeOut(Alignment from, double share, Widget child, {bool both = false, Key? key}) => ShaderMask(
-  key: key,
-  blendMode: BlendMode.dstIn,
-  shaderCallback: (rect) => LinearGradient(
-    begin: from,
-    end: -from,
-    colors: [Colors.transparent, Colors.white, Colors.white, if (both) Colors.transparent else Colors.white],
-    stops: [0, share, 1 - share, 1],
-  ).createShader(rect),
-  child: child,
-);
+Widget fadeOut(Alignment from, double share, Widget child, {bool both = false, Key? key}) {
+  final start = [for (final (at, alpha) in _fade) (at * share, alpha)];
+  final end = both ? [for (final (at, alpha) in _fade.reversed) (1 - at * share, alpha)] : [(1.0, 1.0)];
+  final steps = [...start, ...end];
+  return ShaderMask(
+    key: key,
+    blendMode: BlendMode.dstIn,
+    shaderCallback: (rect) => LinearGradient(
+      begin: from,
+      end: -from,
+      colors: [for (final (_, alpha) in steps) Colors.white.withValues(alpha: alpha)],
+      stops: [for (final (at, _) in steps) at],
+    ).createShader(rect),
+    child: child,
+  );
+}
 
 /// Inhalt unter der Spielereihe in Lesebreite.
 class Narrow extends StatelessWidget {
