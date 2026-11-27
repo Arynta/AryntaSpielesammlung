@@ -191,7 +191,75 @@ gebremst. Längere Codes wären sicherer, sind am Tisch aber schlechter vorzules
 
 ---
 
-## 5. Arbeitsweise in diesem Projekt
+## 5. Geo-Bingo: Google Street View mit Tageslimit, sonst Mapillary
+
+- **Entscheidung:** Die Straßenbilder kommen von Google Street View, solange das Tageslimit des Servers
+  reicht. Danach läuft die Runde mit Mapillary. Der Server wählt die Quelle beim Start jeder Runde, und
+  alle in der Runde haben dieselbe (`GeoBingoView.source`).
+- **Grund:** Google sieht besser aus und deckt mehr ab, kostet aber nach dem Freikontingent Geld.
+  Mapillary ist immer kostenlos, hat aber weniger und schlechtere Bilder. Ziel ist: nie eine Rechnung.
+
+### 5.1 Was Google abrechnet
+
+- **Dynamic Street View:** Jeder neu erzeugte `StreetViewPanorama` zählt einmal. 5.000 im Monat sind
+  frei, danach rund 14 $ pro 1.000. Herumlaufen und Sprünge mit `setOptions` im selben Viewer zählen
+  nicht neu.
+- **Street View Metadata:** Die Suche nach dem Startpanorama ist kostenlos und ohne Kontingent. Die App
+  fragt sie direkt im Browser ab (Google erlaubt CORS), statt über den kostenpflichtigen `StreetViewService`.
+  Sie liefert auch 360°-Fotos von Privatleuten, in denen man nicht laufen kann. Deshalb zählt nur ein
+  Treffer mit „Google“ im Copyright; sonst sucht die App ringsum in 8 Richtungen weiter.
+- Deshalb gibt es **pro Seite nur einen Google-Viewer** (`google_viewer.dart`). Er wandert in den Rahmen
+  der nächsten Runde und springt bei Abstimmungen zum Fund und danach zurück. Früher hatte die
+  Abstimmung einen eigenen Viewer; mit Google wäre jeder Fund eine bezahlte Ladung gewesen.
+- **Vollbild:** Die laufende Runde füllt den ganzen Bildschirm (`GeoBingoPlay`, ohne Fußzeile). Die
+  Bingo-Karte liegt links in einer Leiste, die ein Griff am linken Rand ein- und ausklappt. Die
+  Abstimmung erscheint unten als Karte, die Uhr oben rechts. Unten bleiben 40 px frei, weil Logo und
+  Quellenangabe von Google bzw. Mapillary sichtbar bleiben müssen.
+- **Achtung, Ebenen:** Google setzt im Viewer hohe `z-index`-Werte. Ohne `isolation: isolate` am
+  Container (`street_view_web.dart`) malen die sich über alles, was Flutter darüberlegt. Das sieht man
+  erst mit echtem Bild, nicht mit Platzhalter-Schlüssel.
+- **Minikarte (nur Google):** Unten rechts liegt eine Google-Karte mit den Street-View-Linien
+  (`StreetViewCoverageLayer`). Antippen vergrößert sie, ein Klick in die große Karte springt über die
+  kostenlose Metadaten-Suche zum nächsten Panorama, auch in andere Länder. Das Männchen lässt sich
+  ebenfalls hineinziehen. Kosten: eine Dynamic-Maps-Ladung pro Seite (10.000 im Monat frei); auch die
+  Karte gibt es nur einmal pro Seite.
+- **Keine Screenshots:** Google verbietet, Bilder zu speichern, auch nur für eine Runde. Erlaubt ist die
+  Panorama-ID. Ein Fund ist deshalb nur ID plus Blickrichtung, umgerechnet auf 0 bis 1
+  (`x` = Richtung / 360, `y` = (Neigung + 90) / 180).
+
+### 5.2 Drei Sicherungen
+
+| Sicherung | Wo | Was sie abdeckt |
+|---|---|---|
+| Tageslimit im Server | `StreetViewBudget`, `app.street-view.daily-limit` (`STREET_VIEW_DAILY_LIMIT`, Vorgabe 0 = Google aus) | Vor jeder Google-Runde bucht der Raum einen Viewer pro Spieler, der in diesem Raum noch keinen hatte. Passt das nicht mehr, ist die Runde Mapillary. |
+| Eingeschränkter Schlüssel | Cloud Console → Credentials | Nur `https://arynta.github.io/AryntaSpielesammlung/*` (und `localhost:5173` zum Testen), nur Maps JavaScript API und Street View Static API. Sonst könnte jemand anderes Ladungen auf unsere Rechnung erzeugen. |
+| Abrechnung abschalten | Budget mit Pub/Sub-Benachrichtigung und kleiner Cloud-Funktion, die die Abrechnung des Projekts trennt | Die harte Grenze. Muss vor dem Upgrade vom Testzeitraum auf ein normales Konto stehen. Greift mit einigen Stunden Verzögerung. |
+
+- **Kein Tageskontingent bei Google:** Anders als zuerst geplant bietet Google Maps Platform → Quotas
+  für Dynamic Street View keine eigene Zeile an (geprüft November 2026), und alle angezeigten
+  Kontingente stehen auf „Anpassbar: Nein“. Eine harte Grenze direkt bei Google gibt es also nicht.
+- **Testzeitraum:** Das Projekt läuft zunächst im 90-tägigen Testzeitraum mit Guthaben. Darin bucht
+  Google nichts von der Karte ab; ohne Upgrade stoppt Google am Ende einfach.
+- **Werte:** Server 150 am Tag. 31 × 150 = 4.650, das bleibt auch in langen Monaten unter 5.000.
+  Dazu ein Budget-Alarm bei 1 € (meldet nur) und vor dem Upgrade die Abschaltung oben.
+- Der Server-Tag beginnt wie bei Google um Mitternacht pazifischer Zeit.
+- **Achtung, Lücken im Serverzähler:** Er liegt nur im Speicher und fängt nach einem Neustart (Render
+  schläft ein) bei null an. Wer die Seite neu lädt, bekommt einen neuen Viewer, ohne dass der Server
+  ihn zählt. Bei ein paar Freunden bleibt das weit unter 5.000 im Monat; gegen echten Missbrauch
+  helfen nur der eingeschränkte Schlüssel und die Abschaltung der Abrechnung.
+- **Schlüssel:** Browser-Schlüssel als `--dart-define=GOOGLE_MAPS_KEY=…` (in GitHub die Variable
+  `GOOGLE_MAPS_KEY`). Server-Limit und App-Schlüssel gehören zusammen: Limit über 0 ohne Schlüssel in
+  der App zeigt nur einen Hinweis statt Bildern.
+- **Content-Security-Policy:** `app/web/flutter_bootstrap.js` erlaubt Skripte, Styles, Schriften und
+  Bilder von `*.googleapis.com` und `*.gstatic.com` (Bilder auch von `*.google.com`, `*.ggpht.com`,
+  `*.googleusercontent.com`). `'unsafe-eval'` steht bewusst nicht drin. Mit dem echten Schlüssel im
+  Release-Build prüfen, ob die Konsole CSP-Fehler zeigt, und nur dann gezielt nachtragen.
+- **Wo im Code:** `backend/.../game/StreetViewBudget.java`, `StreetViewSource.java`,
+  `Room.streetViewSource()`, `app/lib/data/services/street_view/`.
+
+---
+
+## 6. Arbeitsweise in diesem Projekt
 
 - **Commits** nur unter dem Namen des Besitzers, **ohne** `Co-Authored-By`-Zeile für eine KI.
   Commit-Nachrichten auf Deutsch.

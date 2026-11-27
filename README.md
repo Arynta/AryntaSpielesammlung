@@ -90,6 +90,11 @@ Geo-Bingo braucht für die Straßenbilder einen kostenlosen Client-Schlüssel vo
 zeigt dann nur einen Hinweis. Der Viewer (MapillaryJS 4.1.2, MIT-Lizenz) liegt in
 `app/web/mapillary/` und wird erst geladen, wenn jemand Geo-Bingo spielt.
 
+Optional kommen die Bilder von Google Street View, solange Googles Freikontingent reicht.
+Dafür braucht die App `--dart-define=GOOGLE_MAPS_KEY=…` und das Backend
+`STREET_VIEW_DAILY_LIMIT=150`. Ohne Limit (Vorgabe 0) bleibt alles bei Mapillary.
+Einrichtung und Grenzen stehen in [docs/entscheidungen.md](docs/entscheidungen.md), Abschnitt 5.
+
 Release für den Browser:
 
 ```bash
@@ -129,7 +134,8 @@ bei Flutter Web die Bedienhilfen erst über den unsichtbaren Knopf der Seite ein
 3. **Frontend auf GitHub Pages:** Unter Settings → Pages als Quelle "GitHub Actions"
    wählen. Unter Settings → Secrets and variables → Actions → Variables die Variable
    `VITE_BACKEND_URL` anlegen, z. B. `wss://arynta-spielesammlung.onrender.com/ws`.
-   Für Geo-Bingo dort auch `MAPILLARY_TOKEN` mit dem Mapillary-Client-Schlüssel anlegen.
+   Für Geo-Bingo dort auch `MAPILLARY_TOKEN` mit dem Mapillary-Client-Schlüssel anlegen,
+   für Google Street View zusätzlich `GOOGLE_MAPS_KEY` (siehe Schritt 6).
    Der Workflow `.github/workflows/pages.yml` baut und veröffentlicht das Frontend bei
    jedem Push auf `main`, der das Frontend, die Spieldaten oder die Bilder ändert.
 4. Bei Render unter Environment `ALLOWED_ORIGINS` auf die Adresse des Frontends
@@ -138,6 +144,22 @@ bei Flutter Web die Bedienhilfen erst über den unsichtbaren Knopf der Seite ein
 5. Geo-Bingo ist in der Lobby vorerst mit „Bald verfügbar“ gesperrt
    (`app.locked-games=GEO_BINGO`). Zum Freischalten bei Render unter Environment
    `LOCKED_GAMES` mit leerem Wert anlegen und neu deployen.
+6. **Google Street View für Geo-Bingo (optional, bleibt kostenlos):**
+   1. In der [Google Cloud Console](https://console.cloud.google.com/) ein Projekt anlegen und
+      ein Rechnungskonto verknüpfen (Google verlangt eine Karte, berechnet wird aber nichts,
+      solange die Grenzen unten stehen).
+   2. Unter APIs & Services nur **Maps JavaScript API** und **Street View Static API**
+      aktivieren.
+   3. Ein eigenes Tageskontingent für Dynamic Street View bietet Google nicht an (Stand
+      November 2026, Google Maps Platform → Quotas zeigt keins). Im 90-tägigen Testzeitraum
+      bucht Google ohnehin nichts ab. Vor dem Upgrade auf ein normales Konto eine automatische
+      Abschaltung der Abrechnung über das Budget einrichten (siehe docs/entscheidungen.md, 5.2).
+   4. Unter Credentials einen API-Schlüssel anlegen, auf **Websites** mit der Adresse von
+      GitHub Pages beschränken (`https://arynta.github.io/AryntaSpielesammlung/*`) und nur die
+      beiden APIs oben erlauben. Für lokale Tests zusätzlich `http://localhost:5173/*`.
+   5. Unter Billing → Budgets & alerts ein Budget von 1 € mit Alarm anlegen.
+   6. Den Schlüssel in GitHub als Variable `GOOGLE_MAPS_KEY` anlegen und bei Render
+      `STREET_VIEW_DAILY_LIMIT=150` setzen.
 
 Der kostenlose Render-Server schläft nach 15 Minuten ohne Besucher ein. Wer als Erstes
 die Seite öffnet, sieht dann "Der Server wird geweckt" und wartet bis zu einer Minute.
