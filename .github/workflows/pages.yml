@@ -1,6 +1,6 @@
 # Baut die Flutter-Seite und stellt sie auf GitHub Pages.
 # Die Backend-Adresse kommt aus der Repo-Variable VITE_BACKEND_URL,
-# der Schlüssel für die Geo-Bingo-Straßenbilder aus MAPILLARY_TOKEN.
+# die Schlüssel für die Geo-Bingo-Straßenbilder aus MAPILLARY_TOKEN und GOOGLE_MAPS_KEY.
 name: GitHub Pages
 
 on:
@@ -40,6 +40,7 @@ jobs:
           --base-href "${{ steps.pages.outputs.base_path }}/"
           --dart-define=BACKEND_URL=${{ vars.VITE_BACKEND_URL }}
           --dart-define=MAPILLARY_TOKEN=${{ vars.MAPILLARY_TOKEN }}
+          --dart-define=GOOGLE_MAPS_KEY=${{ vars.GOOGLE_MAPS_KEY }}
       - uses: actions/upload-pages-artifact@v4
         with:
           path: app/build/web

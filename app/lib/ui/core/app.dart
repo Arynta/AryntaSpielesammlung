@@ -9,6 +9,7 @@ import '../local/view_model/local_controller.dart';
 import '../../domain/models/models.dart';
 import '../games/widgets/buzzer.dart';
 import '../games/widgets/geo_bingo.dart';
+import '../games/widgets/geo_bingo_play.dart';
 import '../games/widgets/impostor.dart';
 import '../games/widgets/nobody_is_perfect.dart';
 import '../games/widgets/tabu.dart';
@@ -124,7 +125,7 @@ class GameScreen extends StatelessWidget {
                 Expanded(
                   child: KeyedSubtree(
                     key: ValueKey(controller.language.value),
-                    child: _isShowcase ? _showcase(context, padding) : _narrow(context, padding),
+                    child: _fullscreen() ?? (_isShowcase ? _showcase(context, padding) : _narrow(context, padding)),
                   ),
                 ),
               ],
@@ -159,6 +160,14 @@ class GameScreen extends StatelessWidget {
       ),
     ),
   );
+
+  /// Eine laufende Geo-Bingo-Runde füllt den ganzen Bildschirm mit dem Straßenbild, ohne Fußzeile.
+  Widget? _fullscreen() {
+    final room = controller.room;
+    final geoBingo = room?.geoBingo;
+    if (controller.local != null || room == null || geoBingo == null || room.phase != Phase.geoBingo) return null;
+    return GeoBingoPlay(controller: controller, room: room, game: geoBingo);
+  }
 
   /// Start, Lokal-Einrichtung und Lobby nutzen die ganze Breite.
   bool get _isShowcase {

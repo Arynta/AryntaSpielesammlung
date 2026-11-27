@@ -199,6 +199,19 @@ void main() {
     app.show(vote);
     await tester.pump();
     final claimId = ((vote['geoBingo'] as Json)['claims'] as List).single['id'];
+    // Das Straßenbild zeigt den Fund, solange darf man selbst nichts melden
+    expect(find.textContaining('zeigt gerade den Fund'), findsOneWidget);
+    final voteBoard = ((vote['geoBingo'] as Json)['board'] as List).cast<String>();
+    expect(
+      tester
+          .widgetList<Pressable>(
+            find.byWidgetPredicate(
+              (w) => w is Pressable && voteBoard.any((m) => w.semanticLabel?.startsWith(m) ?? false),
+            ),
+          )
+          .where((t) => t.onPressed != null),
+      isEmpty,
+    );
     await tester.ensureVisible(button('Ja, stimmt'));
     await tester.tap(button('Ja, stimmt'));
     expect(app.link.sent.last, {'type': 'voteGeoBingo', 'claimId': claimId, 'accept': true});
@@ -226,6 +239,27 @@ void main() {
     await tester.pump();
     expect(app.link.types, isNot(contains('claimGeoBingoField')));
     expect(app.controller.toast, 'Das Straßenbild ist noch nicht geladen.');
+  });
+
+  testWidgets('Geo-Bingo: Bingo-Karte lässt sich ein- und ausklappen', (tester) async {
+    final app = await pumpApp(tester);
+    app.show(fixtures['geo_bingo_start']!);
+    await tester.pump();
+    final panelLeft = tester.getTopLeft(find.textContaining('GEO-BINGO')).dx;
+    expect(panelLeft, greaterThan(0));
+
+    // Eingeklappt liegt die Karte links außerhalb, der Griff bleibt am Rand
+    // Erst neu aufbauen, dann die Animation durchlaufen lassen (pumpAndSettle geht nicht, die Uhr tickt)
+    await tester.tap(find.bySemanticsLabel('Bingo-Karte einklappen'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(tester.getTopLeft(find.textContaining('GEO-BINGO')).dx, lessThan(0));
+    expect(tester.getTopLeft(find.bySemanticsLabel('Bingo-Karte ausklappen')).dx, greaterThanOrEqualTo(0));
+
+    await tester.tap(find.bySemanticsLabel('Bingo-Karte ausklappen'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(tester.getTopLeft(find.textContaining('GEO-BINGO')).dx, panelLeft);
   });
 
   testWidgets('Gesperrtes Spiel zeigt „Bald verfügbar“ und lässt sich nicht wählen', (tester) async {

@@ -11,13 +11,32 @@ class GeoBingoSettings {
   final int maxMinutes;
 }
 
+/// Woher die Straßenbilder einer Runde kommen. Google nur, solange das Tageslimit des Servers reicht.
+enum StreetViewSource {
+  google('GOOGLE'),
+  mapillary('MAPILLARY');
+
+  const StreetViewSource(this.wire);
+  final String wire;
+  static StreetViewSource parse(Object? raw) => values.firstWhere((v) => v.wire == raw);
+}
+
 /// Genau die Ansicht im Straßenbild, die jemand gemeldet hat: Bild, Blickpunkt (0 bis 1) und Zoom.
+/// Bei Google ist x die Himmelsrichtung und y der Blick nach oben oder unten, beides auf 0 bis 1 umgerechnet.
 class GeoBingoSpot {
   const GeoBingoSpot({required this.imageId, required this.x, required this.y, required this.zoom});
   final String imageId;
   final double x;
   final double y;
   final double zoom;
+
+  // Jeder Stand vom Server baut neue Objekte. Ohne Vergleich spränge der Viewer bei jedem Stand neu zum Fund.
+  @override
+  bool operator ==(Object other) =>
+      other is GeoBingoSpot && other.imageId == imageId && other.x == x && other.y == y && other.zoom == zoom;
+
+  @override
+  int get hashCode => Object.hash(imageId, x, y, zoom);
 }
 
 class GeoBingoScore {
@@ -67,6 +86,7 @@ class GeoBingoView {
     : place = j['place'] as String,
       lat = (j['lat'] as num).toDouble(),
       lng = (j['lng'] as num).toDouble(),
+      source = StreetViewSource.parse(j['source']),
       board = parseStrings(j['board']),
       remainingMs = j['remainingMs'] as int,
       scores = parseList(j['scores'], GeoBingoScore.fromJson),
@@ -77,6 +97,7 @@ class GeoBingoView {
   final String place;
   final double lat;
   final double lng;
+  final StreetViewSource source;
   final List<String> board;
   final int remainingMs;
   final List<GeoBingoScore> scores;

@@ -1,81 +1,22 @@
-// Mapillary-Viewer im Browser. Die Bibliothek liegt in web/mapillary/ und wird erst geladen,
-// wenn jemand Geo-Bingo spielt, damit die übrigen Spiele nichts davon mitladen.
-import 'dart:convert';
-import 'dart:js_interop';
-import 'dart:js_interop_unsafe';
-
-import 'package:http/http.dart' as http;
+// Straßenbild im Browser: Google Street View oder Mapillary, je nachdem, was der Server für die Runde gewählt hat.
 import 'package:material_ui/material_ui.dart';
 import 'package:web/web.dart' as web;
 
 import '../../../domain/models/models.dart';
 import '../../../l10n/l10n.dart';
+import 'google/google_viewer.dart';
+import 'mapillary_viewer.dart';
 import 'street_view_controller.dart';
+import 'viewer.dart';
 
-/// Öffentlicher Client-Schlüssel von mapillary.com/developer: --dart-define=MAPILLARY_TOKEN=MLY|…
-const _token = String.fromEnvironment('MAPILLARY_TOKEN');
-
-/// Suchradien in Grad um den Startort. Erst eng, damit alle nah beieinander starten.
-const _searchRadii = [0.002, 0.006, 0.02];
-
-@JS('mapillary.Viewer')
-extension type _Viewer._(JSObject _) implements JSObject {
-  external factory _Viewer(JSObject options);
-  external JSPromise<JSAny?> moveTo(String imageId);
-  external JSPromise<_Image> getImage();
-  external JSPromise<JSArray<JSNumber>> getCenter();
-  external JSPromise<JSNumber> getZoom();
-  external void setCenter(JSArray<JSNumber> center);
-  external void setZoom(double zoom);
-  external void resize();
-  external void remove();
-}
-
-extension type _Image._(JSObject _) implements JSObject {
-  external String get id;
-}
-
-Future<void>? _library;
-
-Future<void> _loadLibrary() => _library ??= () async {
-  final css = web.HTMLLinkElement()
-    ..rel = 'stylesheet'
-    ..href = 'mapillary/mapillary.css';
-  final script = web.HTMLScriptElement()..src = 'mapillary/mapillary.js';
-  web.document.head!
-    ..append(css)
-    ..append(script);
-  await script.onLoad.first;
-}();
-
-/// Erstes Bild nahe am Startort, Panoramen bevorzugt. null, wenn es dort keine Bilder gibt.
-Future<String?> _findImage(double lat, double lng) async {
-  for (final pano in [true, false]) {
-    for (final r in _searchRadii) {
-      final uri = Uri.https('graph.mapillary.com', '/images', {
-        'access_token': _token,
-        'fields': 'id',
-        'limit': '1',
-        'bbox': '${lng - r},${lat - r},${lng + r},${lat + r}',
-        if (pano) 'is_pano': 'true',
-      });
-      final response = await http.get(uri);
-      if (response.statusCode != 200) {
-        throw http.ClientException('Mapillary antwortet mit ${response.statusCode}', uri);
-      }
-      final images = (jsonDecode(response.body) as Json)['data'] as List;
-      if (images.isNotEmpty) return (images.first as Json)['id'] as String;
-    }
-  }
-  return null;
-}
-
-/// Zeigt ein Straßenbild: am Startort ([start]) zum Herumlaufen oder genau die gemeldete Ansicht ([spot]).
+/// Straßenbild zum Herumlaufen ab [start]. Ist [focus] gesetzt, zeigt es genau diese gemeldete Ansicht.
+/// Wird [focus] wieder null, geht es dorthin zurück, wo man vorher war.
 class StreetView extends StatefulWidget {
-  const StreetView({super.key, this.start, this.spot, this.controller});
+  const StreetView({super.key, required this.source, required this.start, this.focus, this.controller});
 
-  final ({double lat, double lng})? start;
-  final GeoBingoSpot? spot;
+  final StreetViewSource source;
+  final ({double lat, double lng}) start;
+  final GeoBingoSpot? focus;
   final StreetViewController? controller;
 
   @override
@@ -83,70 +24,64 @@ class StreetView extends StatefulWidget {
 }
 
 class _StreetViewState extends State<StreetView> {
-  _Viewer? _viewer;
-  String? _problem = _token.isEmpty ? texts.streetViewNoToken : null;
+  late final Viewer _viewer = switch (widget.source) {
+    StreetViewSource.google => GoogleViewer(),
+    StreetViewSource.mapillary => MapillaryViewer(),
+  };
+  var _opened = false;
+  String? _problem;
+
+  /// Sprünge nacheinander ausführen, sonst überholt ein später Sprung einen früheren, der noch lädt.
+  Future<void> _steps = Future.value();
+
+  @override
+  void didUpdateWidget(StreetView old) {
+    super.didUpdateWidget(old);
+    if (_opened && old.focus != widget.focus) _focus(widget.focus);
+  }
 
   @override
   void dispose() {
     widget.controller?.attach(null);
-    _viewer?.remove();
+    _viewer.close();
     super.dispose();
   }
 
-  Future<void> _open(web.HTMLElement container) async {
-    try {
-      await _loadLibrary();
-      final spot = widget.spot;
-      final start = widget.start;
-      final imageId = spot?.imageId ?? (start == null ? null : await _findImage(start.lat, start.lng));
-      if (!mounted) return;
-      if (imageId == null) {
-        setState(() => _problem = texts.streetViewNoImages);
-        return;
-      }
-      final viewer = _Viewer(
-        JSObject()
-          ..['accessToken'] = _token.toJS
-          ..['container'] = container
-          // Ohne das liegt erst ein Vorschaubild mit Startknopf über dem Viewer
-          ..['component'] = {'cover': false}.jsify(),
-      );
-      _viewer = viewer;
-      await viewer.moveTo(imageId).toDart;
-      if (spot != null) {
-        viewer
-          ..setCenter([spot.x.toJS, spot.y.toJS].toJS)
-          ..setZoom(spot.zoom);
-      }
-      widget.controller?.attach(_readSpot);
-    } catch (e) {
-      if (mounted) setState(() => _problem = texts.streetViewLoadFailed);
-      debugPrint('Mapillary: $e');
-    }
+  void _focus(GeoBingoSpot? spot) {
+    _steps = _steps
+        .then((_) => spot == null ? _viewer.back() : _viewer.show(spot))
+        .catchError((Object e) => debugPrint('Straßenbild: $e'));
   }
 
-  Future<GeoBingoSpot?> _readSpot() async {
-    final viewer = _viewer;
-    if (viewer == null) return null;
-    final image = await viewer.getImage().toDart;
-    final center = (await viewer.getCenter().toDart).toDart;
-    final zoom = (await viewer.getZoom().toDart).toDartDouble;
-    return GeoBingoSpot(
-      imageId: image.id,
-      x: center[0].toDartDouble.clamp(0, 1),
-      y: center[1].toDartDouble.clamp(0, 1),
-      zoom: zoom.clamp(0, 3),
-    );
+  Future<void> _open(web.HTMLElement container) async {
+    // Google setzt im Viewer hohe z-index-Werte. Ohne eigene Ebene malen die sich über alles, was Flutter
+    // darüberlegt (Uhr, Bingo-Karte, Abstimmung).
+    container.style.isolation = 'isolate';
+    try {
+      await _viewer.open(container, widget.start);
+      if (!mounted) {
+        _viewer.close();
+        return;
+      }
+      _opened = true;
+      widget.controller?.attach(_viewer.read);
+      if (widget.focus != null) _focus(widget.focus);
+    } on StreetViewProblem catch (e) {
+      if (mounted) setState(() => _problem = e.message);
+    } catch (e) {
+      if (mounted) setState(() => _problem = texts.streetViewLoadFailed);
+      debugPrint('Straßenbild: $e');
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final problem = _problem;
     if (problem != null) return Center(child: Text(problem, textAlign: TextAlign.center));
-    // Der Viewer misst seinen Platz nur beim Start, also bei jeder Größenänderung neu messen lassen
+    // Die Viewer messen ihren Platz nur beim Start, also bei jeder Größenänderung neu messen lassen
     return LayoutBuilder(
       builder: (context, constraints) {
-        WidgetsBinding.instance.addPostFrameCallback((_) => _viewer?.resize());
+        WidgetsBinding.instance.addPostFrameCallback((_) => _viewer.resize());
         return HtmlElementView.fromTagName(
           tagName: 'div',
           onElementCreated: (element) => _open(element as web.HTMLElement),

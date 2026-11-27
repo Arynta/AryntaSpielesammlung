@@ -91,10 +91,17 @@ List<Widget> datenschutzEn() => [
       'Only when you play ',
       Strong('Geo Bingo'),
       ' does your browser load street images directly from ',
+      Strong('Google Street View'),
+      ' (Google Ireland Limited, Ireland, and Google LLC, USA). To do so, it also loads the display '
+          'software from Google (Google Maps JavaScript API). Google necessarily receives your IP address, '
+          'the date, time, browser identifier, the address of this site and which images you view. How '
+          'Google processes this data is described in Google\'s privacy policy at policies.google.com/privacy.',
+    ]),
+    LegalText([
+      'Once the free daily quota for Google is used up, the images come from ',
       Strong('Mapillary'),
-      ' (part of Meta Platforms Inc., USA). In doing so, Mapillary necessarily receives your IP address, '
-          'the date, time, browser identifier and which images you view. The software for displaying them '
-          'is hosted on this site and is not loaded from Mapillary.',
+      ' (part of Meta Platforms Inc., USA) instead. Mapillary then receives the same information. The '
+          'software for that display is hosted on this site and is not loaded from Mapillary.',
     ]),
     LegalText([
       'The legal basis is Art. 6(1)(f) GDPR. Our legitimate interest is being able to offer the game with '

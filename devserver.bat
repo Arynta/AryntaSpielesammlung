@@ -3,6 +3,7 @@ rem Startet das Flutter-Frontend im Browser: Spieldaten und Bilder kopieren, dan
 rem Aufruf aus dem Projektordner: .\devserver.bat
 rem Weitere Optionen werden an flutter run weitergereicht, z. B.:
 rem   .\devserver.bat --dart-define=MAPILLARY_TOKEN="MLY|..."
+rem   .\devserver.bat --dart-define=GOOGLE_MAPS_KEY=...   (Backend dann mit STREET_VIEW_DAILY_LIMIT=150)
 
 rem In den app-Ordner neben dieser Datei wechseln, egal von wo aus das Skript gestartet wird
 cd /d "%~dp0app" || exit /b 1

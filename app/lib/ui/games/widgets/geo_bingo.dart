@@ -1,7 +1,7 @@
-// Online-Ansichten für Geo-Bingo: Spielzeit in der Lobby, Straßenbild mit Bingo-Karte, Abstimmung und Ergebnis.
+// Online-Ansichten für Geo-Bingo: Spielzeit in der Lobby, Ergebnis und die Bingo-Karte, die auch die
+// laufende Runde (geo_bingo_play.dart) zeigt.
 import 'package:material_ui/material_ui.dart';
 
-import '../../../data/services/street_view/street_view.dart';
 import '../../../domain/models/models.dart';
 import '../../../l10n/l10n.dart';
 import '../../core/view_model/app_controller.dart';
@@ -41,33 +41,8 @@ class GeoBingoSettingsView extends StatelessWidget {
   }
 }
 
-List<Widget> geoBingoView(AppController controller, RoomView room, GeoBingoView game) =>
-    room.phase == Phase.geoBingo ? _running(controller, room, game) : _result(controller, room, game);
-
-List<Widget> _running(AppController controller, RoomView room, GeoBingoView game) {
-  final me = room.you.id;
-  final toVote = game.claims.where((c) => c.playerId != me && c.yourVote == null).firstOrNull;
-  final deadline = controller.geoBingoDeadline;
-  return [
-    Row(
-      children: [
-        Expanded(child: GameLabel(texts.geoBingoPlace(game.place))),
-        if (deadline != null) Countdown(deadline, clock: true),
-      ],
-    ),
-    if (toVote != null) _Vote(key: ValueKey(toVote.id), controller: controller, room: room, game: game, claim: toVote),
-    _Frame(
-      key: ValueKey('street-${room.round}'),
-      child: StreetView(start: (lat: game.lat, lng: game.lng), controller: controller.streetView),
-    ),
-    Hint(texts.geoBingoLookAround),
-    _Board(game: game, playerId: me, onClaim: controller.claimGeoBingoField),
-    ..._news(room, game),
-    ActionColumn(children: [endOrLeave(controller, room)]),
-  ];
-}
-
-List<Widget> _result(AppController controller, RoomView room, GeoBingoView game) {
+/// Ergebnis nach der Runde. Die laufende Runde ist GeoBingoPlay und füllt den ganzen Bildschirm.
+List<Widget> geoBingoView(AppController controller, RoomView room, GeoBingoView game) {
   final winners = game.winnerIds;
   final title = switch (winners.length) {
     0 => texts.geoBingoNothingFound,
@@ -80,8 +55,8 @@ List<Widget> _result(AppController controller, RoomView room, GeoBingoView game)
   final shown = winners.isEmpty ? room.you.id : winners.first;
   return [
     PhaseHead(label: texts.geoBingoPlace(game.place), title: title, lead: lead),
-    _Board(game: game, playerId: shown, highlight: game.winningLine ?? const []),
-    _Scores(room: room, game: game),
+    GeoBingoBoard(game: game, playerId: shown, highlight: game.winningLine ?? const []),
+    GeoBingoScores(room: room, game: game),
     ActionColumn(
       children: afterRound(
         controller,
@@ -94,18 +69,18 @@ List<Widget> _result(AppController controller, RoomView room, GeoBingoView game)
 }
 
 /// Was zuletzt entschieden wurde und wie viele Felder die anderen haben.
-List<Widget> _news(RoomView room, GeoBingoView game) => [
+List<Widget> geoBingoNews(RoomView room, GeoBingoView game) => [
   for (final d in game.decisions.take(3))
     Hint.rich([
       Strong(room.nameOf(d.playerId)),
       ': ${game.board[d.field]} ',
       Strong(d.accepted ? texts.confirmed : texts.rejected),
     ]),
-  _Scores(room: room, game: game),
+  GeoBingoScores(room: room, game: game),
 ];
 
-class _Scores extends StatelessWidget {
-  const _Scores({required this.room, required this.game});
+class GeoBingoScores extends StatelessWidget {
+  const GeoBingoScores({super.key, required this.room, required this.game});
 
   final RoomView room;
   final GeoBingoView game;
@@ -117,71 +92,15 @@ class _Scores extends StatelessWidget {
   );
 }
 
-/// Rahmen für ein Straßenbild im Format 4:3.
-class _Frame extends StatelessWidget {
-  const _Frame({super.key, required this.child});
-
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) => ClipRRect(
-    borderRadius: BorderRadius.circular(12),
-    child: AspectRatio(
-      aspectRatio: 4 / 3,
-      child: ColoredBox(color: context.palette.surface, child: child),
-    ),
-  );
-}
-
-class _Vote extends StatelessWidget {
-  const _Vote({super.key, required this.controller, required this.room, required this.game, required this.claim});
-
-  final AppController controller;
-  final RoomView room;
-  final GeoBingoView game;
-  final GeoBingoClaim claim;
-
-  @override
-  Widget build(BuildContext context) {
-    final deadline = controller.voteDeadlines[claim.id];
-    return Panel(
-      borderColor: context.palette.accent,
-      child: Gap(
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: RichLine([
-                  Strong(room.nameOf(claim.playerId)),
-                  texts.claimHas,
-                  Strong(game.board[claim.field]),
-                  texts.claimFound,
-                ]),
-              ),
-              if (deadline != null) Countdown(deadline),
-            ],
-          ),
-          _Frame(child: StreetView(spot: claim.spot)),
-          Row(
-            spacing: 10,
-            children: [
-              Expanded(
-                child: AppButton.primary(texts.yesCorrect, onPressed: () => controller.voteGeoBingo(claim.id, true)),
-              ),
-              Expanded(
-                child: AppButton(texts.no, onPressed: () => controller.voteGeoBingo(claim.id, false)),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 /// Die 3×3-Karte von [playerId]. Mit [onClaim] kann man offene Felder melden.
-class _Board extends StatelessWidget {
-  const _Board({required this.game, required this.playerId, this.onClaim, this.highlight = const []});
+class GeoBingoBoard extends StatelessWidget {
+  const GeoBingoBoard({
+    super.key,
+    required this.game,
+    required this.playerId,
+    this.onClaim,
+    this.highlight = const [],
+  });
 
   final GeoBingoView game;
   final String playerId;
