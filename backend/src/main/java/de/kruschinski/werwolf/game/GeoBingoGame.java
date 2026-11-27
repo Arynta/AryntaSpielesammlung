@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Predicate;
-import java.util.regex.Pattern;
 
 /**
  * Geo-Bingo: Alle laufen durch Straßenbilder derselben Stadt und suchen die Motive ihrer 3×3-Karte.
@@ -26,20 +25,19 @@ public final class GeoBingoGame implements Game {
     public static final Duration VOTE_TIME = Duration.ofSeconds(20);
     private static final int MAX_DECISIONS = 5;
     private static final double MAX_ZOOM = 3;
-    /** Mapillary-Bild-IDs sind Zahlen. Alles andere kann die App nicht anzeigen. */
-    private static final Pattern IMAGE_ID = Pattern.compile("\\d{1,20}");
     private static final List<List<Integer>> LINES = List.of(
             List.of(0, 1, 2), List.of(3, 4, 5), List.of(6, 7, 8),
             List.of(0, 3, 6), List.of(1, 4, 7), List.of(2, 5, 8),
             List.of(0, 4, 8), List.of(2, 4, 6));
 
-    /** Genau die Ansicht, die gemeldet wurde: Bild, Blickpunkt im Bild (0 bis 1) und Zoom. */
+    /**
+     * Genau die Ansicht, die gemeldet wurde: Bild, Blickpunkt im Bild (0 bis 1) und Zoom. Bei Google ist
+     * {@code x} die Himmelsrichtung und {@code y} der Blick nach oben oder unten, beides auf 0 bis 1 umgerechnet.
+     * Ob es die Bild-ID geben kann, prüft {@link GeoBingoGame#claim}, denn das hängt von der Quelle der Runde ab.
+     */
     public record Spot(String imageId, double x, double y, double zoom) {
 
         public Spot {
-            if (imageId == null || !IMAGE_ID.matcher(imageId).matches()) {
-                throw new GameException("error.geoBingo.unknownImage");
-            }
             if (!inRange(x, 1) || !inRange(y, 1) || !inRange(zoom, MAX_ZOOM)) {
                 throw new GameException("error.geoBingo.invalidView");
             }
@@ -59,6 +57,7 @@ public final class GeoBingoGame implements Game {
 
     private final List<Player> participants;
     private final GeoBingoData.Place place;
+    private final StreetViewSource source;
     private final List<String> board;
     private final int round;
     private final Instant endsAt;
@@ -70,13 +69,14 @@ public final class GeoBingoGame implements Game {
     private List<String> winnerIds = List.of();
     private List<Integer> winningLine;
 
-    GeoBingoGame(List<Player> participants, GeoBingoData.Place place, List<String> board,
+    GeoBingoGame(List<Player> participants, GeoBingoData.Place place, StreetViewSource source, List<String> board,
                  GeoBingoOptions options, int round, Instant now) {
         if (board.size() != SIZE * SIZE) {
             throw new IllegalArgumentException("Die Karte braucht " + SIZE * SIZE + " Motive, nicht " + board.size());
         }
         this.participants = List.copyOf(participants);
         this.place = place;
+        this.source = source;
         this.board = List.copyOf(board);
         this.round = round;
         this.endsAt = now.plus(Duration.ofMinutes(options.minutes()));
@@ -107,6 +107,9 @@ public final class GeoBingoGame implements Game {
         requireParticipant(playerId);
         if (field < 0 || field >= board.size()) {
             throw new GameException("error.geoBingo.unknownField");
+        }
+        if (!source.accepts(spot.imageId())) {
+            throw new GameException("error.geoBingo.unknownImage");
         }
         if (foundBy(playerId).contains(field)) {
             throw new GameException("error.geoBingo.fieldTaken");
@@ -170,7 +173,7 @@ public final class GeoBingoGame implements Game {
                         c.spot().x(), c.spot().y(), c.spot().zoom(), remainingMs(c.deadline(), now),
                         List.copyOf(c.votes().keySet()), c.votes().get(playerId)))
                 .toList();
-        return new RoomView.GeoBingoView(place.name(), place.lat(), place.lng(), board,
+        return new RoomView.GeoBingoView(place.name(), place.lat(), place.lng(), source, board,
                 remainingMs(endsAt, now), scores, openClaims, List.copyOf(decisions), winnerIds, winningLine);
     }
 

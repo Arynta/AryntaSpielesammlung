@@ -62,6 +62,13 @@ public class Room {
     private GeoBingoOptions geoBingoOptions = GeoBingoOptions.DEFAULT;
     /** Geo-Bingo-Orte, die in diesem Raum schon dran waren. */
     private final List<String> usedPlaces = new ArrayList<>();
+    /** Gemeinsames Tageslimit aller Räume für Google Street View. */
+    private final StreetViewBudget streetViewBudget;
+    /**
+     * Spieler, für die schon ein Google-Viewer gebucht ist. Die App behält ihren Viewer über alle Runden
+     * und springt nur zur nächsten Stadt, deshalb zählt jeder Spieler pro Raum nur einmal.
+     */
+    private final Set<String> googleViewers = new HashSet<>();
     /** {@code null}, solange alle in der Lobby sind. */
     private Game game;
     private int nextPlayerNumber = 1;
@@ -72,9 +79,14 @@ public class Room {
     }
 
     public Room(String code, Clock clock, Set<GameType> lockedGames) {
+        this(code, clock, lockedGames, StreetViewBudget.off());
+    }
+
+    public Room(String code, Clock clock, Set<GameType> lockedGames, StreetViewBudget streetViewBudget) {
         this.code = code;
         this.clock = clock;
         this.lockedGames = Set.copyOf(lockedGames);
+        this.streetViewBudget = streetViewBudget;
         this.lastActivity = clock.instant();
     }
 
@@ -508,7 +520,24 @@ public class Room {
         GeoBingoData.Place place = GeoBingoData.pickPlace(contentLanguage(), usedPlaces, random);
         usedPlaces.add(place.name());
         List<String> board = GeoBingoData.pickMotifs(contentLanguage(), GeoBingoGame.SIZE * GeoBingoGame.SIZE, random);
-        return new GeoBingoGame(List.copyOf(players.values()), place, board, geoBingoOptions, round, clock.instant());
+        return new GeoBingoGame(List.copyOf(players.values()), place, streetViewSource(), board, geoBingoOptions,
+                round, clock.instant());
+    }
+
+    /**
+     * Google, wenn das Tageslimit noch für alle reicht, die in diesem Raum noch keinen Google-Viewer haben.
+     * Sonst Mapillary für die ganze Runde, damit alle dieselben Bilder sehen und Funde zeigen können.
+     */
+    private StreetViewSource streetViewSource() {
+        if (!streetViewBudget.enabled()) {
+            return StreetViewSource.MAPILLARY;
+        }
+        List<String> fresh = players.keySet().stream().filter(id -> !googleViewers.contains(id)).toList();
+        if (!fresh.isEmpty() && !streetViewBudget.reserve(fresh.size())) {
+            return StreetViewSource.MAPILLARY;
+        }
+        googleViewers.addAll(fresh);
+        return StreetViewSource.GOOGLE;
     }
 
     // ---- Tabu ----------------------------------------------------

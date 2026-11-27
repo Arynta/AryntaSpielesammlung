@@ -180,13 +180,15 @@ public record RoomView(
     }
 
     /**
-     * {@code lat}/{@code lng}: Mittelpunkt, um den die App das Startbild sucht. {@code winnerIds} ist erst
-     * am Ende gefüllt, {@code winningLine} nur, wenn jemand eine Reihe voll hat.
+     * {@code lat}/{@code lng}: Mittelpunkt, um den die App das Startbild sucht. {@code source}: woher die
+     * Straßenbilder dieser Runde kommen. {@code winnerIds} ist erst am Ende gefüllt, {@code winningLine} nur,
+     * wenn jemand eine Reihe voll hat.
      */
     public record GeoBingoView(
             String place,
             double lat,
             double lng,
+            StreetViewSource source,
             List<String> board,
             long remainingMs,
             List<GeoBingoScore> scores,

@@ -33,11 +33,16 @@ public class AppConfig implements WebSocketConfigurer, WebMvcConfigurer {
         this.gameSocketHandler = gameSocketHandler;
     }
 
-    /** {@code app.locked-games}: Spiele, die in der Lobby noch gesperrt sind ("Bald verfügbar"). */
+    /**
+     * {@code app.locked-games}: Spiele, die in der Lobby noch gesperrt sind ("Bald verfügbar").
+     * {@code app.street-view.daily-limit}: so viele Google-Street-View-Viewer am Tag, 0 oder leer = nur Mapillary.
+     */
     @Bean
     public static RoomRegistry roomRegistry(@Value("${app.locked-games:}") Set<GameType> lockedGames,
-                                            @Value("${app.limits.rooms-per-address}") int maxRoomsPerAddress) {
-        return new RoomRegistry(lockedGames, maxRoomsPerAddress);
+                                            @Value("${app.limits.rooms-per-address}") int maxRoomsPerAddress,
+                                            @Value("${app.street-view.daily-limit:0}") Integer streetViewDailyLimit) {
+        // Eine leer angelegte Umgebungsvariable kommt hier als null an
+        return new RoomRegistry(lockedGames, maxRoomsPerAddress, streetViewDailyLimit == null ? 0 : streetViewDailyLimit);
     }
 
     /** Größere Nachrichten und stille Verbindungen beendet der Server selbst (Schutz vor Skripten). */

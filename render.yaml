@@ -19,3 +19,8 @@ services:
       # und teilten sich das Raumlimit pro Adresse (app.limits.rooms-per-address).
       - key: CLIENT_IP_HEADER
         value: X-Forwarded-For
+      # Geo-Bingo: Google-Street-View-Viewer pro Tag, danach Mapillary. Leer oder 0 = nur Mapillary.
+      # Erst auf 150 setzen, wenn GOOGLE_MAPS_KEY und das Google-Kontingent eingerichtet sind
+      # (README, Schritt 6).
+      - key: STREET_VIEW_DAILY_LIMIT
+        sync: false

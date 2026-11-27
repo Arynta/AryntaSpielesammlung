@@ -31,9 +31,12 @@ public class RoomRegistry {
     private final Set<GameType> lockedGames;
     /** So viele Räume darf eine Adresse gleichzeitig offen haben, damit niemand allein alle {@link #MAX_ROOMS} belegt. */
     private final int maxRoomsPerAddress;
+    /** Tageslimit für Google Street View, gilt für alle Räume zusammen. */
+    private final StreetViewBudget streetViewBudget;
 
-    public RoomRegistry(Set<GameType> lockedGames, int maxRoomsPerAddress) {
-        this(Clock.systemUTC(), new SecureRandom(), lockedGames, maxRoomsPerAddress);
+    public RoomRegistry(Set<GameType> lockedGames, int maxRoomsPerAddress, int streetViewDailyLimit) {
+        this(Clock.systemUTC(), new SecureRandom(), lockedGames, maxRoomsPerAddress,
+                new StreetViewBudget(Clock.systemUTC(), streetViewDailyLimit));
     }
 
     public RoomRegistry(Clock clock, RandomGenerator random) {
@@ -41,10 +44,16 @@ public class RoomRegistry {
     }
 
     public RoomRegistry(Clock clock, RandomGenerator random, Set<GameType> lockedGames, int maxRoomsPerAddress) {
+        this(clock, random, lockedGames, maxRoomsPerAddress, StreetViewBudget.off());
+    }
+
+    public RoomRegistry(Clock clock, RandomGenerator random, Set<GameType> lockedGames, int maxRoomsPerAddress,
+                        StreetViewBudget streetViewBudget) {
         this.clock = clock;
         this.random = random;
         this.lockedGames = Set.copyOf(lockedGames);
         this.maxRoomsPerAddress = maxRoomsPerAddress;
+        this.streetViewBudget = streetViewBudget;
     }
 
     public RandomGenerator random() {
@@ -65,7 +74,7 @@ public class RoomRegistry {
         }
         for (int attempt = 0; attempt < 100; attempt++) {
             String code = randomCode();
-            Room room = new Room(code, clock, lockedGames);
+            Room room = new Room(code, clock, lockedGames, streetViewBudget);
             if (rooms.putIfAbsent(code, room) == null) {
                 if (address != null) {
                     creatorByCode.put(code, address);

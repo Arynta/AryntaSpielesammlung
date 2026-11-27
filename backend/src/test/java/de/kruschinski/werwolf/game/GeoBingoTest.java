@@ -181,7 +181,7 @@ class GeoBingoTest {
     void ungueltigeMeldungenWerdenAbgelehnt() {
         Room room = started();
         assertThrows(GameException.class, () -> room.claimGeoBingoField("p1", 9, SPOT));
-        assertThrows(GameException.class, () -> new GeoBingoGame.Spot("abc", 0.5, 0.5, 0));
+        assertThrows(GameException.class, () -> room.claimGeoBingoField("p1", 0, new GeoBingoGame.Spot("abc", 0.5, 0.5, 0)));
         assertThrows(GameException.class, () -> new GeoBingoGame.Spot("1", 1.5, 0.5, 0));
         assertThrows(GameException.class, () -> new GeoBingoGame.Spot("1", Double.NaN, 0.5, 0));
         confirm(room, 0);
@@ -217,12 +217,79 @@ class GeoBingoTest {
     void neueRundeHatNeuenOrt() {
         Room room = started();
         String firstPlace = view(room, "p1").place();
+        nextRound(room);
+
+        assertEquals(2, room.round());
+        assertNotEquals(firstPlace, view(room, "p1").place());
+    }
+
+    // ---- Straßenbilder: Google mit Tageslimit, sonst Mapillary ----
+
+    private static final GeoBingoGame.Spot GOOGLE_SPOT = new GeoBingoGame.Spot("AF1QipN_abc-123XYZ", 0.5, 0.5, 1);
+
+    /** Wie {@link #started()}, aber mit einem gemeinsamen Tageslimit für Google. */
+    private Room started(StreetViewBudget budget) {
+        Room room = new Room("TEST", clock, Set.of(), budget);
+        List.of("Anna", "Ben", "Cem").forEach(room::addPlayer);
+        room.selectGame("p1", GameType.GEO_BINGO);
+        room.players().forEach(p -> room.setReady(p.id(), true));
+        room.start("p1", new Random(1));
+        return room;
+    }
+
+    private void nextRound(Room room) {
         clock.advance(Duration.ofMinutes(10));
         room.expireGeoBingo();
         room.players().forEach(p -> room.setReady(p.id(), true));
         room.nextRound("p1", new Random(1));
+    }
 
-        assertEquals(2, room.round());
-        assertNotEquals(firstPlace, view(room, "p1").place());
+    @Test
+    void ohneLimitKommenDieBilderVonMapillary() {
+        assertEquals(StreetViewSource.MAPILLARY, view(started(), "p1").source());
+    }
+
+    @Test
+    void mitLimitKommenDieBilderVonGoogle() {
+        StreetViewBudget budget = new StreetViewBudget(clock, 10);
+        Room room = started(budget);
+
+        assertEquals(StreetViewSource.GOOGLE, view(room, "p1").source());
+        assertEquals(3, budget.usedToday());
+        room.claimGeoBingoField("p1", 0, GOOGLE_SPOT);
+        assertEquals("AF1QipN_abc-123XYZ", view(room, "p2").claims().getFirst().imageId());
+        assertThrows(GameException.class, () -> room.claimGeoBingoField("p2", 0, SPOT));
+    }
+
+    @Test
+    void jederSpielerZaehltProRaumNurEinmal() {
+        StreetViewBudget budget = new StreetViewBudget(clock, 10);
+        Room room = started(budget);
+        nextRound(room);
+
+        assertEquals(StreetViewSource.GOOGLE, view(room, "p1").source());
+        assertEquals(3, budget.usedToday());
+    }
+
+    @Test
+    void reichtDasLimitNichtFuerAlleLaeuftDieRundeMitMapillary() {
+        StreetViewBudget budget = new StreetViewBudget(clock, 2);
+        Room room = started(budget);
+
+        assertEquals(StreetViewSource.MAPILLARY, view(room, "p1").source());
+        assertEquals(0, budget.usedToday());
+        room.claimGeoBingoField("p1", 0, SPOT);
+    }
+
+    @Test
+    void limitGiltFuerAlleRaeumeUndStartetNachMitternachtNeu() {
+        StreetViewBudget budget = new StreetViewBudget(clock, 4);
+        assertEquals(StreetViewSource.GOOGLE, view(started(budget), "p1").source());
+        assertEquals(StreetViewSource.MAPILLARY, view(started(budget), "p1").source());
+
+        // 18:00 UTC ist 10:00 in Kalifornien, 14 Stunden später beginnt dort Googles neuer Tag
+        clock.advance(Duration.ofHours(14));
+        assertEquals(StreetViewSource.GOOGLE, view(started(budget), "p1").source());
+        assertEquals(3, budget.usedToday());
     }
 }
